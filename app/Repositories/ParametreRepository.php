@@ -8,14 +8,14 @@
 
 namespace App\Repositories;
 
-use App\Caisse;
+use App\Parametre;
 
-class CaisseRepository extends ResourceRepository
+class ParametreRepository extends ResourceRepository
 {
 
 	protected $model;
 
-	public function __construct(Caisse $modelcurrent)
+	public function __construct(Parametre $modelcurrent)
 	{
 		$this->model = $modelcurrent;
 	}

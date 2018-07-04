@@ -19,47 +19,58 @@ class Roles {
 			'name' => 'users', 'display_name' => 'Utilisateurs', 'description' => 'Module de gestion des utilisateurs',
 			'child' => array(
 				array('name'=> 'create_user', 'display_name' => 'Creation des utilisateurs', 'description' => '')
-			)
+			),
+			'active' => false
 		),
 		array(
 			'name' => 'profiles', 'display_name' => 'Profiles', 'description' => 'Module de gestion des profiles',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'magasins', 'display_name' => 'Magasins', 'description' => 'Module de gestion des magasins',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'point_de_vente', 'display_name' => 'Points de vente', 'description' => 'Module de gestion des points de vente',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'produits', 'display_name' => 'Produits', 'description' => 'Module de gestion des produits',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'famillesP', 'display_name' => 'Familles de produit', 'description' => 'Module de gestion des familles de produit',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'famillesC', 'display_name' => 'Familles de client', 'description' => 'Module de gestion des clients',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'unites', 'display_name' => 'Unités', 'description' => 'Module de gestion des unités de produit',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'caisses', 'display_name' => 'Caisses', 'description' => 'Module de gestion des caisses',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'clients', 'display_name' => 'Clients', 'description' => 'Module de gestion des clients',
-			'child' => array()
+			'child' => array(),
+			'active' => false
 		),
 		array(
 			'name' => 'parametrages', 'display_name' => 'Paramètres', 'description' => 'Module de gestion des paramètres généraux',
-			'child' => array()
+			'child' => array(),
+			'active' => true
 		)
 	);
 

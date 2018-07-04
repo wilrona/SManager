@@ -204,6 +204,13 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 	});
 
 
+	Route::prefix('/settings')->group(function () {
+
+		Route::get('/', 'ParamController@index')->middleware('auth')->name('param.index');
+
+	});
+
+
 });
 
 //Route::when('admin/post*', 'manage_posts');

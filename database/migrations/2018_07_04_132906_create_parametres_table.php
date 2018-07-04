@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateParametreTable extends Migration
+class CreateParametresTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,12 @@ class CreateParametreTable extends Migration
      */
     public function up()
     {
-        Schema::create('parametre', function (Blueprint $table) {
+        Schema::create('parametres', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('module');
+            $table->string('typec_onfig');
+            $table->string('value');
+            $table->text('long_value');
             $table->timestamps();
         });
     }
@@ -26,6 +30,6 @@ class CreateParametreTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parametre');
+        Schema::dropIfExists('parametres');
     }
 }

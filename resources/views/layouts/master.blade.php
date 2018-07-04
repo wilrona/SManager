@@ -190,6 +190,9 @@
 										<li>
 											<a href="{{ route('caisse.index') }}"> <span class="title">Caisses </span> </a>
 										</li>
+										<li>
+											<a href="{{ route('param.index') }}"> <span class="title">Configurations </span> </a>
+										</li>
 
 									</ul>
 								</li>

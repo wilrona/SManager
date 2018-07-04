@@ -14,9 +14,9 @@ class Parametre extends Model
 	 * @var array
 	 */
 	protected $fillable = [
-		'reference', 'name', 'transite', 'pos_id'
+		'module', 'type_config', 'value', 'long_value'
 	];
 
-	protected $table = 'magasins';
+	protected $table = 'parametres';
 
 }
