@@ -1,0 +1,39 @@
+.navbar .navbar-left > li.sidebar-toggler-wrapper > div {
+    height: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar .navbar-right > li > a {
+    height: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar .navbar-left > li > a, .navbar .navbar-header .navbar-brand, .navbar .navbar-header .navbar-brand.navbar-brand-collapsed {
+    height: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.middle-center{
+    height: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.centered-modal.in {
+    display: flex !important;
+}
+.centered-modal .modal-dialog {
+    margin: auto;
+}
+
+#app > footer{
+    position: relative !important;
+}

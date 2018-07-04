@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CaisseRequest;
+use App\Library\CustomFunction;
+use App\Repositories\CaisseRepository;
+use App\Repositories\PointDeVenteRepository;
+use Illuminate\Http\Request;
+
+class CaisseController extends Controller
+{
+	protected $modelRepository;
+	protected $posRepository;
+	protected $custom;
+	protected $listPOS;
+
+	public function __construct(CaisseRepository $caisse_repository, PointDeVenteRepository $point_de_vente_repository) {
+		$this->modelRepository = $caisse_repository;
+		$this->posRepository = $point_de_vente_repository;
+
+		$this->custom = new CustomFunction();
+		$this->listPOS = $point_de_vente_repository->getWhere()->get();
+	}
+
+	/**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+	public function index()
+	{
+		//
+		$datas = $this->modelRepository->getWhere()->get();
+
+		return view('caisses.index', compact('datas'));
+	}
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+
+	    $pos = array();
+	    foreach ($this->listPOS as $item):
+		    $pos[$item->id] = $item->name;
+	    endforeach;
+
+	    return view('caisses.create', compact( 'pos'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(CaisseRequest $request)
+    {
+        //
+	    $data = $request->all();
+
+	    if(empty($data['reference'])):
+		    $reference = $this->custom->setReference('MAG', [$data['name']], 4, "numbers");
+		    $data['reference'] = $reference;
+	    endif;
+
+	    $this->modelRepository->store($data);
+
+	    return redirect()->route('caisse.index')->withOk('La caisse a été enregistré');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+
+	    $data = $this->modelRepository->getById($id);
+
+	    $pos = array();
+	    foreach ($this->listPOS as $item):
+		    $pos[$item->id] = $item->name;
+	    endforeach;
+
+	    return view('caisses.show', compact( 'data', 'pos'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+
+	    $data = $this->modelRepository->getById($id);
+
+	    $pos = array();
+	    foreach ($this->listPOS as $item):
+		    $pos[$item->id] = $item->name;
+	    endforeach;
+
+	    return view('caisses.edit', compact( 'data', 'pos'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(CaisseRequest $request, $id)
+    {
+        //
+
+	    $data = $request->all();
+
+	    $this->modelRepository->update($id, $data);
+
+	    return redirect()->route('caisse.show', $id)->withOk('La caisse a été modifié');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        //
+    }
+}
