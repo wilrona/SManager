@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PointDeVenteRequest;
+use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProfileRepository;
 use App\Repositories\RoleRepository;
@@ -19,13 +20,21 @@ class UserController extends Controller
 	protected $rolesRepository;
 	protected $profilesRepository;
 	protected $posRepository;
+	protected $parametreRepository;
+
+	protected $custom;
 
 	public function __construct(RoleRepository $rolesRepository, UserRepository $modelRepository,
-		ProfileRepository $profilesRepository, PointDeVenteRepository $point_de_vente_repository) {
+		ProfileRepository $profilesRepository, PointDeVenteRepository $point_de_vente_repository,
+		ParametreRepository $parametre_repository
+	) {
 		$this->rolesRepository = $rolesRepository;
 		$this->modelRepository = $modelRepository;
 		$this->profilesRepository = $profilesRepository;
 		$this->posRepository = $point_de_vente_repository;
+		$this->parametreRepository = $parametre_repository;
+
+		$this->custom = new CustomFunction();
 	}
 
 	public function runSeedRole(){
@@ -71,9 +80,11 @@ class UserController extends Controller
 
 	public function index()
 	{
-		$datas = $this->modelRepository->getWhere()->whereHas('roles', function ($q){
-			$q->where('name', '!=', 'super_admin');
-		})->get();
+//		$datas = $this->modelRepository->getWhere()->whereHas('roles', function ($q){
+//			$q->where('name', '!=', 'super_admin');
+//		})->get();
+
+		$datas = $this->modelRepository->getWhere()->get();
 
 		return view('users.index', compact('datas'));
 	}
@@ -100,7 +111,25 @@ class UserController extends Controller
 			$pos[$item->id] = $item->name;
 		endforeach;
 
-		return view('users.create', compact('datas', 'allRoles', 'profile', 'sexe', 'pos'));
+		// Initialisation de la reference de l'utilisateur
+
+		$count = $this->modelRepository->getWhere()->count();
+		$coderef = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'users'],
+				['type_config', '=', 'coderef']
+			]
+		)->first();
+		$incref = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'users'],
+				['type_config', '=', 'incref']
+			]
+		)->first();
+		$count += $incref ? intval($incref->value) : 0;
+		$reference = $this->custom->setReference($coderef, $count, 4);
+
+		return view('users.create', compact('datas', 'allRoles', 'profile', 'sexe', 'pos', 'reference'));
 	}
 
 
@@ -117,11 +146,6 @@ class UserController extends Controller
 			$data["password"] = Hash::make($c->randomPassword(7,1,"lower_case,upper_case,numbers"));
 		else:
 			$data["password"] = Hash::make($data["password"]);
-		endif;
-
-		if(empty($data['reference'])):
-			$reference = $c->setReference('User', [$data['nom'], $data['prenom']], 4, "numbers");
-			$data['reference'] = $reference;
 		endif;
 
 		$user = $this->modelRepository->store($data);

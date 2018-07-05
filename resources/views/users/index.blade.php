@@ -54,6 +54,7 @@
                                                     </thead>
                                                     <tbody>
                                                     @foreach ($datas as $data)
+                                                        @if($data->roles()->where('name', '!=', 'super_admin')->first())
                                                         <tr>
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>{{ $data->nom }} {{ $data->prenom }}</td>
@@ -61,6 +62,16 @@
                                                             <td>{{ $data->email }}</td>
                                                             <td><a href="{{ route('user.show', $data->id) }}"><i class="fa fa-eye"></i></a></td>
                                                         </tr>
+                                                        @endif
+                                                        @if(!$data->profile_id && !$data->roles()->count())
+                                                            <tr>
+                                                                <td>{{ $loop->index + 1 }}</td>
+                                                                <td>{{ $data->nom }} {{ $data->prenom }}</td>
+                                                                <td>{{ $data->phone }}</td>
+                                                                <td>{{ $data->email }}</td>
+                                                                <td><a href="{{ route('user.show', $data->id) }}"><i class="fa fa-eye"></i></a></td>
+                                                            </tr>
+                                                        @endif
                                                     @endforeach
 
                                                     </tbody>

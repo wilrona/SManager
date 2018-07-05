@@ -37,21 +37,67 @@
                                 <div class="tabbable tabs-left" style="height: 100%">
                                     <ul class="nav nav-tabs">
                                         @foreach($datas as $data)
-                                            <li @if($data['active'] == true) class="active" @endif>
-                                                <a href="#{{ $data['name'] }}" data-toggle="tab"> {{ $data['display_name'] }} </a>
-                                            </li>
+                                            @if($data['config'])
+                                                <li @if($data['active'] == true) class="active" @endif>
+                                                    <a href="#{{ $data['name'] }}_{{ $data['name'] }}" data-toggle="tab"> {{ $data['display_name'] }} </a>
+                                                </li>
+                                            @endif
                                         @endforeach
                                     </ul>
                                     <div class="tab-content" style="height: 100%">
                                         @foreach($datas as $data)
-                                            <div class="tab-pane fade @if($data['active'] == true) in active @endif" id="{{ $data['name'] }}">
-                                                <p>
-                                                    Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth.
-                                                </p>
-                                                <p>
-                                                    Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.
-                                                </p>
-                                            </div>
+                                            @if($data['config'])
+                                                <div class="tab-pane fade @if($data['active'] == true) in active @endif" id="{{ $data['name'] }}_{{ $data['name'] }}">
+                                                    {!! Form::open(['id'=> $data['name']]) !!}
+
+                                                        <input type="hidden" name="module" value="{{ $data['name'] }}">
+                                                        <div class="panel-heading border-light margin-bottom-10">
+                                                            <h3 style="margin: 0;">Configuration du module <small><<</small> {{ $data['display_name'] }} <small>>></small></h3>
+                                                            <ul class="panel-heading-tabs border-light">
+                                                                <li class="middle-center">
+                                                                    <a href="{{ route('param.update', $data['name']) }}" class="btn btn-sm btn-success submits" id="{{ $data['name'] }}">Enregistrer les modifications</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        @if($data['name'] == 'magasins')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">Séquence Magasin Transit</h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="text-bold"> Code reference magasin de transit : </label>
+                                                                        <input type="text" class="form-control" name="transitref" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['transitref']) ? $values[$data['name']]['transitref'] : '' ?>">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                        @if($data['name'] != 'parametrages')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">N° de séquence</h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="text-bold"> Code reference : </label>
+                                                                        <input type="text" class="form-control" name="coderef" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['coderef']) ? $values[$data['name']]['coderef'] : '' ?>">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="text-bold"> Incrémentation : </label>
+                                                                        <input type="number" class="form-control" name="incref" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['incref']) ? $values[$data['name']]['incref'] : 1 ?>" min="1">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+
+                                                    {!! Form::close() !!}
+                                                </div>
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -68,5 +114,22 @@
 
 @section('footer')
     @parent
+
+    <script>
+        $('.submits').on('click', function(e){
+            e.preventDefault();
+             var $id = $(this).attr('id');
+             var $href = $(this).attr('href');
+            $.ajax({
+                url: $href,
+                data: $('form#'+$id).serialize(),
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                success: function(data) {
+                    alert(data.success);
+                }
+            });
+        });
+    </script>
     
 @stop

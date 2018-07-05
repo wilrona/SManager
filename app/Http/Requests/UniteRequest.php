@@ -41,12 +41,11 @@ class UniteRequest extends FormRequest
 		    ];
 	    endif;
 
-	    if(isset($request->reference) && $request->reference != null):
-		    if (isset($request->id) && $request->id != null):
-			    $rules['reference'] = 'unique:unites,reference,'.$request->id;
-		    else:
-			    $rules['reference'] = 'required|unique:unites';
-		    endif;
+
+	    if (isset($request->id) && $request->id != null):
+		    $rules['reference'] = 'unique:unites,reference,'.$request->id;
+	    else:
+		    $rules['reference'] = 'required|unique:unites';
 	    endif;
 
         return $rules;

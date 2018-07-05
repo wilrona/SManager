@@ -6,6 +6,7 @@ use App\Http\Requests\ClientRequest;
 use App\Library\CustomFunction;
 use App\Repositories\ClientRepository;
 use App\Repositories\FamilleRepository;
+use App\Repositories\ParametreRepository;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -14,11 +15,18 @@ class ClientController extends Controller
 
 	protected $modelRepository;
 	protected $familleRepository;
+	protected $parametreRepository;
 
-	public function __construct(ClientRepository $clientRepository, FamilleRepository $famille_repository)
+	protected $custom;
+
+	public function __construct(ClientRepository $clientRepository, FamilleRepository $famille_repository,
+	ParametreRepository $parametre_repository)
 	{
 		$this->modelRepository = $clientRepository;
 		$this->familleRepository = $famille_repository;
+		$this->parametreRepository = $parametre_repository;
+
+		$this->custom = new CustomFunction();
 
 	}
 
@@ -40,7 +48,26 @@ class ClientController extends Controller
 			$familles[$famille->id] = $famille->name;
 		endforeach;
 
-		return view('clients.create', compact('familles'));
+
+		// Initialisation de la reference
+
+		$count = $this->modelRepository->getWhere()->count();
+		$coderef = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'clients'],
+				['type_config', '=', 'coderef']
+			]
+		)->first();
+		$incref = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'clients'],
+				['type_config', '=', 'incref']
+			]
+		)->first();
+		$count += $incref ? intval($incref->value) : 0;
+		$reference = $this->custom->setReference($coderef, $count, 4);
+
+		return view('clients.create', compact('familles', 'reference'));
 	}
 
 	public function show($id){

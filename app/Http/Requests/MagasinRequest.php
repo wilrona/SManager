@@ -38,12 +38,10 @@ class MagasinRequest extends FormRequest
 		    endif;
 	    endif;
 
-	    if(isset($request->reference) && $request->reference != null):
-		    if (isset($request->id) && $request->id != null):
-			    $rule['reference'] = 'unique:magasins,reference,'.$request->id;
-		    else:
-			    $rule['reference'] = 'required|unique:magasins';
-		    endif;
+	    if (isset($request->id) && $request->id != null):
+		    $rule['reference'] = 'unique:magasins,reference,'.$request->id;
+	    else:
+		    $rule['reference'] = 'required|unique:magasins';
 	    endif;
 
         return $rule;
@@ -51,7 +49,8 @@ class MagasinRequest extends FormRequest
 
     public function messages() {
 	    return [
-			'transite.unique' => 'Il existe déja un magasin de transite définie dans le système'
+			'transite.unique' => 'Il existe déja un magasin de transite définie dans le système',
+			'reference.required' => 'La configuration des numéros de séquence pour la reference des magasins n\'a pas été effectué.'
 	    ];
     }
 }

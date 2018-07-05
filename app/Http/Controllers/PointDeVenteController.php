@@ -7,6 +7,7 @@ use App\Http\Requests\PosCaisseRequest;
 use App\Http\Requests\PosMagasinRequest;
 use App\Repositories\CaisseRepository;
 use App\Repositories\MagasinRepository;
+use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Library\CustomFunction;
 use Illuminate\Http\Request;
@@ -16,14 +17,17 @@ class PointDeVenteController extends Controller
 	protected $modelRepository;
 	protected $magasinRepository;
 	protected $caisseRepository;
+	protected $parametreRepository;
 
 	protected $type;
 	protected $custom;
 
-	public function __construct(PointDeVenteRepository $modelRepository, MagasinRepository $magasin_repository, CaisseRepository $caisse_repository) {
+	public function __construct(PointDeVenteRepository $modelRepository, MagasinRepository $magasin_repository, CaisseRepository $caisse_repository,
+    ParametreRepository $parametre_repository) {
 		$this->modelRepository = $modelRepository;
 		$this->magasinRepository = $magasin_repository;
 		$this->caisseRepository = $caisse_repository;
+		$this->parametreRepository = $parametre_repository;
 
 		$this->custom = new CustomFunction();
 
@@ -44,12 +48,27 @@ class PointDeVenteController extends Controller
     
     public function create(){
 
-		$magasin = $this->magasinRepository->getWhere()->where('transite', '=', '0')->get();
 
+	    // Initialisation de la reference
+	    $count = $this->modelRepository->getWhere()->count();
+	    $coderef = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'point_de_vente'],
+			    ['type_config', '=', 'coderef']
+		    ]
+	    )->first();
+	    $incref = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'point_de_vente'],
+			    ['type_config', '=', 'incref']
+		    ]
+	    )->first();
+	    $count += $incref ? intval($incref->value) : 0;
+	    $reference = $this->custom->setReference($coderef, $count, 4);
 
 	    $type = $this->type;
 
-	    return view('pointdeventes.create', compact( 'type'));
+	    return view('pointdeventes.create', compact( 'type', 'reference'));
     }
 
     public function show(Request $request, $id)
@@ -132,11 +151,6 @@ class PointDeVenteController extends Controller
     {
 
         $data=$request->all();
-
-	    if(empty($data['reference'])):
-		    $reference = $this->custom->setReference('POS', [$data['name']], 4, "numbers");
-		    $data['reference'] = $reference;
-	    endif;
 
 	    $saved = $this->modelRepository->store($data);
 

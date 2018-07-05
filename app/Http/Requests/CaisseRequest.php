@@ -28,14 +28,19 @@ class CaisseRequest extends FormRequest
 		    'name' => 'required',
 	    ];
 
-	    if(isset($request->reference) && $request->reference != null):
-		    if (isset($request->id) && $request->id != null):
-			    $rule['reference'] = 'unique:caisses,reference,'.$request->id;
-		    else:
-			    $rule['reference'] = 'required|unique:caisses';
-		    endif;
+
+	    if (isset($request->id) && $request->id != null):
+		    $rule['reference'] = 'unique:caisses,reference,'.$request->id;
+	    else:
+		    $rule['reference'] = 'required|unique:caisses';
 	    endif;
 
 	    return $rule;
+    }
+
+    public function messages() {
+	    return [
+		    'reference.required' => 'La configuration des numéros de séquence pour la reference des caisses n\'a pas été effectué.'
+	    ];
     }
 }

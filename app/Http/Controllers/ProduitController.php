@@ -10,6 +10,7 @@ use App\Library\CustomFunction;
 use App\Repositories\ClientRepository;
 use App\Repositories\FamilleRepository;
 use App\Repositories\GroupePrixRepository;
+use App\Repositories\ParametreRepository;
 use App\Repositories\ProduitRepository;
 use App\Repositories\UniteRepository;
 use Illuminate\Http\Request;
@@ -22,19 +23,24 @@ class ProduitController extends Controller
 	protected $uniteRepository;
 	protected $clientRepository;
 	protected $groupeRepository;
+	protected $parametreRepository;
 
 	protected $bundle;
 	protected $type_prix;
+	protected $custom;
 
 
 	public function __construct(ProduitRepository $produitRepository, FamilleRepository $familleRepository,
-        UniteRepository  $uniteRepository, ClientRepository $client_repository, GroupePrixRepository $groupe_prix_repository)
+        UniteRepository  $uniteRepository, ClientRepository $client_repository, GroupePrixRepository $groupe_prix_repository,
+        ParametreRepository $parametre_repository
+    )
 	{
 		$this->modelRepository = $produitRepository;
 		$this->familleRepository = $familleRepository;
 		$this->uniteRepository = $uniteRepository;
 		$this->clientRepository = $client_repository;
         $this->groupeRepository = $groupe_prix_repository;
+        $this->parametreRepository = $parametre_repository;
 
 		$this->bundle = array(
 			'0' => 'Produit unique',
@@ -45,6 +51,8 @@ class ProduitController extends Controller
 			'0' => 'Montant fixe',
 			'1' => 'Pourcentage'
 		);
+
+		$this->custom = new CustomFunction();
 	}
 
 
@@ -77,7 +85,24 @@ class ProduitController extends Controller
 				$unites[$item->id] = $item->name;
 		}
 
-		return view('produits.create', compact( 'select_bundle', 'familles', 'unites'));
+		$count = $this->modelRepository->getWhere()->count();
+		$coderef = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'produits'],
+				['type_config', '=', 'coderef']
+			]
+		)->first();
+		$incref = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'produits'],
+				['type_config', '=', 'incref']
+			]
+		)->first();
+		$count += $incref ? intval($incref->value) : 0;
+		$reference = $this->custom->setReference($coderef, $count, 4);
+
+
+		return view('produits.create', compact( 'select_bundle', 'familles', 'unites', 'reference'));
 	}
 
 	public function show(Request $request, $id){
@@ -111,13 +136,6 @@ class ProduitController extends Controller
 	public function store(ProduitRequest $request){
 
 		$data = $request->all();
-
-		$c = new CustomFunction();
-
-		if(empty($data['reference'])):
-			$reference = $c->setReference('Prod', [$data['name']], 4, "numbers");
-			$data['reference'] = $reference;
-		endif;
 
 		if($data['bundle'] == 1):
 			$data['prix'] = 0;

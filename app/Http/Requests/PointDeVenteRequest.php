@@ -29,18 +29,19 @@ class PointDeVenteRequest extends FormRequest
 		    'type' => 'required'
 	    ];
 
-	    if(isset($request->reference) && $request->reference != null):
-		    if (isset($request->id) && $request->id != null):
-			    $rule['reference'] = 'unique:point_de_vente,reference,'.$request->id;
-		    else:
-			    $rule['reference'] = 'required|unique:point_de_vente';
-		    endif;
-	    endif;
+
+	    if (isset($request->id) && $request->id != null):
+		    $rule['reference'] = 'unique:point_de_vente,reference,'.$request->id;
+	    else:
+		    $rule['reference'] = 'required|unique:point_de_vente';
+		endif;
 
         return $rule;
     }
 
     public function messages() {
-	    return [];
+	    return [
+		    'reference.required' => 'La configuration des numéros de séquence pour la reference des points de vente n\'a pas été effectué'
+	    ];
     }
 }

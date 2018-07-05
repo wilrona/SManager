@@ -47,12 +47,10 @@ class ProduitRequest extends FormRequest
 		    ];
 	    endif;
 
-	    if(isset($request->reference) && $request->reference != null):
-		    if (isset($request->id) && $request->id != null):
-			    $rules['reference'] = 'unique:produits,reference,'.$request->id;
-		    else:
-			    $rules['reference'] = 'required|unique:produits';
-		    endif;
+	    if (isset($request->id) && $request->id != null):
+		    $rules['reference'] = 'unique:produits,reference,'.$request->id;
+	    else:
+		    $rules['reference'] = 'required|unique:produits';
 	    endif;
 
 	    if(isset($request->bundle) && $request->bundle == 0):
@@ -66,6 +64,7 @@ class ProduitRequest extends FormRequest
 	    return [
 			'famille_id.required' => 'Le champ famille de produit est obligatoire',
 		    'unite_id.required' => 'Le champ unité de produit est obligatoire',
+			'reference.required' => 'La configuration des numéros de séquence pour la reference des produits n\'a pas été effectué.'
 
 	    ];
     }

@@ -23,7 +23,14 @@
 		</div>
 
         <div class="container-fluid container-fullw padding-bottom-10">
+            @if(!isset($type[1]))
+                <div class="alert alert-warning alert-dismissible">
+                    La <b>reference du magasin de transit</b> n'a pas été définie dans les paramètres. <br>
+                    Vous ne pouvez pas en creer un et effectuer des <b>ordres de transfert</b> entre magasin.
+                </div>
+            @endif
             <div class="row">
+
                 {!! Form::open(['route' => 'magasin.store']) !!}
                 <div class="col-md-8">
 
@@ -48,8 +55,8 @@
 
 
                             <div class="form-group {!! $errors->has('reference') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Reference (<small>Généré automatiquement si le champ est vide</small>): </label>
-                                {!! Form::text('reference', null, ['class' => 'form-control', 'placeholder' => 'Reference']) !!}
+                                <!-- <label for="exampleInputEmail1" class="text-bold"> Reference (<small>Généré automatiquement si le champ est vide</small>): </label> -->
+                                {!! Form::text('reference', $reference, ['class' => 'form-control hidden', 'placeholder' => 'Reference']) !!}
                                 {!! $errors->first('reference', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

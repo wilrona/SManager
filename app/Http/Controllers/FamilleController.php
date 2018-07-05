@@ -6,15 +6,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FamilleRequest;
 use App\Library\CustomFunction;
 use App\Repositories\FamilleRepository;
+use App\Repositories\ParametreRepository;
 use Illuminate\Http\Request;
 
 class FamilleController extends Controller
 {
 	protected $modelRepository;
+	protected $parametreRepository;
+	protected $custom;
 
-	public function __construct(FamilleRepository $modelRepository) {
+	public function __construct(FamilleRepository $modelRepository, ParametreRepository $parametre_repository) {
 
 		$this->modelRepository = $modelRepository;
+		$this->parametreRepository = $parametre_repository;
+
+		$this->custom = new CustomFunction();
 
 	}
 
@@ -52,7 +58,26 @@ class FamilleController extends Controller
     {
         //
 	    $type = 0;
-	    return view('familles.create', compact('type'));
+
+	    // Initialisation de la reference
+
+	    $count = $this->modelRepository->getWhere()->count();
+	    $coderef = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'famillesP'],
+			    ['type_config', '=', 'coderef']
+		    ]
+	    )->first();
+	    $incref = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'famillesP'],
+			    ['type_config', '=', 'incref']
+		    ]
+	    )->first();
+	    $count += $incref ? intval($incref->value) : 0;
+	    $reference = $this->custom->setReference($coderef, $count, 4);
+
+	    return view('familles.create', compact('type', 'reference'));
     }
 
 	/**
@@ -64,7 +89,24 @@ class FamilleController extends Controller
 	{
 		//
 		$type = 1;
-		return view('familles.create', compact('type'));
+
+		$count = $this->modelRepository->getWhere()->count();
+		$coderef = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'famillesC'],
+				['type_config', '=', 'coderef']
+			]
+		)->first();
+		$incref = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'famillesC'],
+				['type_config', '=', 'incref']
+			]
+		)->first();
+		$count += $incref ? intval($incref->value) : 0;
+		$reference = $this->custom->setReference($coderef, $count, 4);
+
+		return view('familles.create', compact('type', 'reference'));
 	}
 
     /**
@@ -77,18 +119,6 @@ class FamilleController extends Controller
     {
         //
 	    $data=$request->all();
-
-	    $c = new CustomFunction();
-
-	    if(empty($data['reference'])):
-		    if($data['type'] == 0):
-			    $type = 'FaPro';
-            else:
-	            $type = 'FaCli';
-		    endif;
-		    $reference = $c->setReference($type, [$data['name']], 4, "numbers");
-		    $data['reference'] = $reference;
-	    endif;
 
 	    $this->modelRepository->store($data);
 

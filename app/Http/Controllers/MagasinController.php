@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MagasinRequest;
 use App\Library\CustomFunction;
 use App\Repositories\MagasinRepository;
+use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use Illuminate\Http\Request;
 
@@ -15,16 +16,37 @@ class MagasinController extends Controller
 	protected $type;
 	protected $custom;
 	protected $listPOS;
+	protected $transitRef;
 
-	public function __construct(MagasinRepository $modelRepository, PointDeVenteRepository $point_de_vente_repository) {
+	protected $parametreRepository;
+
+	public function __construct(MagasinRepository $modelRepository, PointDeVenteRepository $point_de_vente_repository,
+		ParametreRepository $parametre_repository
+	) {
 		$this->modelRepository = $modelRepository;
 		$this->posRepository = $point_de_vente_repository;
+		$this->parametreRepository = $parametre_repository;
+
 		$this->type = array(
 			0 => 'Magasin Normal',
 			1 => 'Magasin de transit'
 		);
 		$this->custom = new CustomFunction();
 		$this->listPOS = $point_de_vente_repository->getWhere()->get();
+
+		$transit = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'magasins'],
+				['type_config', '=', 'transitref']
+			]
+		)->first();
+
+		$this->transitRef = $transit;
+
+		if(!$transit):
+			unset($this->type[1]);
+		endif;
+
 
 	}
 
@@ -57,7 +79,25 @@ class MagasinController extends Controller
 		    $pos[$item->id] = $item->name;
 	    endforeach;
 
-		return view('magasins.create', compact('type', 'pos'));
+	    // Initialisation de la reference
+
+	    $count = $this->modelRepository->getWhere()->count();
+	    $coderef = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'magasins'],
+			    ['type_config', '=', 'coderef']
+		    ]
+	    )->first();
+	    $incref = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'magasins'],
+			    ['type_config', '=', 'incref']
+		    ]
+	    )->first();
+	    $count += $incref ? intval($incref->value) : 0;
+	    $reference = $this->custom->setReference($coderef, $count, 4);
+
+		return view('magasins.create', compact('type', 'pos', 'reference'));
     }
 
     /**
@@ -70,23 +110,22 @@ class MagasinController extends Controller
     {
 	    $data = $request->all();
 
-	    if(empty($data['reference'])):
-
-		    $name = $data['name'];
-		    $prefix = 'Mag';
-		    $number = 4;
-
-		    if($data['transite'] == 1):
-			    $name = '';
-		        $prefix = 'Transit';
-		        $number = 0;
-	        endif;
-
-		    $reference = $this->custom->setReference($prefix, [$name], $number, "numbers");
-		    $data['reference'] = $reference;
-	    endif;
-
 	    if($data['transite'] == 1):
+
+		    $coderef = $this->transitRef;
+
+	        $count = 1;
+		    $incref = $this->parametreRepository->getWhere()->where(
+			    [
+				    ['module', '=', 'magasins'],
+				    ['type_config', '=', 'incref']
+			    ]
+		    )->first();
+		    $count += $incref ? intval($incref->value) : 0;
+		    $reference = $this->custom->setReference($coderef, $count, 1);
+		    $data['reference'] = $reference;
+
+
 	        $data['pos_id'] = null;
 	    endif;
 

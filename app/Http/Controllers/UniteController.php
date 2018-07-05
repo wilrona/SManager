@@ -3,15 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Library\CustomFunction;
+use App\Repositories\ParametreRepository;
 use App\Repositories\UniteRepository;
 use Illuminate\Http\Request;
 
 class UniteController extends Controller
 {
 	protected $modelRepository;
+	protected $parametreRepository;
 
-	public function __construct(UniteRepository $modelRepository) {
+	protected $custom;
+
+	public function __construct(UniteRepository $modelRepository, ParametreRepository $parametre_repository) {
 		$this->modelRepository = $modelRepository;
+		$this->parametreRepository = $parametre_repository;
+		$this->custom = new CustomFunction();
 	}
 
 	/**
@@ -35,7 +41,27 @@ class UniteController extends Controller
     public function create()
     {
         //
-	    return view('unites.create');
+
+	    // Initialisation de la reference
+
+	    $count = $this->modelRepository->getWhere()->count();
+	    $coderef = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'unites'],
+			    ['type_config', '=', 'coderef']
+		    ]
+	    )->first();
+	    $incref = $this->parametreRepository->getWhere()->where(
+		    [
+			    ['module', '=', 'unites'],
+			    ['type_config', '=', 'incref']
+		    ]
+	    )->first();
+	    $count += $incref ? intval($incref->value) : 0;
+	    $reference = $this->custom->setReference($coderef, $count, 4);
+
+
+	    return view('unites.create', compact('reference'));
     }
 
     /**

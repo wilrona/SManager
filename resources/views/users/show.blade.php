@@ -188,7 +188,7 @@
                         <div class="panel-body">
                             <div class="form-group {!! $errors->has('profile_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Profil de l'utlisateur : </label>
-                                {!! Form::select('profile_id', $profile, $data->profile_id, ['class' => 'form-control', 'disabled' => '']) !!}
+                                {!! Form::select('profile_id', $profile, $data->profile_id, ['class' => 'form-control', 'disabled' => '', 'placeholder' => '']) !!}
                                 {!! $errors->first('profile_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

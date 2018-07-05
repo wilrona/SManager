@@ -78,12 +78,11 @@ class FamilleRequest extends FormRequest
 
 	    endif;
 
-	    if(isset($request->reference) && $request->reference != null):
-		    if (isset($request->id) && $request->id != null):
-			    $rule['reference'] = 'unique:familles,reference,'.$request->id;
-		    else:
-			    $rule['reference'] = 'required|unique:familles';
-		    endif;
+
+	    if (isset($request->id) && $request->id != null):
+		    $rule['reference'] = 'unique:familles,reference,'.$request->id;
+	    else:
+		    $rule['reference'] = 'required|unique:familles';
 	    endif;
 
 
@@ -96,6 +95,7 @@ class FamilleRequest extends FormRequest
 		return [
 			'name.required' => 'Attribuer un nom à cette famille',
 			'name.unique' => 'Une famille du même nom existe déjà',
+			'reference.required' => 'La configuration des numéros de séquence pour la reference des familles n\'a pas été effectué.'
 		];
                
     }

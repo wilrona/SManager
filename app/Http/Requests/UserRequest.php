@@ -58,12 +58,10 @@ class UserRequest extends FormRequest
 			$rule['password_confirmation'] = 'min:6';
 		endif;
 
-		if(isset($request->reference) && $request->reference != null):
-			if (isset($request->id) && $request->id != null):
-				$rule['reference'] = 'unique:users,reference,'.$request->id;
-			else:
-				$rule['reference'] = 'required|unique:users';
-			endif;
+		if (isset($request->id) && $request->id != null):
+			$rule['reference'] = 'unique:users,reference,'.$request->id;
+		else:
+			$rule['reference'] = 'required|unique:users';
 		endif;
 
 		return $rule;
@@ -74,7 +72,8 @@ class UserRequest extends FormRequest
 		return [
 			'password.required_with' => 'La confirmation de mot de passe est obligatoire',
 			'password.same' => 'Les deux mots passes ne sont pas identique',
-			'pos_id.required' => 'Le choix du point de vente est obligatoire'
+			'pos_id.required' => 'Le choix du point de vente est obligatoire',
+			'reference.required' => 'La configuration des numéros de séquence pour la reference des utilisateurs n\'a pas été effectué.'
 		];
 	}
 }

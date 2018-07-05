@@ -16,9 +16,9 @@ class CreateParametresTable extends Migration
         Schema::create('parametres', function (Blueprint $table) {
             $table->increments('id');
             $table->string('module');
-            $table->string('typec_onfig');
-            $table->string('value');
-            $table->text('long_value');
+            $table->string('type_config');
+            $table->string('value')->nullable($value = true);
+            $table->text('long_value')->nullable($value = true);
             $table->timestamps();
         });
     }

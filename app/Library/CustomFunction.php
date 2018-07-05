@@ -96,19 +96,14 @@ class CustomFunction {
 		return $passwords[0];
 	}
 
-	public function setReference($prefix = '', Array $array, $lenght = 7, $characters){
-		$fix = '';
-		foreach ($array as $item):
-			if($item):
-				$exItem = explode(' ', $item);
-				foreach ($exItem as $item2):
-					$fix .= strtoupper($item2[0]);
-				endforeach;
-			endif;
-		endforeach;
+	public function setReference($prefix = '', $count = 1, $lenght = 7){
 
-		$mot = $prefix.''.$fix;
-		$mot .= $this->randomPassword($lenght, 1, $characters);
+		$fix = str_pad($count, $lenght, 0, STR_PAD_LEFT);
+		if(is_object($prefix)){
+			$mot = $prefix->value.''.$fix;
+		}else{
+			$mot = '';
+		}
 
 		return $mot;
 	}

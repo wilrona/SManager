@@ -48,8 +48,8 @@
                         <div class="panel-body">
 
                             <div class="form-group {!! $errors->has('reference') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Reference : </label>
-                                {!! Form::text('reference', null, ['class' => 'form-control', 'placeholder' => 'reference du produit']) !!}
+                                <!--<label for="exampleInputEmail1" class="text-bold text-capitalize"> Reference : </label>-->
+                                {!! Form::text('reference', $reference, ['class' => 'form-control hidden', 'placeholder' => 'reference du produit']) !!}
                                 {!! $errors->first('reference', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

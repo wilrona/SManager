@@ -208,6 +208,8 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 
 		Route::get('/', 'ParamController@index')->middleware('auth')->name('param.index');
 
+		Route::post('/update/{module}', 'ParamController@update')->middleware('auth')->name('param.update');
+
 	});
 
 

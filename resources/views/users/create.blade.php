@@ -48,8 +48,7 @@
 
 
                             <div class="form-group {!! $errors->has('reference') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Reference (<small>Généré automatiquement si le champ est vide</small>): </label>
-                                {!! Form::text('reference', null, ['class' => 'form-control', 'placeholder' => 'Reference']) !!}
+                                {!! Form::hidden('reference', $reference, ['class' => 'form-control', 'placeholder' => 'Reference']) !!}
                                 {!! $errors->first('reference', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
