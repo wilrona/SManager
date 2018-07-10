@@ -36,6 +36,12 @@ class Roles {
 			'config' => true
 		),
 		array(
+			'name' => 'demandes', 'display_name' => 'Demande de stock', 'description' => 'Module de gestion des demandes de stock',
+			'child' => array(),
+			'active' => false,
+			'config' => true
+		),
+		array(
 			'name' => 'point_de_vente', 'display_name' => 'Points de vente', 'description' => 'Module de gestion des points de vente',
 			'child' => array(),
 			'active' => false,

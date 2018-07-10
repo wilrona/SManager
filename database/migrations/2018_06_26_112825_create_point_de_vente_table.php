@@ -18,6 +18,7 @@ class CreatePointDeVenteTable extends Migration
 	        $table->string('reference')->unique();
 	        $table->string('name');
 	        $table->integer('type')->default(0);
+	        $table->boolean('centrale')->default(false);
 
             $table->timestamps();
         });

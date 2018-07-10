@@ -114,7 +114,7 @@ class MagasinController extends Controller
 
 		    $coderef = $this->transitRef;
 
-	        $count = 1;
+		    $count = $this->modelRepository->getWhere()->count();
 		    $incref = $this->parametreRepository->getWhere()->where(
 			    [
 				    ['module', '=', 'magasins'],
@@ -122,9 +122,8 @@ class MagasinController extends Controller
 			    ]
 		    )->first();
 		    $count += $incref ? intval($incref->value) : 0;
-		    $reference = $this->custom->setReference($coderef, $count, 1);
+		    $reference = $this->custom->setReference($coderef, $count, 4);
 		    $data['reference'] = $reference;
-
 
 	        $data['pos_id'] = null;
 	    endif;
@@ -185,6 +184,34 @@ class MagasinController extends Controller
     {
 
 	    $data = $request->all();
+
+	    $current = $this->modelRepository->getById($id);
+	    if($current->transite == 1 && $data['transite'] == 0):
+		    $number = explode($this->transitRef, $current->reference);
+
+		    $coderef = $this->parametreRepository->getWhere()->where(
+			    [
+				    ['module', '=', 'magasins'],
+				    ['type_config', '=', 'coderef']
+			    ]
+		    )->first();
+
+		    $data['reference'] = $coderef->value.''.$number[0];
+	    endif;
+
+	    if($current->transite == 0 && $data['transite'] == 1):
+
+		    $coderef = $this->parametreRepository->getWhere()->where(
+			    [
+				    ['module', '=', 'magasins'],
+				    ['type_config', '=', 'coderef']
+			    ]
+		    )->first();
+
+		    $number = explode($coderef->value, $current->reference);
+
+		    $data['reference'] = $this->transitRef.''.$number[0];
+	    endif;
 
 	    if($data['transite'] == 1):
 		    $data['pos_id'] = null;

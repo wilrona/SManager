@@ -153,31 +153,6 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/activation/{id}', 'UniteController@active')->middleware('auth')->name('unite.active');
 	});
 
-	Route::prefix('/settings/produit')->group(function () {
-
-		Route::get('/', 'ProduitController@index')->middleware('auth')->name('produit.index');
-		Route::get('/create', 'ProduitController@create')->middleware('auth')->name('produit.create');
-
-		Route::get('/show/{id}', 'ProduitController@show')->middleware('auth')->name('produit.show');
-		Route::get('/edit/{id}', 'ProduitController@edit')->middleware('auth')->name('produit.edit');
-
-		Route::post('/store', 'ProduitController@store')->middleware('auth')->name('produit.store');
-		Route::post('/update/{id}', 'ProduitController@update')->middleware('auth')->name('produit.update');
-
-		Route::get('/activation/{id}', 'ProduitController@active')->middleware('auth')->name('produit.active');
-
-		Route::get('/add/bundle/{id}', 'ProduitController@addProduit')->middleware('auth')->name('produit.addBundle');
-		Route::get('/remove/bundle/{key?}', 'ProduitController@removeProduit')->middleware('auth')->name('produit.removeBundle');
-		Route::get('/list/bundle', 'ProduitController@listproduit')->middleware('auth')->name('produit.listing');
-		Route::post('/valide/bundle/{id}', 'ProduitController@validProduit')->middleware('auth')->name('produit.valideBundle');
-
-		Route::get('/add/groupe_prix/{id}/{type}', 'ProduitController@addGroupePrix')->middleware('auth')->name('produit.addGroupePrix');
-		Route::get('/remove/groupe_prix/{key?}', 'ProduitController@removeGroupePrix')->middleware('auth')->name('produit.removeGroupePrix');
-		Route::get('/list/groupe_prix', 'ProduitController@listGroupePrix')->middleware('auth')->name('produit.listingGroupePrix');
-		Route::post('/valide/groupe_prix/{id}', 'ProduitController@validGroupePrix')->middleware('auth')->name('produit.valideGroupePrix');
-
-	});
-
 	Route::prefix('/clients')->group(function () {
 
 		Route::get('/', 'ClientController@index')->middleware('auth')->name('client.index');
@@ -209,6 +184,68 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/', 'ParamController@index')->middleware('auth')->name('param.index');
 
 		Route::post('/update/{module}', 'ParamController@update')->middleware('auth')->name('param.update');
+
+	});
+
+	Route::prefix('/stockages/produit')->group(function () {
+
+		Route::get('/', 'ProduitController@index')->middleware('auth')->name('produit.index');
+		Route::get('/create', 'ProduitController@create')->middleware('auth')->name('produit.create');
+
+		Route::get('/show/{id}', 'ProduitController@show')->middleware('auth')->name('produit.show');
+		Route::get('/edit/{id}', 'ProduitController@edit')->middleware('auth')->name('produit.edit');
+
+		Route::post('/store', 'ProduitController@store')->middleware('auth')->name('produit.store');
+		Route::post('/update/{id}', 'ProduitController@update')->middleware('auth')->name('produit.update');
+
+		Route::get('/activation/{id}', 'ProduitController@active')->middleware('auth')->name('produit.active');
+
+		Route::get('/add/bundle/{id}', 'ProduitController@addProduit')->middleware('auth')->name('produit.addBundle');
+		Route::get('/remove/bundle/{key?}', 'ProduitController@removeProduit')->middleware('auth')->name('produit.removeBundle');
+		Route::get('/list/bundle', 'ProduitController@listproduit')->middleware('auth')->name('produit.listing');
+		Route::post('/valide/bundle/{id}', 'ProduitController@validProduit')->middleware('auth')->name('produit.valideBundle');
+
+		Route::get('/add/groupe_prix/{id}/{type}', 'ProduitController@addGroupePrix')->middleware('auth')->name('produit.addGroupePrix');
+		Route::get('/remove/groupe_prix/{key?}', 'ProduitController@removeGroupePrix')->middleware('auth')->name('produit.removeGroupePrix');
+		Route::get('/list/groupe_prix', 'ProduitController@listGroupePrix')->middleware('auth')->name('produit.listingGroupePrix');
+		Route::post('/valide/groupe_prix/{id}', 'ProduitController@validGroupePrix')->middleware('auth')->name('produit.valideGroupePrix');
+
+	});
+
+	Route::prefix('/stockages/serie')->group(function () {
+
+		Route::get('/', 'SerieController@index')->middleware('auth')->name('serie.index');
+		Route::get('/lots', 'SerieController@indexLot')->middleware('auth')->name('lot.index');
+		Route::get('/show/{id}', 'SerieController@show')->middleware('auth')->name('serie.show');
+		Route::get('/lots/show/{id}', 'SerieController@showLot')->middleware('auth')->name('lot.show');
+		Route::get('/importe', 'SerieController@preview')->middleware('auth')->name('serie.import');
+		Route::post('/importation', 'SerieController@import')->middleware('auth')->name('serie.importation');
+		Route::get('/validation', 'SerieController@validation')->middleware('auth')->name('serie.validation');
+		Route::post('/store', 'SerieController@store')->middleware('auth')->name('serie.store');
+
+	});
+
+	Route::prefix('/demandes/send')->group(function () {
+
+		Route::get('/', 'TransfertController@indexSend')->middleware('auth')->name('dmd.index');
+		Route::get('/create', 'TransfertController@createSend')->middleware('auth')->name('dmd.create');
+		Route::get('/edit/{id}', 'TransfertController@editSend')->middleware('auth')->name('dmd.edit');
+		Route::get('/show/{id}', 'TransfertController@showSend')->middleware('auth')->name('dmd.show');
+		Route::get('/change/statut/{id}/{statut}', 'TransfertController@changeStatutDoc')->middleware('auth')->name('dmd.statutDoc');
+
+		Route::post('/store', 'TransfertController@storeSend')->middleware('auth')->name('dmd.store');
+		Route::post('/update/{id}', 'TransfertController@updateSend')->middleware('auth')->name('dmd.update');
+
+	});
+
+	Route::prefix('/demandes/receive')->group(function () {
+
+		Route::get('/', 'TransfertController@indexReceive')->middleware('auth')->name('receive.index');
+		Route::get('/edit/{id}', 'TransfertController@editReceive')->middleware('auth')->name('receive.edit');
+		Route::get('/show/{id}', 'TransfertController@showReceive')->middleware('auth')->name('receive.show');
+		Route::get('/change/statut/{id}/{statut}', 'TransfertController@changeStatutDoc')->middleware('auth')->name('receive.statutDoc');
+
+		Route::post('/update/{id}', 'TransfertController@updateReceive')->middleware('auth')->name('receive.update');
 
 	});
 

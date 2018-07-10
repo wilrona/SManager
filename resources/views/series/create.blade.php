@@ -12,14 +12,14 @@
     <div class="wrap-content container" id="container">
         <!-- start: BREADCRUMB -->
         <div class="breadcrumb-wrapper">
-            <h4 class="mainTitle no-margin">Création des séries</h4>
+            <h4 class="mainTitle no-margin">Importation des séries</h4>
 
             <span class="mainDescription">Gestion des numéros de séries </span>
             <ul class="pull-right breadcrumb">
                 <li><a href="/"><i class="fa fa-home margin-right-5 text-large text-dark"></i>Home</a>
                 </li>
                 <li>Séries</li>
-                <li>Création</li>
+                <li>Importation</li>
             </ul>
         </div>
         <!-- end: BREADCRUMB -->
@@ -36,6 +36,14 @@
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
                             <h3 class="panel-title">Création/Importation des numéros de series</h3>
+                            <ul class="panel-heading-tabs border-light">
+                                <li>
+                                    <div class="pull-right">
+                                        <a href="{{ route('serie.index') }}" class="btn btn-default btn-o btn-sm" style="margin-top: 9px;"> Retour </a>
+                                    </div>
+                                </li>
+
+                            </ul>
                         </div>
                         <div class="panel-body">
 
@@ -65,6 +73,15 @@
                                                     </span>
                                                     ') !!}
                                                 </div>
+                                            <div class="form-group margin-top-30 {!! $errors->has('magasin_id') ? 'has-error' : '' !!}">
+                                                <label for="exampleInputEmail1" class="text-bold"> Selection du magasin : </label>
+                                                {!! Form::select('magasin_id', $magasin, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le magasin...']) !!}
+                                                {!! $errors->first('magasin_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                                        :message
+                                                    </span>
+                                                </span>
+                                                ') !!}
+                                            </div>
                                                 {!! Form::submit('Enregistrer', ['class' => 'btn btn-primary pull-right']) !!}
                                             {!! Form::close() !!}
                                         </div>
@@ -86,10 +103,19 @@
                                                 </span>
                                                 ') !!}
                                             </div>
-                                            <div class="form-group margin-top-30 {!! $errors->has('typeproduit') ? 'has-error' : '' !!}">
+                                            <div class="form-group margin-top-30 {!! $errors->has('produit_id') ? 'has-error' : '' !!}">
                                                 <label for="exampleInputEmail1" class="text-bold"> Selection du produit : </label>
-                                                {!! Form::select('typeproduit', $select, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...']) !!}
-                                                {!! $errors->first('typeproduit', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                                {!! Form::select('produit_id', $select, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...']) !!}
+                                                {!! $errors->first('produit_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                                        :message
+                                                    </span>
+                                                </span>
+                                                ') !!}
+                                            </div>
+                                            <div class="form-group margin-top-30 {!! $errors->has('magasin_id') ? 'has-error' : '' !!}">
+                                                <label for="exampleInputEmail1" class="text-bold"> Selection du magasin : </label>
+                                                {!! Form::select('magasin_id', $magasin, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le magasin...']) !!}
+                                                {!! $errors->first('magasin_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                                         :message
                                                     </span>
                                                 </span>
@@ -122,7 +148,7 @@
                         <li class="middle-center">
                             <div class="pull-right">
                                 <div class="btn-group" dropdown="">
-                                    <a href="<?= url('series/validation') ?>" class="btn btn-wide btn-success">
+                                    <a href="<?= route('serie.validation') ?>" class="btn btn-wide btn-success">
                                         Valider l'importation
                                     </a>
                                 </div>
@@ -133,13 +159,14 @@
                     @endif
                 </div>
                 <div class="panel-body">
-                    <table class="table table-striped table-bordered table-hover table-full-width" id="sample_1">
+                    <table class="table table-stylish sample_5">
                         <thead>
                         <tr>
-                            <th>#</th>
+                            <th class="col-xs-1">#</th>
                             <th>No Series</th>
                             <th>Produit</th>
-                            <th></th>
+                            <th>Lots</th>
+                            <th class="col-xs-1"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -149,8 +176,9 @@
                                 <td>{{ $loop->index + 1 }}</td>
                                 <td>{{ $data->reference }}</td>
                                 <td>
-                                    {{ $data->type_produit()->first()->libelle }}
+                                    {{ $data->Produit()->first()->name }}
                                 </td>
+                                <td>{{ $data->lot_id ? $data->Lot()->first()->reference : '' }}</td>
                                 <td><a href="{{ url('series/delete', [$data->id]) }}"><i class="fa fa-close"></i></a></td>
                             </tr>
 

@@ -10,7 +10,7 @@ class PointDeVente extends Model
     //
     protected $table = 'point_de_vente';
 
-    protected $fillable = ['reference','name','type'];
+    protected $fillable = ['reference','name','type','centrale'];
   
 //    public function parent() {
 //		return $this->belongsTo('App\PointDeVente', 'parent_id', 'id');
@@ -26,6 +26,14 @@ class PointDeVente extends Model
 
 	public function Caisses(){
 		return $this->hasMany('App\Caisse', 'pos_id', 'id');
+	}
+
+	public function DemandesTransfert(){
+		return $this->hasMany( 'App\Transfert', 'pos_dmd_id', 'id');
+	}
+
+	public function ApproTransfert(){
+		return $this->hasMany( 'App\Transfert', 'pos_appro_id', 'id');
 	}
 
 //

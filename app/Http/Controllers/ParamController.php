@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Library\Roles;
 use App\Repositories\ParametreRepository;
+use App\Repositories\PointDeVenteRepository;
 use Illuminate\Http\Request;
 
 class ParamController extends Controller
@@ -11,10 +12,12 @@ class ParamController extends Controller
     //
 
 	protected $modelRepository;
+	protected $posRepository;
 	protected $modules;
 
-	public function __construct(ParametreRepository $parametre_repository) {
+	public function __construct(ParametreRepository $parametre_repository, PointDeVenteRepository $point_de_vente_repository) {
 		$this->modelRepository = $parametre_repository;
+		$this->posRepository = $point_de_vente_repository;
 
 		$module = new Roles();
 		$this->modules = $module->listRoles();
@@ -45,8 +48,10 @@ class ParamController extends Controller
 			$values[$value->module][$value->type_config] = $value->value;
 		endforeach;
 
+		$pos = $this->posRepository->getWhere()->get();
 
-		return view('params.index', compact('datas', 'values'));
+
+		return view('params.index', compact('datas', 'values', 'pos'));
 	}
 
 	public function update(Request $request, $module){
@@ -112,6 +117,45 @@ class ParamController extends Controller
 				$saved['type_config'] = 'transitref';
 				$saved['value'] = $data['transitref'];
 				$this->modelRepository->store($saved);
+			endif;
+		endif;
+
+		if($module == 'point_de_vente'):
+
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'pos_center']
+				]
+			)->first();
+
+			if($coderef):
+				if(!empty($data['pos_center']) && $data['pos_center'] != $coderef->value):
+
+					// Enregistrer le nouveau POS Centrale
+					$center_pos = $this->posRepository->getById($data['pos_center']);
+					$center_pos->centrale = 1;
+					$center_pos->save();
+
+					// Enlever l'ancien POS Centrale
+					$center_pos = $this->posRepository->getById($coderef->value);
+					$center_pos->centrale = 0;
+					$center_pos->save();
+				endif;
+				$coderef->value = $data['pos_center'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'pos_center';
+				$saved['value'] = $data['pos_center'];
+				$this->modelRepository->store($saved);
+
+				if(!empty($data['pos_center'])):
+					$center_pos = $this->posRepository->getById($data['pos_center']);
+					$center_pos->centrale = 1;
+					$center_pos->save();
+				endif;
 			endif;
 		endif;
 

@@ -29,6 +29,10 @@ class Produits extends Model
 		return $this->hasMany('App\GroupePrix', 'produit_id', 'id');
 	}
 
+	public function Series(){
+		return $this->hasMany('App\Serie', 'produit_id', 'id');
+	}
+
 
 
 

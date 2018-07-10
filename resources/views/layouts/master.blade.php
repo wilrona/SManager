@@ -151,6 +151,50 @@
 										</div>
 									</a>
 								</li>
+								<li class="{{ Menu::active('demandes') }} ">
+									<a href="javascript:void(0)">
+										<div class="item-content">
+											<div class="item-media">
+												<div class="lettericon" data-text="Demande Stock" data-size="sm" data-char-count="2"></div>
+											</div>
+											<div class="item-inner">
+												<span class="title"> Demande Stock </span><i class="icon-arrow"></i>
+											</div>
+										</div> </a>
+									<ul class="sub-menu">
+										<li>
+											<a href="{{ route('dmd.index') }}"> <span class="title">Demande Envoyée </span> </a>
+										</li>
+										<li>
+											<a href="{{ route('receive.index') }}"> <span class="title">Demande Reçue </span> </a>
+										</li>
+									</ul>
+								</li>
+								<li class="{{ Menu::active('stockages') }} ">
+									<a href="javascript:void(0)">
+										<div class="item-content">
+											<div class="item-media">
+												<div class="lettericon" data-text="Stockages" data-size="sm" data-char-count="2"></div>
+											</div>
+											<div class="item-inner">
+												<span class="title"> Stockages </span><i class="icon-arrow"></i>
+											</div>
+										</div> </a>
+									<ul class="sub-menu">
+										<li>
+											<a href="{{ route('produit.index') }}"> <span class="title">Produits </span> </a>
+										</li>
+
+										<li>
+											<a href="{{ route('serie.index') }}"> <span class="title">N° Serie </span> </a>
+										</li>
+										<li>
+											<a href="{{ route('lot.index') }}"> <span class="title">Lots </span> </a>
+										</li>
+
+
+									</ul>
+								</li>
 
 								<li class="{{ Menu::active('settings') }} ">
 									<a href="javascript:void(0)">
@@ -175,9 +219,6 @@
 
 										<li>
 											<a href="{{ route('pos.index') }}"> <span class="title">Points de vente </span> </a>
-										</li>
-										<li>
-											<a href="{{ route('produit.index') }}"> <span class="title">Produits </span> </a>
 										</li>
 										<li>
 											<a href="{{ route('famillepro.index') }}"> <span class="title">Familles de produit </span> </a>

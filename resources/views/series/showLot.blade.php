@@ -14,13 +14,13 @@
     <div class="wrap-content container" id="container">
         <!-- start: BREADCRUMB -->
         <div class="breadcrumb-wrapper">
-            <h4 class="mainTitle no-margin">Liste des series</h4>
+            <h4 class="mainTitle no-margin">Liste des lots</h4>
 
-            <span class="mainDescription">Gestion des numéros de series </span>
+            <span class="mainDescription">Gestion des numéros de lots </span>
             <ul class="pull-right breadcrumb">
                 <li><a href="/"><i class="fa fa-home margin-right-5 text-large text-dark"></i>Home</a>
                 </li>
-                <li>Series</li>
+                <li>Lots</li>
                 <li>Fiche</li>
             </ul>
         </div>
@@ -38,7 +38,7 @@
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
-                                        <a href="{{ route('serie.index') }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
+                                        <a href="{{ route('lot.index') }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
                                     </div>
                                 </li>
 

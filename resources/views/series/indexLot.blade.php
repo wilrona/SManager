@@ -12,13 +12,13 @@
     <div class="wrap-content container" id="container">
         <!-- start: BREADCRUMB -->
         <div class="breadcrumb-wrapper">
-            <h4 class="mainTitle no-margin">Liste des series</h4>
+            <h4 class="mainTitle no-margin">Liste des lots</h4>
 
-            <span class="mainDescription">Gestion des numéros de series </span>
+            <span class="mainDescription">Gestion des numéros de lots </span>
             <ul class="pull-right breadcrumb">
                 <li><a href="/"><i class="fa fa-home margin-right-5 text-large text-dark"></i>Home</a>
                 </li>
-                <li>Series</li>
+                <li>Lots</li>
             </ul>
         </div>
         <!-- end: BREADCRUMB -->
@@ -32,15 +32,7 @@
                     @endif
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
-                            <ul class="panel-heading-tabs border-light">
-                                <li>
-                                    <div class="pull-right">
-                                        <a href="{{ route('serie.import') }}" class="btn btn-green btn-sm" style="margin-top: 9px;"><i class="fa fa-plus"></i> Importé </a>
 
-                                    </div>
-                                </li>
-
-                            </ul>
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
@@ -48,9 +40,8 @@
                                     <thead>
                                     <tr>
                                         <th class="col-xs-1">#</th>
-                                        <th>No Series</th>
+                                        <th>No Lots</th>
                                         <th>Produit</th>
-                                        <th>Lot</th>
                                         <th class="col-xs-1"></th>
                                     </tr>
                                     </thead>
@@ -63,8 +54,7 @@
                                             <td>
                                                 {{ $data->Produit()->first()->name }}
                                             </td>
-                                            <td>{{ $data->lot_id ? $data->Lot()->first()->reference : '' }}</td>
-                                            <td><a href="{{ route('serie.show', [$data->id]) }}"><i class="fa fa-eye"></i></a></td>
+                                            <td><a href="{{ route('lot.show', [$data->id]) }}"><i class="fa fa-eye"></i></a></td>
                                         </tr>
 
                                     @endforeach

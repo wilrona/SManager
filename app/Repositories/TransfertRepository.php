@@ -8,17 +8,17 @@
 
 namespace App\Repositories;
 
+use App\Transferts;
 
-use App\Serie;
-
-class SerieRepository extends ResourceRepository
+class TransfertRepository extends ResourceRepository
 {
 
 	protected $model;
 
-	public function __construct(Serie $modelcurrent)
+	public function __construct(Transferts $modelcurrent)
 	{
 		$this->model = $modelcurrent;
 	}
+
 
 }

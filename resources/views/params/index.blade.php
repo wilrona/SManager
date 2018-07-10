@@ -67,8 +67,25 @@
                                                             <div class="row">
                                                                 <div class="col-md-6">
                                                                     <div class="form-group">
-                                                                        <label class="text-bold"> Code reference magasin de transit : </label>
                                                                         <input type="text" class="form-control" name="transitref" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['transitref']) ? $values[$data['name']]['transitref'] : '' ?>">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                        @if($data['name'] == 'point_de_vente')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">Point de vente principal</h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <select name="pos_center" id="" class="form-control">
+                                                                            <option value="">Choix du point de vente</option>
+                                                                            @foreach($pos as $point)
+                                                                                <option value="{{ $point->id }}" <?= isset($values[$data['name']]) && isset($values[$data['name']]['pos_center']) ? 'selected' : '' ?>>{{ $point->name }}</option>
+                                                                            @endforeach
+                                                                        </select>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -93,6 +110,7 @@
                                                                 </div>
                                                             </div>
                                                         @endif
+
 
 
                                                     {!! Form::close() !!}
