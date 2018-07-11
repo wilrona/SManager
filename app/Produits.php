@@ -33,6 +33,10 @@ class Produits extends Model
 		return $this->hasMany('App\Serie', 'produit_id', 'id');
 	}
 
+	public function ligne_transfert(){
+		return $this->hasMany('App\LigneTransfert', 'produit_id', 'id');
+	}
+
 
 
 

@@ -38,7 +38,7 @@
                                 <li class="middle-center">
                                     <a href="{{ route('dmd.index') }}" class="btn btn-o btn-sm btn-default">Retour</a>
                                 </li>
-                                @if($data->statut_doc == 0)
+                                @if($data->statut_exp == 0 && $data->statut_doc != 4)
                                 <li class="middle-center">
                                     <div class="pull-right">
                                         <div class="btn-group">
@@ -49,13 +49,14 @@
                                                     <a href="{{ route('dmd.edit', $data->id) }}"> Modifier </a>
                                                 </li>
                                                 @endif
-
                                                 @if($data->statut_doc == 0)
                                                 <li>
                                                     <a href="{{ route('dmd.statutDoc', [$data->id, 1]) }}"> Envoyé </a>
                                                 </li>
+                                                @endif
+                                                @if($data->statut_doc == 0 || $data->statut_doc == 1)
                                                 <li>
-                                                    <a href="{{ route('dmd.statutDoc', [$data->id, 2]) }}"> Cloturer </a>
+                                                    <a href="{{ route('dmd.statutDoc', [$data->id, 4]) }}"> Annuler </a>
                                                 </li>
                                                 @endif
                                             </ul>
@@ -71,7 +72,10 @@
                                         <a data-original-title="Envoyée" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-success"></i></a>
                                     @endif
                                     @if($data->statut_doc == 2)
-                                        <a data-original-title="Cloturé" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-danger"></i></a>
+                                        <a data-original-title="En traitement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-info"></i></a>
+                                    @endif
+                                    @if($data->statut_doc == 3 || $data->statut_doc == 4)
+                                        <a data-original-title="Annuler" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-danger"></i></a>
                                     @endif
                                 </li>
 
@@ -120,6 +124,49 @@
                             </div>
 
 
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Produits demandés</h4>
+
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table table-stylish">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Produit</th>
+                                    <th class="col-xs-1">Quantité</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+				                <?php if($data->ligne_transfert()->count()):
+
+
+				                foreach($data->ligne_transfert()->get() as $key => $value):
+				                ?>
+                                <tr>
+                                    <td><?= $key + 1 ?></td>
+                                    <td><?= $value->produit()->first()->name ?></td>
+                                    <td><?= $value->qte_dmd; ?></td>
+
+                                </tr>
+				                <?php
+				                endforeach;
+				                else:
+				                ?>
+                                <tr>
+                                    <td colspan="3">
+                                        <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
+                                    </td>
+                                </tr>
+				                <?php endif; ?>
+
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 

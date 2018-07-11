@@ -222,9 +222,6 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <?php
-
-                                ?>
 
                                 <?php if($groupePrix):
 

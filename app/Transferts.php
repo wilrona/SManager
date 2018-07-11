@@ -27,6 +27,10 @@ class Transferts extends Model
 		return $this->belongsTo( 'App\Magasin', 'mag_appro_id', 'id');
 	}
 
+	public function ligne_transfert(){
+		return $this->hasMany('App\LigneTransfert', 'transfert_id', 'id');
+	}
+
 
 //	public function vendeur(){
 //		return $this->belongsTo( 'App\User', 'vendeur_id', 'id');

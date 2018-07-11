@@ -27,4 +27,8 @@ class Serie extends Model
 	public function SeriesLots(){
 		return $this->hasMany('App\Serie', 'lot_id', 'id');
 	}
+
+	public function ligne_serie(){
+		return $this->belongsToMany('App\LigneTransfert', 'ligne_transfert_serie')->withPivot('livre');
+	}
 }

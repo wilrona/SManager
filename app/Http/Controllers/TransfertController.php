@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DemandeReceiveRequest;
 use App\Http\Requests\DemandeSendRequest;
+use App\Http\Requests\TransfertProduitRequest;
 use App\Library\CustomFunction;
+use App\Repositories\LigneTransfertRepository;
 use App\Repositories\MagasinRepository;
 use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
+use App\Repositories\ProduitRepository;
 use App\Repositories\TransfertRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,17 +21,22 @@ class TransfertController extends Controller
 	protected $posRepository;
 	protected $magasinRepository;
 	protected $parametreRepository;
+	protected $produitRepository;
+	protected $ligneTransfertRepository;
 
 	protected $custom;
 
 	public function __construct(TransfertRepository $transfert_repository, PointDeVenteRepository $point_de_vente_repository,
-		MagasinRepository $magasin_repository, ParametreRepository $parametre_repository
+		MagasinRepository $magasin_repository, ParametreRepository $parametre_repository,
+		ProduitRepository $produit_repository, LigneTransfertRepository $ligne_transfert_repository
 	) {
 
 		$this->modelRepository = $transfert_repository;
 		$this->posRepository = $point_de_vente_repository;
 		$this->magasinRepository = $magasin_repository;
 		$this->parametreRepository = $parametre_repository;
+		$this->produitRepository = $produit_repository;
+		$this->ligneTransfertRepository = $ligne_transfert_repository;
 
 		$this->custom = new CustomFunction();
 
@@ -48,24 +56,6 @@ class TransfertController extends Controller
 
 	    return view('transfert.dmdsend.index', compact('datas'));
     }
-
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function indexReceive()
-	{
-		//
-		$currentUser= Auth::user();
-
-		$datas = $this->modelRepository->getWhere()->where([
-			['pos_appro_id', '=', $currentUser->pos_id],
-			['statut_doc', '!=', 0]
-		])->get();
-
-		return view('transfert.dmdreceive.index', compact('datas'));
-	}
 
     /**
      * Show the form for creating a new resource.
@@ -137,9 +127,12 @@ class TransfertController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showSend($id)
+    public function showSend(Request $request, $id)
     {
         //
+
+	    $request->session()->forget('produit_send_id');
+	    $request->session()->forget('produit_send');
 
 	    $currentUser = Auth::user();
 
@@ -161,6 +154,298 @@ class TransfertController extends Controller
 
 	    return view('transfert.dmdsend.show', compact('pos', 'my_mag', 'data'));
     }
+
+	/**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editSend(Request $request, $id)
+    {
+
+	    $data = $this->modelRepository->getById($id);
+
+	    if($data->statut_doc == 2):
+		    return redirect()->route('dmd.show', $data->id)->withWarning('Cette demande est déja cloturée');
+	    endif;
+
+	    $currentUser= Auth::user();
+
+	    $pdv = $this->posRepository->getWhere()->where('id', '!=', $currentUser->pos_id)->get();
+
+	    $pos = array();
+	    foreach ($pdv as $item):
+		    $pos[$item->id] = $item->name;
+	    endforeach;
+
+	    $my_mag = array();
+
+	    $currentMag = $this->posRepository->getById($currentUser->pos_id);
+	    foreach ($currentMag->Magasins()->get() as $item):
+		    $my_mag[$item->id] = $item->name;
+	    endforeach;
+
+	    $produits = array();
+
+	    $produit_ids = array();
+
+	    if($request->session()->has('produit_send')):
+		    $request->session()->forget('produit_send');
+	    endif;
+
+	    if($request->session()->has('produit_send_id')):
+		    $request->session()->forget('produit_send_id');
+	    endif;
+
+	    foreach ($data->ligne_transfert()->get() as $items):
+		    $save = array();
+
+		    $save['produit_id']  = $items->id;
+		    $save['produit_name']  = $items->produit()->first()->name;
+		    $save['quantite'] = $items->qte_dmd;
+
+		    array_push($produits, $save);
+		    array_push($produit_ids, $items->id);
+	    endforeach;
+
+	    $request->session()->put('produit_send', $produits);
+	    $request->session()->put('produit_send_id', $produit_ids);
+
+
+	    return view('transfert.dmdsend.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'produits'));
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSend(DemandeSendRequest $request, $id)
+    {
+        //
+	    $data = $request->all();
+
+	    $this->modelRepository->update($id, $data);
+
+	    $current = $this->modelRepository->getById($id);
+
+	    $produit = $request->session()->get('produit_send');
+	    $produit_id = $request->session()->get('produit_send_id');
+
+
+
+	    if($produit):
+		    foreach ($produit as $prod):
+                $ligne = $this->ligneTransfertRepository->getWhere()->where(
+                        [
+                            ['produit_id', '=', $prod['produit_id']],
+                            ['transfert_id', '=', $id]
+                        ]
+                )->first();
+
+
+                if(!$ligne):
+                    $ligne_array = array();
+                    $ligne_array['produit_id'] = $prod['produit_id'];
+                    $ligne_array['transfert_id'] = $id;
+                    $ligne_array['qte_dmd'] = $prod['quantite'];
+
+                    $this->ligneTransfertRepository->store($ligne_array);
+                endif;
+
+		    endforeach;
+	    endif;
+
+	    if($produit_id == null):
+            $produit_id = array();
+        endif;
+
+        foreach($current->ligne_transfert()->get() as $item):
+            if(!in_array($item->produit_id, $produit_id)):
+                $del_data = $this->ligneTransfertRepository->getById($item->id);
+                $del_data->delete();
+            endif;
+        endforeach;
+
+
+	    $request->session()->forget('produit_send_id');
+	    $request->session()->forget('produit_send');
+
+	    $redirect = redirect()->route('dmd.show', $id)->withOk("La demande a été modifiée.");
+
+	    return $redirect;
+    }
+
+
+	public function addProduit(Request $request, $id){
+
+		$allProduits = $this->produitRepository->getWhere()->where([['bundle', '=', '0']])->get();
+
+		$produits = array();
+		foreach ( $allProduits as $item ) {
+			if($request->session()->has('produit_send_id')):
+				if(!in_array($item->id, $request->session()->get('produit_send_id'))):
+					$produits[$item->id] = $item->name;
+				endif;
+			else:
+				$produits[$item->id] = $item->name;
+			endif;
+		}
+
+		return view('transfert.dmdsend.addProduit', compact('produits', 'id'));
+	}
+
+	public function validProduit(TransfertProduitRequest $request, $id){
+
+		$produits = array();
+		$produit_id = array();
+
+		if($request->session()->has('produit_send')):
+			$produits = $request->session()->get('produit_send');
+		endif;
+
+		if($request->session()->has('produit_send_id')):
+			$produit_id = $request->session()->get('produit_send_id');
+		endif;
+
+		$produit = array();
+
+		$current_produit = $this->produitRepository->getById($request['produit_id']);
+
+		$produit['produit_id']  = $request['produit_id'];
+		$produit['produit_name']  = $current_produit->name;
+		$produit['quantite'] = $request['quantite'];
+
+
+		array_push($produits, $produit);
+
+		array_push($produit_id, $request['produit_id']);
+
+		$request->session()->put('produit_send', $produits);
+		$request->session()->put('produit_send_id', $produit_id);
+
+		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
+	}
+
+	public function listProduit(){
+
+		$produits = session('produit_send');
+
+		?>
+		<table class="table table-stylish">
+			<thead>
+            <tr>
+                <th class="col-xs-1">#</th>
+                <th>Produit</th>
+                <th>Quantité</th>
+                <th class="col-xs-1"></th>
+            </tr>
+			</thead>
+			<tbody>
+			<?php if($produits):
+				foreach($produits as $key => $value):
+					?>
+					<tr>
+						<td><?= $key + 1 ?></td>
+						<td><?= $value['produit_name'] ?></td>
+						<td><?= $value['quantite'] ?></td>
+						<td><a class="delete" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
+					</tr>
+					<?php
+				endforeach;
+			else:
+				?>
+				<tr>
+					<td colspan="4">
+						<h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
+					</td>
+				</tr>
+			<?php endif; ?>
+			</tbody>
+		</table>
+
+		<?php
+	}
+
+	public function removeProduit($key = null, Request $request){
+
+
+		$produits = array();
+		$produit_id = array();
+
+		if($request->session()->has('produit_send')):
+			$produits = $request->session()->get('produit_send');
+		endif;
+
+		if($request->session()->has('produit_send_id')):
+			$produit_id = $request->session()->get('produit_send_id');
+		endif;
+
+		unset($produits[$key]);
+		unset($produit_id[$key]);
+
+		if(!$produits){
+			$request->session()->forget('produit_send');
+		}else{
+			$request->session()->put('produit_send', $produits);
+		}
+
+		if(!$produit_id){
+			$request->session()->forget('produit_send_id');
+		}else{
+			$request->session()->put('produit_send_id', $produit_id);
+		}
+
+		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
+
+	}
+
+
+
+
+
+
+
+	/**
+	 *
+	 *
+	 *
+	 * Action pour les demandes de stocks recçues
+	 *
+	 *
+	 *
+	 *
+	 */
+
+
+
+
+
+
+
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function indexReceive()
+	{
+		//
+		$currentUser= Auth::user();
+
+		$datas = $this->modelRepository->getWhere()->where([
+			['pos_appro_id', '=', $currentUser->pos_id],
+			['statut_doc', '!=', 0]
+		])->get();
+
+		return view('transfert.dmdreceive.index', compact('datas'));
+	}
+
 
 	/**
 	 * Display the specified resource.
@@ -192,42 +477,6 @@ class TransfertController extends Controller
 
 		return view('transfert.dmdreceive.show', compact('pos', 'my_mag', 'data'));
 	}
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function editSend($id)
-    {
-
-	    $data = $this->modelRepository->getById($id);
-
-	    if($data->statut_doc == 2):
-		    return redirect()->route('dmd.show', $data->id)->withWarning('Cette demande est déja cloturée');
-	    endif;
-
-	    $currentUser= Auth::user();
-
-	    $pdv = $this->posRepository->getWhere()->where('id', '!=', $currentUser->pos_id)->get();
-
-	    $pos = array();
-	    foreach ($pdv as $item):
-		    $pos[$item->id] = $item->name;
-	    endforeach;
-
-	    $my_mag = array();
-
-	    $currentMag = $this->posRepository->getById($currentUser->pos_id);
-	    foreach ($currentMag->Magasins()->get() as $item):
-		    $my_mag[$item->id] = $item->name;
-	    endforeach;
-
-
-	    return view('transfert.dmdsend.edit', compact('pos', 'my_mag', 'data', 'currentMag'));
-
-    }
 
 	/**
 	 * Show the form for editing the specified resource.
@@ -276,25 +525,6 @@ class TransfertController extends Controller
 
 	}
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function updateSend(DemandeSendRequest $request, $id)
-    {
-        //
-	    $data = $request->all();
-
-	    $this->modelRepository->update($id, $data);
-
-	    $redirect = redirect()->route('dmd.show', $id)->withOk("La demande a été modifiée.");
-
-	    return $redirect;
-    }
-
 	/**
 	 * Update the specified resource in storage.
 	 *
@@ -315,21 +545,38 @@ class TransfertController extends Controller
 	}
 
 
-    public function changeStatutDoc($id, $statut)
+
+	public function changeStatutDoc($id, $statut)
     {
         //
 	    $data = $this->modelRepository->getById($id);
-	    $data->statut_doc = $statut;
-	    $data->save();
 
 	    $redirect = redirect()->route('dmd.show', $id);
-	    if($statut == 1):
-			$redirect->withOk('La demande de stock a été envoyé');
-	    elseif ($statut == 2):
-		    $redirect->withOk('La dmande de stock a été cloturé');
-	    endif;
+
+	    if($data->statut_doc == 0):
+
+		    if($data->ligne_transfert()->count()):
+
+                if($statut == 1):
+				    $redirect->withOk('La demande de stock a été envoyé');
+                elseif ($statut == 2):
+				    $redirect->withOk('La dmande de stock a été cloturé');
+			    endif;
+
+		    else:
+
+			    return $redirect->withWarning('Vous devez associer des produits à demander avant l\'envoie de la demande');
+
+		    endif;
+
+        endif;
+
+	    $data->statut_doc = $statut;
+	    $data->save();
 
 	    return $redirect;
 
     }
+
+
 }

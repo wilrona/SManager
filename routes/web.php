@@ -236,6 +236,11 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::post('/store', 'TransfertController@storeSend')->middleware('auth')->name('dmd.store');
 		Route::post('/update/{id}', 'TransfertController@updateSend')->middleware('auth')->name('dmd.update');
 
+		Route::get('/add/produit/{id}', 'TransfertController@addProduit')->middleware('auth')->name('dmd.addProduit');
+		Route::get('/remove/produit/{key?}', 'TransfertController@removeProduit')->middleware('auth')->name('dmd.removeProduit');
+		Route::get('/list/produit', 'TransfertController@listProduit')->middleware('auth')->name('dmd.listingProduit');
+		Route::post('/valide/produit/{id}', 'TransfertController@validProduit')->middleware('auth')->name('dmd.valideProduit');
+
 	});
 
 	Route::prefix('/demandes/receive')->group(function () {

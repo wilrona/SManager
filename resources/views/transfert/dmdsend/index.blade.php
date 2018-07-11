@@ -67,6 +67,9 @@
                                                 Envoyée
                                             @endif
                                             @if($data->statut_doc == 2)
+                                                En traitement
+                                            @endif
+                                            @if($data->statut_doc == 3)
                                                 Cloturée
                                             @endif
                                         </td>

@@ -30,8 +30,9 @@
                     <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
                 @endif
             <div class="row">
-                {!! Form::model($data, ['route' => ['dmd.update', $data->id]]) !!}
+
                 <div class="col-md-8">
+                    {!! Form::model($data, ['route' => ['dmd.update', $data->id]]) !!}
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
                             <h3 class="panel-title">Information de la demande</h3>
@@ -96,10 +97,61 @@
 
                         </div>
                     </div>
+                    {!! Form::close() !!}
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Produits demandés</h4>
+                            <ul class="panel-heading-tabs border-light">
+                                <li>
+                                    <div class="pull-right">
+                                        <a href="{{ route('dmd.addProduit', $data->id) }}" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-plus"></i> Ajouter les produits</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table table-stylish">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Produit</th>
+                                    <th class="col-xs-1">Quantité</th>
+                                    <th class="col-xs-1"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                <?php if($produits):
+
+
+                                foreach($produits as $key => $value):
+                                ?>
+                                <tr>
+                                    <td><?= $key + 1 ?></td>
+                                    <td><?= $value['produit_name'] ?></td>
+                                    <td><?= $value['quantite'] ?></td>
+                                    <td><a class="delete" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
+                                </tr>
+                                <?php
+                                endforeach;
+                                else:
+                                ?>
+                                <tr>
+                                    <td colspan="4">
+                                        <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
+                                    </td>
+                                </tr>
+                                <?php endif; ?>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                 </div>
                 <div class="col-md-4"></div>
-                {!! Form::close() !!}
+
             </div>
         </div>
 
@@ -109,6 +161,23 @@
 
 @section('footer')
     @parent
-	
+
+    <script>
+        function remove($key){
+            $.ajax({
+                url: "<?= route('dmd.removeProduit') ?>/"+$key,
+                type: 'GET',
+                success : function(data){
+                    $.ajax({
+                        url: "<?= route('dmd.listingProduit') ?>",
+                        type: 'GET',
+                        success : function(list){
+                            $('#loading').html(list);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
     
 @stop

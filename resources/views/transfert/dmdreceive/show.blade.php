@@ -146,6 +146,49 @@
                         </div>
                     </div>
 
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Produits demandés</h4>
+
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table table-stylish">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Produit</th>
+                                    <th class="col-xs-1">Quantité</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+				                <?php if($data->ligne_transfert()->count()):
+
+
+				                foreach($data->ligne_transfert()->get() as $key => $value):
+				                ?>
+                                <tr>
+                                    <td><?= $key + 1 ?></td>
+                                    <td><?= $value->produit()->first()->name ?></td>
+                                    <td><?= $value->qte_dmd; ?></td>
+
+                                </tr>
+				                <?php
+				                endforeach;
+				                else:
+				                ?>
+                                <tr>
+                                    <td colspan="3">
+                                        <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
+                                    </td>
+                                </tr>
+				                <?php endif; ?>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-md-4"></div>
             </div>
