@@ -250,7 +250,10 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/show/{id}', 'TransfertController@showReceive')->middleware('auth')->name('receive.show');
 		Route::get('/change/statut/{id}/{statut}', 'TransfertController@changeStatutDoc')->middleware('auth')->name('receive.statutDoc');
 
+		Route::get('/save/stock/appro', 'TransfertController@saveStockAppro')->middleware('auth')->name('receive.saveStockAppro');
+
 		Route::post('/update/{id}', 'TransfertController@updateReceive')->middleware('auth')->name('receive.update');
+		Route::post('/check/stock', 'TransfertController@verifieStock')->middleware('auth')->name('receive.verifieStock');
 
 	});
 

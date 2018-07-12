@@ -65,7 +65,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('mag_dmd_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Magasin à approvisionner : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Magasin demandeur : </label>
                                 {!! Form::select('mag_dmd_id', $my_mag, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez l\'un de vos magasins...']) !!}
                                 {!! $errors->first('mag_dmd_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -75,7 +75,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('pos_appro_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Point de vente destinataire : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Point de vente approvisionneur : </label>
                                 {!! Form::select('pos_appro_id', $pos, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le point de vente à qui vous faite la demande..']) !!}
                                 {!! $errors->first('pos_appro_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -111,7 +111,7 @@
                             </ul>
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>

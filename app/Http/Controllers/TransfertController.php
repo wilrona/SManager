@@ -406,10 +406,6 @@ class TransfertController extends Controller
 
 
 
-
-
-
-
 	/**
 	 *
 	 *
@@ -420,11 +416,6 @@ class TransfertController extends Controller
 	 *
 	 *
 	 */
-
-
-
-
-
 
 
 
@@ -484,17 +475,13 @@ class TransfertController extends Controller
 	 * @param  int  $id
 	 * @return \Illuminate\Http\Response
 	 */
-	public function editReceive($id)
+	public function editReceive(Request $request, $id)
 	{
 
 		$data = $this->modelRepository->getById($id);
 
 		if($data->statut_doc == 2):
 			return redirect()->route('receive.show', $data->id)->withWarning('Cette demande est déja cloturée');
-		endif;
-
-		if($data->mag_appro_id):
-			return redirect()->route('receive.show', $data->id)->withWarning('Vous devez creer une expédition');
 		endif;
 
 		$currentUser= Auth::user();
@@ -520,8 +507,36 @@ class TransfertController extends Controller
 			$my_mag[$item->id] = $item->name;
 		endforeach;
 
+		$produits = array();
 
-		return view('transfert.dmdreceive.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'mag'));
+		$produit_ids = array();
+
+		if($request->session()->has('produit_receive')):
+			$request->session()->forget('produit_receive');
+		endif;
+
+		if($request->session()->has('produit_receive_id')):
+			$request->session()->forget('produit_receive_id');
+		endif;
+
+		foreach ($data->ligne_transfert()->get() as $items):
+			$save = array();
+
+			$save['produit_id']  = $items->produit()->first()->id;
+			$save['produit_name']  = $items->produit()->first()->name;
+			$save['quantite'] = $items->qte_dmd;
+			$save['quantite_exp'] = $items->qte_exp;
+			$save['quantite_a_exp'] = $items->qte_a_exp;
+
+			array_push($produits, $save);
+			array_push($produit_ids, $items->id);
+		endforeach;
+
+		$request->session()->put('produit_receive', $produits);
+		$request->session()->put('produit_receive_id', $produit_ids);
+
+
+		return view('transfert.dmdreceive.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'mag', 'produits'));
 
 	}
 
@@ -577,6 +592,42 @@ class TransfertController extends Controller
 	    return $redirect;
 
     }
+
+
+    public function verifieStock(Request $request){
+
+	    $data = $request->all();
+
+	    $mag = $this->magasinRepository->getById($data['magasin_id']);
+
+
+
+	    $mag_count = $mag->Stock()->where([
+	            ['produit_id', '=', $data['produit_id']],
+	            ['type', '=', 0],
+        ])->count();
+
+	    $response = array();
+
+	    if($mag_count > $data['qte_a_exp']):
+            $response['success'] = 'Your enquiry has been successfully submitted!';
+        else:
+            $response['error'] = 'Your enquiry has not been successfully submitted!';
+            $response['qte_stock'] = 'Your enquiry has not been successfully submitted!';
+        endif;
+
+	    return response()->json($response);
+    }
+
+	public function saveStockAppro(Request $request){
+        $data = $request->all();
+
+        $save = $this->modelRepository->getById($data['id']);
+        $save->mag_appro_id = $data['mag_appro_id'];
+        $save->save();
+
+		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
+	}
 
 
 }

@@ -157,3 +157,14 @@ $('#sample_5_column_toggler input[type="checkbox"]').change(function() {
     var bVis = oTable_5.fnSettings().aoColumns[iCol].bVisible;
     oTable_5.fnSetColumnVis(iCol, ( bVis ? false : true));
 });
+
+$('.number_max').on('keydown keyup', function(e){
+    if ($(this).val() >= $(this).attr('max')
+        && e.keyCode !== 46 // keycode for delete
+        && e.keyCode !== 8 // keycode for backspace
+    ) {
+
+        // $(this).val($(this).attr('max'));
+        e.preventDefault();
+    }
+});

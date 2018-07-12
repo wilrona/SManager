@@ -18,8 +18,10 @@ class CreateLigneTransfert extends Migration
 	    Schema::create('ligne_transfert', function (Blueprint $table) {
 		    $table->increments('id');
 		    $table->integer('qte_dmd');
-		    $table->integer('qte_exp')->nullable($value = true);
-		    $table->integer('qte_recu')->nullable($value = true);
+		    $table->integer('qte_exp')->nullable($value = true)->default(0);
+		    $table->integer('qte_a_exp')->nullable($value = true)->default(0);
+		    $table->integer('qte_recu')->nullable($value = true)->default(0);
+		    $table->integer('qte_a_recu')->nullable($value = true)->default(0);
 		    $table->integer('type_ligne')->default(0); // 0 serie; 1 Lots
 
 		    $table->integer('produit_id')->unsigned();

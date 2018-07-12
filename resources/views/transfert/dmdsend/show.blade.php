@@ -94,7 +94,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('mag_dmd_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Magasin à approvisionner : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Magasin demandeur : </label>
                                 {!! Form::select('mag_dmd_id', $my_mag, $data->mag_dmd_id, ['class' => 'form-control', 'disabled' => '']) !!}
                                 {!! $errors->first('mag_dmd_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -104,7 +104,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('pos_appro_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Point de vente destinataire : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Point de vente approvisionneur : </label>
                                 {!! Form::select('pos_appro_id', $pos, $data->pos_appro_id, ['class' => 'form-control', 'disabled' => '']) !!}
                                 {!! $errors->first('pos_appro_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -133,7 +133,7 @@
 
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>

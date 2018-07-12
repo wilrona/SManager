@@ -33,7 +33,7 @@
                             <h3 class="panel-title">Demande de stock Reçue</h3>
                         </div>
                         <div class="panel-body">
-                            <table class="table table-stylish sample_5">
+                            <table class="table  sample_5">
                                 <thead>
                                 <tr>
                                     <th class="col-md-1">#</th>

@@ -44,34 +44,20 @@
                                         <div class="btn-group">
                                             <a href="#" data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle"> Actions <span class="caret"></span> </a>
                                             <ul class="dropdown-menu" role="menu">
-                                                @if($data->statut_doc == 1)
-                                                    @if(empty($data->mag_appro_id))
-                                                        <li>
-                                                            <a href="{{ route('receive.edit', $data->id) }}"> Modifier </a>
-                                                        </li>
-                                                    @else
-                                                        <li>
-                                                            <a href="{{ route('receive.edit', $data->id) }}"> Creer une expédition </a>
-                                                        </li>
-                                                    @endif
-                                                @endif
-
-                                                @if($data->statut_doc == 1)
+                                                <li>
+                                                    <a href="{{ route('receive.edit', $data->id) }}"> Modifier </a>
+                                                </li>
                                                 <li>
                                                     <a href="{{ route('receive.statutDoc', [$data->id, 2]) }}"> Cloturer </a>
                                                 </li>
-                                                @endif
                                             </ul>
                                         </div>
                                     </div>
                                 </li>
                                 @endif
                                 <li>
-                                    @if($data->statut_doc == 0)
-                                    <a data-original-title="Brouillon" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-beige"></i></a>
-                                    @endif
                                     @if($data->statut_doc == 1)
-                                        <a data-original-title="Envoyée" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-success"></i></a>
+                                        <a data-original-title="En attente" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-beige"></i></a>
                                     @endif
                                     @if($data->statut_doc == 2)
                                         <a data-original-title="Cloturé" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-danger"></i></a>
@@ -103,7 +89,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('mag_dmd_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Magasin associée : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Magasin demandeur : </label>
                                 {!! Form::select('mag_dmd_id', $my_mag, $data->mag_dmd_id, ['class' => 'form-control', 'disabled' => '']) !!}
                                 {!! $errors->first('mag_dmd_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -113,7 +99,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('pos_appro_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Point de vente destinataire : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Point de vente approvisionneur : </label>
                                 {!! Form::select('pos_appro_id', $pos, $data->pos_appro_id, ['class' => 'form-control', 'disabled' => '']) !!}
                                 {!! $errors->first('pos_appro_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -123,7 +109,7 @@
                             </div>
 
                             <div class="form-group {!! $errors->has('mag_appro_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Votre magasin de sortie des produits : </label>
+                                <label for="exampleInputEmail1" class="text-bold"> Magasin approvisionneur : </label>
                                 {!! Form::select('mag_appro_id', $my_mag, $data->mag_appro_id, ['class' => 'form-control', 'disabled' => '', 'placeholder' => 'A définir']) !!}
                                 {!! $errors->first('mag_appro_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -152,12 +138,14 @@
 
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Produit</th>
-                                    <th class="col-xs-1">Quantité</th>
+                                    <th class="col-xs-2">Qte demandé</th>
+                                    <th class="col-xs-2">Qté Exp.</th>
+                                    <th class="col-xs-2">Qté à Exp.</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -171,6 +159,8 @@
                                     <td><?= $key + 1 ?></td>
                                     <td><?= $value->produit()->first()->name ?></td>
                                     <td><?= $value->qte_dmd; ?></td>
+                                    <td><?= $value->qte_exp; ?></td>
+                                    <td><?= $value->qte_a_exp; ?></td>
 
                                 </tr>
 				                <?php

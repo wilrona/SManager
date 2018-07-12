@@ -150,7 +150,7 @@
                             <h4 class="panel-title">Produits du bundle</h4>
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>
@@ -192,7 +192,7 @@
                             <h4 class="panel-title">Groupe de prix</h4>
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>

@@ -152,7 +152,7 @@
                             </ul>
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                     <tr>
                                         <th class="col-xs-1">#</th>
@@ -209,7 +209,7 @@
                             </ul>
                         </div>
                         <div class="panel-body" id="loading_GroupPrix">
-                            <table class="table table-stylish">
+                            <table class="table ">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>
