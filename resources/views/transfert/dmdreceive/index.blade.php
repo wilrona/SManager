@@ -52,12 +52,18 @@
                                         <td>{{ $data->pos_dmd()->first()->name }} ({{ $data->magasin_dmd()->first()->name }})</td>
                                         <td>
                                             @if($data->statut_doc == 1)
-                                                @if($data->statut_exp == 0)
+                                                @if(!$data->mag_appro_id)
                                                     En attente
-                                                @elseif($data->statut_exp == 1)
-                                                    Expédition partielle
                                                 @else
-                                                    Expédition totale
+                                                    @if($data->statut_exp != 0)
+                                                        @if($data->statut_exp == 1)
+                                                            Expédition partielle
+                                                        @else
+                                                            Expédition totale
+                                                        @endif
+                                                    @else
+                                                        En traitement
+                                                    @endif
                                                 @endif
                                             @endif
                                             @if($data->statut_doc == 2)

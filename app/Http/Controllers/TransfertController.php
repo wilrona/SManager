@@ -11,6 +11,7 @@ use App\Repositories\MagasinRepository;
 use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
+use App\Repositories\SerieRepository;
 use App\Repositories\TransfertRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,12 +24,14 @@ class TransfertController extends Controller
 	protected $parametreRepository;
 	protected $produitRepository;
 	protected $ligneTransfertRepository;
+	protected $serieRepository;
 
 	protected $custom;
 
 	public function __construct(TransfertRepository $transfert_repository, PointDeVenteRepository $point_de_vente_repository,
 		MagasinRepository $magasin_repository, ParametreRepository $parametre_repository,
-		ProduitRepository $produit_repository, LigneTransfertRepository $ligne_transfert_repository
+		ProduitRepository $produit_repository, LigneTransfertRepository $ligne_transfert_repository,
+        SerieRepository $serie_repository
 	) {
 
 		$this->modelRepository = $transfert_repository;
@@ -37,6 +40,7 @@ class TransfertController extends Controller
 		$this->parametreRepository = $parametre_repository;
 		$this->produitRepository = $produit_repository;
 		$this->ligneTransfertRepository = $ligne_transfert_repository;
+		$this->serieRepository = $serie_repository;
 
 		$this->custom = new CustomFunction();
 
@@ -201,12 +205,12 @@ class TransfertController extends Controller
 	    foreach ($data->ligne_transfert()->get() as $items):
 		    $save = array();
 
-		    $save['produit_id']  = $items->id;
+		    $save['produit_id']  = $items->produit()->first()->id;
 		    $save['produit_name']  = $items->produit()->first()->name;
 		    $save['quantite'] = $items->qte_dmd;
 
 		    array_push($produits, $save);
-		    array_push($produit_ids, $items->id);
+		    array_push($produit_ids, $items->produit()->first()->id);
 	    endforeach;
 
 	    $request->session()->put('produit_send', $produits);
@@ -522,6 +526,7 @@ class TransfertController extends Controller
 		foreach ($data->ligne_transfert()->get() as $items):
 			$save = array();
 
+			$save['ligne_id']  = $items->id;
 			$save['produit_id']  = $items->produit()->first()->id;
 			$save['produit_name']  = $items->produit()->first()->name;
 			$save['quantite'] = $items->qte_dmd;
@@ -607,13 +612,40 @@ class TransfertController extends Controller
 	            ['type', '=', 0],
         ])->count();
 
-	    $response = array();
+	    $response = array(
+	            'success' => '',
+                'error' => '',
+                'qte_stock' => '',
+                'qte_max' => ''
+        );
 
-	    if($mag_count > $data['qte_a_exp']):
-            $response['success'] = 'Your enquiry has been successfully submitted!';
+	    $current_ligne = $this->ligneTransfertRepository->getById($data['ligne_id']);
+
+	    if($data['qte_a_exp'] <= $current_ligne->qte_dmd):
+            if($mag_count > $data['qte_a_exp']):
+                if($data['qte_a_exp'] == 0):
+	                $response['error'] = 'Your enquiry has not been successfully submitted!';
+                else:
+                    $response['success'] = 'Quantité suffisante !';
+	            endif;
+
+                $current_ligne->qte_a_exp = $data['qte_a_exp'];
+                $current_ligne->save();
+
+            else:
+                $response['error'] = 'Quantité non suffisante !';
+                $response['qte_stock'] = $mag_count;
+
+                $current_ligne->qte_a_exp = 0;
+                $current_ligne->save();
+            endif;
         else:
-            $response['error'] = 'Your enquiry has not been successfully submitted!';
-            $response['qte_stock'] = 'Your enquiry has not been successfully submitted!';
+
+	        $response['error'] = 'La quantité à expédier ne doit pas être supérieure à la quantité demandée';
+            $response['qte_max'] = 'La quantité à expédier ne doit pas être supérieure à la quantité demandée';
+	        $current_ligne->qte_a_exp = 0;
+	        $current_ligne->save();
+
         endif;
 
 	    return response()->json($response);
@@ -627,6 +659,35 @@ class TransfertController extends Controller
         $save->save();
 
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
+	}
+
+	public function addSerie(Request $request, $demande_id){
+
+		$demande = $this->modelRepository->getById($demande_id);
+		$magasin_id = $demande->mag_appro_id;
+
+
+		$series = $this->magasinRepository->getById($magasin_id);
+		$series = $series->Stock()->get();
+
+		$produits = array();
+		foreach ($series as $serie):
+//            if(!$serie->ligne_serie()->count()):
+//                if($serie->type == 0):
+//                    if($serie->lot_id):
+//                        if(!$serie->Lot()->ligne_serie()->count()):
+//	                        array_push($produits, $serie);
+//                        endif;
+//                    else:
+//	                    array_push($produits, $serie);
+//                    endif;
+//                elseif($serie->type == 1):
+//	                array_push($produits, $serie);
+//                endif;
+//            endif;
+        endforeach;
+
+//		return view('transfert.dmdreceive.addSerie', compact('produits', 'id'));
 	}
 
 

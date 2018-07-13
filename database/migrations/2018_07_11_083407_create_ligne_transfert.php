@@ -35,7 +35,10 @@ class CreateLigneTransfert extends Migration
 	    Schema::create('ligne_transfert_serie', function (Blueprint $table) {
 		    $table->integer('serie_id')->unsigned();
 		    $table->integer('ligne_id')->unsigned();
+
 		    $table->integer('livre')->default(0);
+		    $table->integer('exo')->default(0);
+		    $table->integer('qte')->default(1);
 
 		    $table->foreign('serie_id')->references('id')->on('series')
 		          ->onUpdate('cascade')->onDelete('cascade');

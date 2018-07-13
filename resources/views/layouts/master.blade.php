@@ -26,6 +26,7 @@
 		<link rel="stylesheet" href="{{URL::asset('bower_components/ladda/dist/ladda-themeless.min.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/slick.js/slick/slick.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/slick.js/slick/slick-theme.css')}}">
+		<link rel="stylesheet" href="{{URL::asset('bower_components/toastr/toastr.min.css')}}">
 		<!-- end: MAIN CSS -->
 		<!-- start: CSS REQUIRED FOR THIS PAGE ONLY -->
 		<!-- end: CSS REQUIRED FOR THIS PAGE ONLY -->
@@ -345,6 +346,18 @@
 				 </div>
 			 </div>
 		 </div>
+		 <div class="modal centered-modal" id="myModal-lg" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+			 <div class="modal-dialog modal-lg">
+				 <div class="modal-content ">
+					 <div >
+						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
+							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
+							 <h3 class="margin-top-35">Chargement ....</h3>
+						 </div>
+					 </div>
+				 </div>
+			 </div>
+		 </div>
 
 	 </div>
 			
@@ -381,6 +394,7 @@
 	 	<script src="{{URL::asset('bower_components/DataTables/media/js/jquery.dataTables.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/DataTables/media/js/dataTables.bootstrap.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.js')}}"></script>
+	 	<script src="{{URL::asset('bower_components/toastr/toastr.min.js')}}"></script>
 		<!-- end: MAIN JAVASCRIPTS -->
 		<!-- start: JAVASCRIPTS REQUIRED FOR THIS PAGE ONLY >
 		<script src="bower_components/Chart-js/Chart.min.js"></script>
@@ -394,6 +408,7 @@
 		<script src="{{URL::asset('assets/js/selectFx/selectFx.js')}}"></script>
 		<script src="{{URL::asset('assets/js/form-elements.js')}}"></script>
 	 	<script src="{{URL::asset('assets/js/table-data.js')}}"></script>
+	 	<script src="{{URL::asset('assets/js/ui-notifications.js')}}"></script>
 
 
 	 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
@@ -408,6 +423,7 @@
 //				Index.init();
                 FormElements.init();
                 TableData.init();
+                UINotifications.init();
 			});
 
             $('#myModal').on('hide.bs.modal', function(e) {
@@ -419,6 +435,20 @@
                     '                            </div>');
 
             });
+
+            toastr.options = {
+                "closeButton": true,
+                "positionClass": "toast-bottom-right",
+                "showDuration": "1000",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
 		</script>
 
 

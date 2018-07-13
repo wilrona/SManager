@@ -64,13 +64,15 @@
                                                 Brouillon
                                             @endif
                                             @if($data->statut_doc == 1)
-                                                Envoyée
+                                                @if($data->mag_appro_id)
+                                                    En traitement
+                                                @else
+                                                    Envoyée
+                                                @endif
                                             @endif
-                                            @if($data->statut_doc == 2)
-                                                En traitement
-                                            @endif
+
                                             @if($data->statut_doc == 3)
-                                                Cloturée
+                                                Annulée
                                             @endif
                                         </td>
                                         <td>

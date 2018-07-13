@@ -38,7 +38,7 @@
                                 <li class="middle-center">
                                     <a href="{{ route('dmd.index') }}" class="btn btn-o btn-sm btn-default">Retour</a>
                                 </li>
-                                @if($data->statut_exp == 0 && $data->statut_doc != 4)
+                                @if(!$data->mag_appro_id && $data->statut_doc != 3)
                                 <li class="middle-center">
                                     <div class="pull-right">
                                         <div class="btn-group">
@@ -56,7 +56,7 @@
                                                 @endif
                                                 @if($data->statut_doc == 0 || $data->statut_doc == 1)
                                                 <li>
-                                                    <a href="{{ route('dmd.statutDoc', [$data->id, 4]) }}"> Annuler </a>
+                                                    <a href="{{ route('dmd.statutDoc', [$data->id, 3]) }}"> Annuler </a>
                                                 </li>
                                                 @endif
                                             </ul>
@@ -69,13 +69,15 @@
                                     <a data-original-title="Brouillon" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-beige"></i></a>
                                     @endif
                                     @if($data->statut_doc == 1)
-                                        <a data-original-title="Envoyée" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-success"></i></a>
+                                        @if($data->mag_appro_id)
+                                            <a data-original-title="En traitement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-info"></i></a>
+                                        @else
+                                            <a data-original-title="Envoyée" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-success"></i></a>
+                                        @endif
                                     @endif
-                                    @if($data->statut_doc == 2)
-                                        <a data-original-title="En traitement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-info"></i></a>
-                                    @endif
-                                    @if($data->statut_doc == 3 || $data->statut_doc == 4)
-                                        <a data-original-title="Annuler" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-danger"></i></a>
+
+                                    @if($data->statut_doc == 2 || $data->statut_doc == 3)
+                                        <a data-original-title="<?= $data->statut_doc == 2 ? 'Cloturée' : 'Annuler' ?>" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-danger"></i></a>
                                     @endif
                                 </li>
 
