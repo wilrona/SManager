@@ -189,10 +189,6 @@
 										<li>
 											<a href="{{ route('serie.index') }}"> <span class="title">N° Serie </span> </a>
 										</li>
-										<li>
-											<a href="{{ route('lot.index') }}"> <span class="title">Lots </span> </a>
-										</li>
-
 
 									</ul>
 								</li>

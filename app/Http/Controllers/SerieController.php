@@ -51,29 +51,7 @@ class SerieController extends Controller
 			$q->whereIn('id', $mags);
 		})->get();
 
-		return view('series.index', compact('datas'));
-	}
-
-	public function indexLot(){
-
-		$currentUser= Auth::user();
-		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
-
-		$mags = array();
-		if($pos_user):
-			foreach ($pos_user->Magasins()->get() as $mag):
-				array_push($mags, $mag->id);
-			endforeach;
-		endif;
-
-		$datas = $this->modelRepository->getWhere()->where([
-			['type', '=', 1],
-			['importe', '=', 1]
-		])->whereHas('Magasins', function ($q) use ($mags){
-			$q->whereIn('id', $mags);
-		})->get();
-
-		return view('series.indexLot', compact('datas'));
+		return view('series.index', compact('datas', 'mags'));
 	}
 
 	public function preview(){

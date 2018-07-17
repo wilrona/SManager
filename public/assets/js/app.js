@@ -49,7 +49,7 @@ var oTable_3 = $('.sample_3').dataTable({
     "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tous"], // change per page values here
     ],
     // set the initial value
-    "iDisplayLength" : 10,
+    "iDisplayLength" : 25,
     "searching": false,
 });
 $('#sample_3_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
@@ -95,7 +95,7 @@ var oTable_4 = $('.sample_4').dataTable({
     "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tous"], // change per page values here
     ],
     // set the initial value
-    "iDisplayLength" : 10,
+    "iDisplayLength" : 25,
     "searching": false,
 });
 $('#sample_4_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
@@ -142,7 +142,7 @@ var oTable_5 = $('.sample_5').dataTable({
     "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tous"], // change per page values here
     ],
     // set the initial value
-    "iDisplayLength" : 10,
+    "iDisplayLength" : 25,
     "searching": true
 });
 $('#sample_5_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
@@ -163,7 +163,6 @@ $('.number_max').on('keydown keyup', function(e){
         && e.keyCode !== 46 // keycode for delete
         && e.keyCode !== 8 // keycode for backspace
     ) {
-
         // $(this).val($(this).attr('max'));
         e.preventDefault();
     }

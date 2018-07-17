@@ -14,7 +14,7 @@ class LigneTransfert extends Model
 	protected $fillable = ['qte_dmd', 'qte_exp', 'qte_recu', 'type_ligne', 'produit_id', 'transfert_id'];
 
 	public function transfert(){
-		return $this->belongsTo('App\Transfert', 'transfert_id', 'id');
+		return $this->belongsTo('App\Transferts', 'transfert_id', 'id');
 	}
 	public function produit(){
 		return $this->belongsTo('App\Produits', 'produit_id', 'id');

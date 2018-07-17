@@ -146,11 +146,11 @@
                             <table class="table ">
                                 <thead>
                                 <tr>
-                                    <th class="col-xs-1">#</th>
-                                    <th>Produit</th>
-                                    <th class="col-xs-2">Qte demandé</th>
-                                    <th class="col-xs-2">Qté  Exp.</th>
-                                    <th class="col-xs-2">Qté à Exp.</th>
+                                    <th>#</th>
+                                    <th class="col-xs-5">Produit</th>
+                                    <th class="col-xs-2 text-center">Qté ddé</th>
+                                    <th class="col-xs-2 text-center">Qté  Exp.</th>
+                                    <th class="col-xs-2 text-center">Qté à Exp.</th>
                                     <th class="col-xs-1"></th>
                                 </tr>
                                 </thead>
@@ -164,15 +164,12 @@
                                 <tr>
                                     <td><?= $key + 1 ?></td>
                                     <td><?= $value['produit_name'] ?> <div><small class="text-danger" id="<?= $value['produit_id'] ?>"></small></div> </td>
-                                    <td><?= $value['quantite'] ?></td>
-                                    <td><?= $value['quantite_exp'] ?></td>
-                                    <td>
-                                        <input type="number" class="form-control number_max" style="display: inline; width: 100%" name="quantite_a_exp[]" value="<?= $value['quantite_a_exp']  ?>" min="0" max="<?= $value['quantite'] ?>" data-ligne="<?= $value['ligne_id'] ?>" data-produit="<?= $value['produit_id'] ?>">
-                                        <!--<span class="validity"></span>-->
-                                    </td>
+                                    <td class="text-center"><?= $value['quantite'] ?></td>
+                                    <td class="text-center"><?= $value['quantite_exp'] ?></td>
+                                    <td class="text-center"><?= $value['quantite_a_exp']; ?></td>
                                     <td>
                                         <div aria-label="First group" role="group" class="btn-group col-xs-12">
-                                            <a href="{{ route('receive.addSerie', $data->id) }}" class="btn btn-primary btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
+                                            <a href="{{ route('receive.addSerie', [$value['ligne_id']]) }}" class="btn btn-primary btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static" data-quantite="<?= $value['quantite'] ?>" data-ligne="<?= $value['ligne_id'] ?>" data-produit="<?= $value['produit_id'] ?>">
                                                 <i class="fa fa-list-alt"></i>
                                             </a>
                                         </div>
@@ -183,7 +180,7 @@
 				                else:
 				                ?>
                                 <tr>
-                                    <td colspan="4">
+                                    <td colspan="6">
                                         <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
                                     </td>
                                 </tr>
@@ -209,100 +206,105 @@
 
     <script>
         $( document ).ready(function() {
+
             var $mag_appro_id = '';
 
-            $('.btn-serie').bind('click', false);
-            $('.btn-serie').attr('disabled', true);
-
-            $('.number_max').each(function (number) {
-                if($(this).val() > 0 && parseInt($(this).val()) <= parseInt($(this).attr("max"))){
-                    $('.btn-serie').unbind('click', false);
-                    $('.btn-serie').attr('disabled', false);
-                }
-            });
+            if($('[name=mag_appro_id]').val() !== ''){
+                $mag_appro_id = $('[name=mag_appro_id]').val();
+            }else{
+                $('.btn-serie').bind('click', false);
+                $('.btn-serie').attr('disabled', true);
+            }
 
             $('li[data-option]').on('click', function () {
                 $mag_appro_id = $(this).data('value');
 
                 if($mag_appro_id !== ''){
                     $('.mag_appro_id').addClass('hidden');
+                    $('.btn-serie').unbind('click', false);
+                    $('.btn-serie').attr('disabled', false);
+                }else{
+                    $('.btn-serie').bind('click', false);
+                    $('.btn-serie').attr('disabled', true);
                 }
 
                 // Enregistrement du magasin approvisionneur
                 $.ajax({
                     url: "<?= route('receive.saveStockAppro') ?>",
                     type: 'GET',
-                    data: { mag_appro_id: $mag_appro_id, id:{{ $data->id }} }
-                });
-
-                $('.number_max').each(function (number) {
-                    $(this).val(0);
+                    data: { mag_appro_id: $mag_appro_id, id:{{ $data->id }} },
+                    success: function(data) {
+                        if(data['error'].length > 0){
+                            toastr["error"](data['error'], "Erreur");
+                            $('.mag_appro_id').removeClass('hidden');
+                        }
+                    }
                 });
             });
 
-            $('.number_max').on('focusout', function (e) {
-                e.preventDefault();
+            {{--$('.number_max').on('focusout', function (e) {--}}
+                {{--e.preventDefault();--}}
 
-                if($('[name=mag_appro_id]').val() !== ''){
-                    $mag_appro_id = $('[name=mag_appro_id]').val();
-                }
+                {{--if($('[name=mag_appro_id]').val() !== ''){--}}
+                    {{--$mag_appro_id = $('[name=mag_appro_id]').val();--}}
+                {{--}--}}
 
-                var $produit = $(this).data('produit');
+                {{--var $produit = $(this).data('produit');--}}
 
-                var $content = $(this).parent().parent();
+                {{--var $content = $(this).parent().parent();--}}
 
-                var $this = $(this);
+                {{--var $this = $(this);--}}
 
-                if($mag_appro_id === ''){
-                    $('.btn-serie').bind('click', false);
-                    $('.btn-serie').attr('disabled', true);
-                    $('.mag_appro_id').removeClass('hidden');
-                }else{
+                {{--if($mag_appro_id === ''){--}}
+                    {{--$('.btn-serie').bind('click', false);--}}
+                    {{--$('.btn-serie').attr('disabled', true);--}}
+                    {{--$('.mag_appro_id').removeClass('hidden');--}}
+                {{--}else{--}}
 
-                    $('.mag_appro_id').addClass('hidden');
+                    {{--$('.mag_appro_id').addClass('hidden');--}}
 
-                    // Ajx pour vérifier que la quantité est en stock
-                    $.ajax({
-                        url: "<?= route('receive.verifieStock', $data->id) ?>",
-                        data: { qte_a_exp : $(this).val(), produit_id: $(this).data('produit'), magasin_id: $mag_appro_id, ligne_id: $(this).data('ligne') },
-                        type: 'POST',
-                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                        success: function(data) {
-                            if(data['success'].length > 0){
-                                $content.removeClass('danger');
-                                $('#'+$produit).html('');
-                                $('.btn-serie').unbind('click', false);
-                                $('.btn-serie').attr('disabled', false);
-                                toastr["success"](data['success'], "Success")
-                            }else{
+                    {{--// Ajx pour vérifier que la quantité est en stock--}}
+                    {{--$.ajax({--}}
+                        {{--url: "<?= route('receive.verifieStock', $data->id) ?>",--}}
+                        {{--data: { qte_a_exp : $(this).val(), produit_id: $(this).data('produit'), magasin_id: $mag_appro_id, ligne_id: $(this).data('ligne') },--}}
+                        {{--type: 'POST',--}}
+                        {{--headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},--}}
+                        {{--success: function(data) {--}}
+                            {{--if(data['success'].length > 0){--}}
+                                {{--$content.removeClass('danger');--}}
+                                {{--$('#'+$produit).html('');--}}
+                                {{--$('.btn-serie').unbind('click', false);--}}
+                                {{--$('.btn-serie').attr('disabled', false);--}}
+                                {{--toastr["success"](data['success'], "Success")--}}
+                            {{--}else{--}}
 
-                                if($content.hasClass('danger')){
-                                    $content.removeClass('danger');
-                                    $('#'+$produit).html('');
-                                }
+                                {{--if($content.hasClass('danger')){--}}
+                                    {{--$content.removeClass('danger');--}}
+                                    {{--$('#'+$produit).html('');--}}
+                                {{--}--}}
 
-                                if(data['qte_stock'].length > 0){
-                                    $content.addClass('danger');
-                                    $('#'+$produit).html('Quantité en stock : '+ data['qte_stock']);
-                                    toastr["error"](data['error'], "Erreur")
-                                }
+                                {{--if(data['qte_stock'].length > 0){--}}
+                                    {{--$content.addClass('danger');--}}
+                                    {{--$('#'+$produit).html('Quantité en stock : '+ data['qte_stock']);--}}
+                                    {{--toastr["error"](data['error'], "Erreur")--}}
+                                {{--}--}}
 
-                                if(data['qte_max'].length > 0){
-                                    $content.addClass('danger');
-                                    $('#'+$produit).html(data['qte_max']);
-                                    toastr["error"](data['error'], "Erreur")
-                                }
-                                $('.btn-serie').bind('click', false);
-                                $('.btn-serie').attr('disabled', true);
-                                $this.val(0);
-                            }
-                        }
-                    });
+                                {{--if(data['qte_max'].length > 0){--}}
+                                    {{--$content.addClass('danger');--}}
+                                    {{--$('#'+$produit).html(data['qte_max']);--}}
+                                    {{--toastr["error"](data['error'], "Erreur")--}}
+                                {{--}--}}
+                                {{--$('.btn-serie').bind('click', false);--}}
+                                {{--$('.btn-serie').attr('disabled', true);--}}
+                                {{--$this.val(0);--}}
+                            {{--}--}}
+                        {{--}--}}
+                    {{--});--}}
 
-                }
+                {{--}--}}
 
 
-            })
+            {{--})--}}
 
         });
 

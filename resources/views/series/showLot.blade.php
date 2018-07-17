@@ -38,7 +38,7 @@
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
-                                        <a href="{{ route('lot.index') }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
+                                        <a href="{{ route('serie.index') }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
                                     </div>
                                 </li>
 
