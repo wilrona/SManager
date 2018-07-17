@@ -52,7 +52,7 @@
                                         <th class="col-xs-3">No Lot</th>
                                         <th class="col-xs-2">Produit</th>
                                         <th class="col-xs-2">Magasin</th>
-                                        <th class="col-xs-1">Type</th>
+                                        <th class="col-xs-1 no-sort">Type</th>
                                         <th class="col-xs-2"></th>
                                     </tr>
                                     </thead>
@@ -67,7 +67,7 @@
                                                     {{ $data->reference }} <br>
                                                     Qté du lot : {{ $data->SeriesLots()->whereHas('Magasins', function($q) use ($mags)
                                                     {
-                                                        $q->whereIn('id', $mags);
+                                                            $q->whereIn('id', $mags);
                                                     })->count() }}
                                                 @else
                                                     {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
@@ -112,6 +112,11 @@
 
     <script>
         $(document).ready(function() {
+
+            oTable_5.api().init().aoColumnDefs = [{
+                "aTargets" : [3, 4, 5],
+                "bSortable": false
+            }];
             oTable_5.api().columns().every( function () {
                 var column = this;
                 if(column.index() === 3 || column.index() === 4 || column.index() === 5){

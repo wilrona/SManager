@@ -47,3 +47,10 @@ input:valid+span:after {
     content: '✓';
     padding-left: 5px;
 }
+
+.no-sort::after { display: none!important; }
+
+.no-sort {
+    /*pointer-events: none!important; */
+    cursor: default!important;
+}

@@ -265,7 +265,7 @@
 
                     {{--// Ajx pour vérifier que la quantité est en stock--}}
                     {{--$.ajax({--}}
-                        {{--url: "<?= route('receive.verifieStock', $data->id) ?>",--}}
+                        {{--url: "",--}}
                         {{--data: { qte_a_exp : $(this).val(), produit_id: $(this).data('produit'), magasin_id: $mag_appro_id, ligne_id: $(this).data('ligne') },--}}
                         {{--type: 'POST',--}}
                         {{--headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},--}}

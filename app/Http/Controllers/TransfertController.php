@@ -603,52 +603,60 @@ class TransfertController extends Controller
 
 	    $data = $request->all();
 
-	    $mag = $this->magasinRepository->getById($data['magasin_id']);
-
-
-
-	    $mag_count = $mag->Stock()->where([
-	            ['produit_id', '=', $data['produit_id']],
-	            ['type', '=', 0],
-        ])->count();
-
 	    $response = array(
-	            'success' => '',
-                'error' => '',
-                'qte_stock' => '',
-                'qte_max' => ''
-        );
+		    'success' => '',
+		    'error' => ''
+	    );
 
-	    $current_ligne = $this->ligneTransfertRepository->getById($data['ligne_id']);
 
-	    if($data['qte_a_exp'] <= $current_ligne->qte_dmd):
-            if($mag_count > $data['qte_a_exp']):
-                if($data['qte_a_exp'] == 0):
-	                $response['error'] = 'Your enquiry has not been successfully submitted!';
-                else:
-                    $response['success'] = 'Quantité suffisante !';
-	            endif;
-
-                $current_ligne->qte_a_exp = $data['qte_a_exp'];
-                $current_ligne->save();
-
-            else:
-                $response['error'] = 'Quantité non suffisante !';
-                $response['qte_stock'] = $mag_count;
-
-                $current_ligne->qte_a_exp = 0;
-                $current_ligne->save();
-            endif;
-        else:
-
-	        $response['error'] = 'La quantité à expédier ne doit pas être supérieure à la quantité demandée';
-            $response['qte_max'] = 'La quantité à expédier ne doit pas être supérieure à la quantité demandée';
-	        $current_ligne->qte_a_exp = 0;
-	        $current_ligne->save();
-
-        endif;
 
 	    return response()->json($response);
+    }
+
+    public function checkSerie(Request $request, $ligne_id){
+	    $data = $request->all();
+
+        $count = $data['count'];
+
+        $serie = $this->serieRepository->getById($data['id']);
+
+        if($serie->type == 1):
+            if($data['action'] == 'add'):
+                $count += $serie->SeriesLots()->count();
+            else:
+	            $count -= $serie->SeriesLots()->count();
+            endif;
+        else:
+	        if($data['action'] == 'add'):
+		        $count += 1;
+	        else:
+		        $count -= 1;
+	        endif;
+        endif;
+
+	    $response = array(
+		    'success' => '',
+		    'error' => '',
+            'count' => 0,
+            'action' => $data['action']
+	    );
+
+        $ligne = $this->ligneTransfertRepository->getById($ligne_id);
+        if($ligne->qte_dmd >= $count):
+	        $response['count'] = $count;
+            if($data['action'] == 'add'):
+                $response['success'] = 'Le produit a été pris en compte';
+            else:
+                $response['success'] = 'Le produit a été retiré avec succès';
+            endif;
+        else:
+	        $response['count'] = $data['count'];
+	        $response['error'] = 'Quantité de produit selectionnée supérieure par rapport à la quantité demandé';
+        endif;
+
+
+	    return response()->json($response);
+
     }
 
 	public function saveStockAppro(Request $request){
@@ -705,18 +713,18 @@ class TransfertController extends Controller
             if($serie->type == 0):
                 if($serie->lot_id):
                     if(!$serie->Lot()->first()->ligne_serie()->count()):
-                        array_push($produits, $serie);
+                        array_push($produits, $serie->id);
                     endif;
                 else:
-                    array_push($produits, $serie);
+                    array_push($produits, $serie->id);
                 endif;
             elseif($serie->type == 1):
-                array_push($produits, $serie);
+                array_push($produits, $serie->id);
             endif;
+
         endforeach;
 
-
-		return view('transfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'ligne'));
+		return view('transfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'ligne', 'demande', 'series'));
 	}
 
 

@@ -21,7 +21,8 @@
 
 var oTable_3 = $('.sample_3').dataTable({
     "aoColumnDefs" : [{
-        "aTargets" : [0]
+        "aTargets" : [0, 3],
+        "bSortable": false
     }],
     "oLanguage" : {
         "sProcessing":     "Traitement en cours...",
@@ -49,8 +50,9 @@ var oTable_3 = $('.sample_3').dataTable({
     "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tous"], // change per page values here
     ],
     // set the initial value
-    "iDisplayLength" : 25,
-    "searching": false,
+    "iDisplayLength" : 10,
+    "searching": true
+
 });
 $('#sample_3_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
 // modify table search input
@@ -96,7 +98,8 @@ var oTable_4 = $('.sample_4').dataTable({
     ],
     // set the initial value
     "iDisplayLength" : 25,
-    "searching": false,
+    "searching": false
+
 });
 $('#sample_4_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
 // modify table search input
@@ -144,6 +147,7 @@ var oTable_5 = $('.sample_5').dataTable({
     // set the initial value
     "iDisplayLength" : 25,
     "searching": true
+
 });
 $('#sample_5_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
 // modify table search input
@@ -167,3 +171,4 @@ $('.number_max').on('keydown keyup', function(e){
         e.preventDefault();
     }
 });
+

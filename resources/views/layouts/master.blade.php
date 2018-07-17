@@ -412,7 +412,7 @@
 	 	<script src="{{URL::asset('assets/js/app.js')}}"></script>
 		<!-- end: Packet JAVASCRIPTS -->
 
-		{{--<script src="{{URL::asset('assets/js/index.js')}}"></script>--}}
+		<script src="{{URL::asset('assets/js/index.js')}}"></script>
 		<script>
 			jQuery(document).ready(function() {
 				Main.init();
@@ -423,6 +423,16 @@
 			});
 
             $('#myModal').on('hide.bs.modal', function(e) {
+                $(this).removeData('bs.modal');
+                $('.modal-content').html('<div class="height-200" >\n' +
+                    '                                <div style="margin: 0 auto; text-align: center;">\n' +
+                    '                                    <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
+                    '                                </div>\n' +
+                    '                            </div>');
+
+            });
+
+            $('#myModal-lg').on('hide.bs.modal', function(e) {
                 $(this).removeData('bs.modal');
                 $('.modal-content').html('<div class="height-200" >\n' +
                     '                                <div style="margin: 0 auto; text-align: center;">\n' +

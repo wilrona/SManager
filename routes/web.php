@@ -253,6 +253,7 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/save/stock/appro', 'TransfertController@saveStockAppro')->middleware('auth')->name('receive.saveStockAppro');
 
 		Route::get('/add/serie/{ligne_id}', 'TransfertController@addSerie')->middleware('auth')->name('receive.addSerie');
+		Route::get('/check/add/serie/{ligne_id}', 'TransfertController@checkSerie')->middleware('auth')->name('receive.checkSerie');
 
 
 		Route::post('/update/{id}', 'TransfertController@updateReceive')->middleware('auth')->name('receive.update');
