@@ -77,7 +77,7 @@
 
         @foreach ($series as $data)
             @if(in_array($data->id, $produits))
-            <tr id="{{ $data->id }}">
+            <tr id="{{ $data->id }}" class="@if(in_array($data->id, $current_serie)) success @endif">
                 <td>
                     <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $current_serie)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
                 </td>
@@ -116,9 +116,6 @@
         FormElements.init();
     });
 
-
-
-
     oTable_3.api().columns().every( function () {
         var column = this;
         if(column.index() === 3){
@@ -146,8 +143,13 @@
 
         $('#form-field-search').on('keyup', function(){
             oTable_3.fnFilter($(this).val());
-            if(oTable_3.fnSettings().fnRecordsDisplay() === 1){
+            if($(this).val().length > 0){
+                if(oTable_3.fnSettings().fnRecordsDisplay() === 1){
+                    if(!oTable_3.$('tbody > tr').hasClass('success')){
+                        oTable_3.$('tbody > tr').trigger('click');
+                    }
 
+                }
             }
         });
 
@@ -194,7 +196,50 @@
 
         });
 
+        $('#submits').on('click', function (e) {
+            e.preventDefault();
 
+            var $qte_a_exp = "<?= $ligne->qte_a_exp ?>";
+
+            if(oTable_3.$('input.checkbox-item:checked').length > 0 ){
+
+                save();
+
+            }else{
+
+                if(parseInt($qte_a_exp) > 0){
+                    save()
+                }else{
+                    toastr["error"]('Aucun numéro de serie selectionné', "Erreur");
+                }
+            }
+
+        });
+
+        function save(){
+            $.ajax({
+                url: "<?= route('receive.validSerie', $ligne->id)?>",
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: oTable_3.$('input.checkbox-item:checked').serialize(),
+                success: function(data) {
+
+                    if(data['success'].length > 0){
+                        toastr["success"](data['success'], "Succès");
+                    }
+
+                    $.ajax({
+                        url: "<?= route('receive.listing', $ligne->transfert_id)?>",
+                        type: 'GET',
+                        success : function(list){
+                            $('#loading').html(list);
+                            $('.close').trigger('click');
+                        }
+                    });
+
+                }
+            });
+        }
 
     });
 

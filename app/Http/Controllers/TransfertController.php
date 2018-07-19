@@ -599,38 +599,140 @@ class TransfertController extends Controller
     }
 
 
-    public function verifieStock(Request $request){
+    public function validSerie(Request $request, $ligne_id){
 
 	    $data = $request->all();
 
+        $ligne_id = $this->ligneTransfertRepository->getById($ligne_id);
+
+        $ligne_id->serie_ligne()->detach();
+
+        $count = 0;
+        if(isset($data['produit'])):
+            foreach ($data['produit'] as $produit):
+                $serie = $this->serieRepository->getById($produit);
+                if($serie->type == 1):
+                    $ligne_id->serie_ligne()->save($serie, ['qte' => $serie->SeriesLots()->count()]);
+                    $count += $serie->SeriesLots()->count();
+                else:
+                    $ligne_id->serie_ligne()->save($serie, ['qte' => 1]);
+                    $count += 1;
+                endif;
+            endforeach;
+        endif;
+
+	    $ligne_id->qte_a_exp = $count;
+	    $ligne_id->save();
+
 	    $response = array(
-		    'success' => '',
-		    'error' => ''
+		    'success' => 'Tous les enregistrements ont été pris en compte'
 	    );
-
-
 
 	    return response()->json($response);
     }
 
+	public function listdmd($demande_id){
+
+		$dmd = $this->modelRepository->getById($demande_id);
+
+		?>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="col-xs-5">Produit</th>
+                    <th class="col-xs-2 text-center">Qté ddé</th>
+                    <th class="col-xs-2 text-center">Qté  Exp.</th>
+                    <th class="col-xs-2 text-center">Qté à Exp.</th>
+                    <th class="col-xs-1"></th>
+                </tr>
+            </thead>
+            <tbody>
+			<?php if($dmd->ligne_transfert()->count()):
+				foreach($dmd->ligne_transfert()->get() as $key => $value):
+					?>
+                    <tr>
+                        <td><?= $key + 1 ?></td>
+                        <td><?= $value->produit()->first()->name ?> <div><small class="text-danger" id="<?= $value->produit()->first()->id ?>"></small></div> </td>
+                        <td class="text-center"><?= $value->qte_dmd ?></td>
+                        <td class="text-center"><?= $value->qte_exp ?></td>
+                        <td class="text-center"><?= $value->qte_a_exp; ?></td>
+                        <td>
+                            <div aria-label="First group" role="group" class="btn-group col-xs-12">
+                                <a href="<?=  route('receive.addSerie', [$value->id]) ?>" class="btn btn-primary btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static" data-quantite="<?= $value->qte_dmd ?>" data-ligne="<?= $value->id ?>" data-produit="<?= $value->produit()->first()->id ?>">
+                                    <i class="fa fa-list-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+					<?php
+				endforeach;
+			else:
+				?>
+                <tr>
+                    <td colspan="6">
+                        <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
+                    </td>
+                </tr>
+			<?php endif; ?>
+            </tbody>
+        </table>
+
+		<?php
+	}
+
     public function checkSerie(Request $request, $ligne_id){
 	    $data = $request->all();
+
+	    $serie_id = array();
+
+	    if($request->session()->has('serie_ligne')):
+		    $serie_id = $request->session()->get('serie_ligne');
+	    endif;
 
         $count = $data['count'];
 
         $serie = $this->serieRepository->getById($data['id']);
 
+	    $exist = false;
+
+
         if($serie->type == 1):
-            if($data['action'] == 'add'):
-                $count += $serie->SeriesLots()->count();
-            else:
-	            $count -= $serie->SeriesLots()->count();
+
+            foreach ($serie->SeriesLots()->get() as $sousSerie):
+                if(in_array($sousSerie->id, $serie_id)):
+                    $exist = true;
+                endif;
+            endforeach;
+
+            if(!$exist):
+                if($data['action'] == 'add'):
+                    $count += $serie->SeriesLots()->count();
+                    array_push($serie_id, $serie->id);
+                else:
+                    $count -= $serie->SeriesLots()->count();
+                    if (($key = array_search($serie->id, $serie_id)) !== false) {
+                        unset($serie_id[$key]);
+                    }
+                endif;
             endif;
         else:
-	        if($data['action'] == 'add'):
-		        $count += 1;
-	        else:
-		        $count -= 1;
+            if($serie->lot_id):
+                if(in_array($serie->lot_id, $serie_id)):
+                    $exist = true;
+                endif;
+	        endif;
+
+	        if(!$exist):
+                if($data['action'] == 'add'):
+                    $count += 1;
+	                array_push($serie_id, $serie->id);
+                else:
+                    $count -= 1;
+	                if (($key = array_search($serie->id, $serie_id)) !== false) {
+		                unset($serie_id[$key]);
+	                }
+                endif;
 	        endif;
         endif;
 
@@ -644,15 +746,25 @@ class TransfertController extends Controller
         $ligne = $this->ligneTransfertRepository->getById($ligne_id);
         if($ligne->qte_dmd >= $count):
 	        $response['count'] = $count;
-            if($data['action'] == 'add'):
-                $response['success'] = 'Le produit a été pris en compte';
+            if(!$exist):
+                if($data['action'] == 'add'):
+                    $response['success'] = 'Le produit a été pris en compte';
+                else:
+                    $response['success'] = 'Le produit a été retiré avec succès';
+                endif;
             else:
-                $response['success'] = 'Le produit a été retiré avec succès';
+                if($serie->type == 0):
+	                $response['error'] = 'Le produit est affecté à un numéro de lot déjà selectionné';
+                else:
+	                $response['error'] = 'Un numéro de serie du lot a été selectionné';
+                endif;
             endif;
         else:
 	        $response['count'] = $data['count'];
 	        $response['error'] = 'Quantité de produit selectionnée supérieure par rapport à la quantité demandé';
         endif;
+
+	    $request->session()->put('serie_ligne', $serie_id);
 
 
 	    return response()->json($response);
@@ -660,6 +772,9 @@ class TransfertController extends Controller
     }
 
 	public function saveStockAppro(Request $request){
+
+		$request->session()->forget('serie_ligne');
+
         $data = $request->all();
 
         $lignes = $this->ligneTransfertRepository->getWhere()->where('transfert_id', '=', $data['id'])->get();
@@ -687,6 +802,8 @@ class TransfertController extends Controller
 	}
 
 	public function addSerie(Request $request, $ligne_id){
+
+		$request->session()->forget('serie_ligne');
 
 		$ligne = $this->ligneTransfertRepository->getById($ligne_id);
 
@@ -726,6 +843,40 @@ class TransfertController extends Controller
 
 		return view('transfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'ligne', 'demande', 'series'));
 	}
+
+	public function expedition(Request $request, $id){
+
+	    $dmd = $this->modelRepository->getById($id);
+
+	    if(!$dmd->mag_appro_id):
+            return redirect()->route('receive.edit', $id)->withWarning('Vous devez définir le magasin approvisionneur avant expédition.');
+        endif;
+
+        $exit_ligne_zero = 0;
+
+        foreach ($dmd->ligne_transfert()->get() as $ligne):
+            if($ligne->qte_a_exp == 0):
+                $exit_ligne_zero += 1;
+            endif;
+        endforeach;
+
+        if($exit_ligne_zero == $dmd->ligne_transfert()->count()):
+	        return redirect()->route('receive.edit', $id)->withWarning('Une expédition vide n\'est pas autorisée.');
+        endif;
+
+		foreach ($dmd->ligne_transfert()->get() as $ligne):
+
+            $lign = $this->ligneTransfertRepository->getById($ligne->id);
+
+			$lign->qte_exp = $dmd->qte_a_exp;
+			$lign->qte_a_exp = 0;
+			$lign->save();
+
+		endforeach;
+
+        return redirect()->route('receive.show', $id)->withOk('Votre expédition a été prise en compte avec succès.');
+
+    }
 
 
 }

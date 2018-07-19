@@ -47,11 +47,14 @@
                                     </div>
                                 </li>
                                 <li class="middle-center">
-                                    <div class="pull-right">
-                                        <div class="btn-group" dropdown="">
-                                            <a href="" class="btn btn-blue btn-sm">Expédier les produits</a>
+                                    <form id="form-id" method="post" action="{{ route('receive.expedition', $data->id) }}">
+                                        <div class="pull-right">
+                                            <div class="btn-group" dropdown="">
+                                                <button class="btn btn-blue btn-sm" type="submit">Expédier les produits</button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </form>
+
                                 </li>
 
 
@@ -241,70 +244,6 @@
                     }
                 });
             });
-
-            {{--$('.number_max').on('focusout', function (e) {--}}
-                {{--e.preventDefault();--}}
-
-                {{--if($('[name=mag_appro_id]').val() !== ''){--}}
-                    {{--$mag_appro_id = $('[name=mag_appro_id]').val();--}}
-                {{--}--}}
-
-                {{--var $produit = $(this).data('produit');--}}
-
-                {{--var $content = $(this).parent().parent();--}}
-
-                {{--var $this = $(this);--}}
-
-                {{--if($mag_appro_id === ''){--}}
-                    {{--$('.btn-serie').bind('click', false);--}}
-                    {{--$('.btn-serie').attr('disabled', true);--}}
-                    {{--$('.mag_appro_id').removeClass('hidden');--}}
-                {{--}else{--}}
-
-                    {{--$('.mag_appro_id').addClass('hidden');--}}
-
-                    {{--// Ajx pour vérifier que la quantité est en stock--}}
-                    {{--$.ajax({--}}
-                        {{--url: "",--}}
-                        {{--data: { qte_a_exp : $(this).val(), produit_id: $(this).data('produit'), magasin_id: $mag_appro_id, ligne_id: $(this).data('ligne') },--}}
-                        {{--type: 'POST',--}}
-                        {{--headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},--}}
-                        {{--success: function(data) {--}}
-                            {{--if(data['success'].length > 0){--}}
-                                {{--$content.removeClass('danger');--}}
-                                {{--$('#'+$produit).html('');--}}
-                                {{--$('.btn-serie').unbind('click', false);--}}
-                                {{--$('.btn-serie').attr('disabled', false);--}}
-                                {{--toastr["success"](data['success'], "Success")--}}
-                            {{--}else{--}}
-
-                                {{--if($content.hasClass('danger')){--}}
-                                    {{--$content.removeClass('danger');--}}
-                                    {{--$('#'+$produit).html('');--}}
-                                {{--}--}}
-
-                                {{--if(data['qte_stock'].length > 0){--}}
-                                    {{--$content.addClass('danger');--}}
-                                    {{--$('#'+$produit).html('Quantité en stock : '+ data['qte_stock']);--}}
-                                    {{--toastr["error"](data['error'], "Erreur")--}}
-                                {{--}--}}
-
-                                {{--if(data['qte_max'].length > 0){--}}
-                                    {{--$content.addClass('danger');--}}
-                                    {{--$('#'+$produit).html(data['qte_max']);--}}
-                                    {{--toastr["error"](data['error'], "Erreur")--}}
-                                {{--}--}}
-                                {{--$('.btn-serie').bind('click', false);--}}
-                                {{--$('.btn-serie').attr('disabled', true);--}}
-                                {{--$this.val(0);--}}
-                            {{--}--}}
-                        {{--}--}}
-                    {{--});--}}
-
-                {{--}--}}
-
-
-            {{--})--}}
 
         });
 

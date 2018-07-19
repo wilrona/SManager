@@ -254,10 +254,15 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 
 		Route::get('/add/serie/{ligne_id}', 'TransfertController@addSerie')->middleware('auth')->name('receive.addSerie');
 		Route::get('/check/add/serie/{ligne_id}', 'TransfertController@checkSerie')->middleware('auth')->name('receive.checkSerie');
+		Route::get('/list/ligne_transfert/{demande_id}', 'TransfertController@listdmd')->middleware('auth')->name('receive.listing');
+
+
+		Route::get('/expedition/{demande_id}', 'TransfertController@expedition')->middleware('auth')->name('receive.expedition');
 
 
 		Route::post('/update/{id}', 'TransfertController@updateReceive')->middleware('auth')->name('receive.update');
-		Route::post('/check/stock/{id}', 'TransfertController@verifieStock')->middleware('auth')->name('receive.verifieStock');
+
+		Route::post('/check/valid/serie/{ligne_id}', 'TransfertController@validSerie')->middleware('auth')->name('receive.validSerie');
 
 	});
 
