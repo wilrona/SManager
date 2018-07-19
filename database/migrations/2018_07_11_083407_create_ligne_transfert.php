@@ -22,7 +22,6 @@ class CreateLigneTransfert extends Migration
 		    $table->integer('qte_a_exp')->nullable($value = true)->default(0);
 		    $table->integer('qte_recu')->nullable($value = true)->default(0);
 		    $table->integer('qte_a_recu')->nullable($value = true)->default(0);
-		    $table->integer('type_ligne')->default(0); // 0 serie; 1 Lots
 
 		    $table->integer('produit_id')->unsigned();
 		    $table->foreign('produit_id')->references('id')->on('produits');
