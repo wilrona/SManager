@@ -21,7 +21,7 @@ class LigneTransfert extends Model
 	}
 
 	public function serie_ligne(){
-		return $this->belongsToMany('App\Serie', 'ligne_transfert_serie', 'ligne_id', 'serie_id')->withPivot('livre', 'exp', 'qte');
+		return $this->belongsToMany('App\Serie', 'ligne_transfert_serie', 'ligne_id', 'serie_id')->withPivot('livre', 'exp', 'qte', 'recu');
 	}
 
 
