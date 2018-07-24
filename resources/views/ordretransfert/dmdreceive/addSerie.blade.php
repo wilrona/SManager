@@ -229,7 +229,7 @@
                     }
 
                     $.ajax({
-                        url: "<?= route('receive.listing', $ligne->transfert_id)?>",
+                        url: "<?= route('receive.listing', $ligne->ordre_transfert_id)?>",
                         type: 'GET',
                         success : function(list){
                             $('#loading').html(list);

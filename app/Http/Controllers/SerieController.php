@@ -124,7 +124,7 @@ class SerieController extends Controller
 					$value = json_decode($value, TRUE);
 					$value = explode(';', array_values($value)[0]);
 					$data['reference'] = $value[0];
-					$data['lot_id'] = isset($value[1]) ? $value[1] : null;
+					$data['lot_id'] = isset($value[1]) && !empty($value[1]) ? $value[1] : null;
 					if(!empty($value)){
 
 						// Vérifier que le numéro de serie n'existe pas
@@ -135,9 +135,10 @@ class SerieController extends Controller
 
 								$check_lot = $this->modelRepository->getWhere()->where('reference', '=', $data['lot_id'])->first();
 								if(!$check_lot):
+
 									$data_lot = array();
 									$data_lot['reference'] = $data['lot_id'];
-									$data_lot['lot_id'] = null;
+//									$data_lot['lot_id'] = '';
 									$data_lot['type'] = 1;
 									$data_lot['produit_id'] = $data['produit_id'];
 									$check_lot = $this->modelRepository->store($data_lot);

@@ -24,9 +24,13 @@
         <!-- end: BREADCRUMB -->
         <!-- start: FIRST SECTION -->
         <div class="container-fluid container-fullw padding-bottom-10">
-            @if(session()->has('warning'))
-                <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
+            @if(session()->has('ok'))
+                <div class="alert alert-success alert-dismissible">{!! session('ok') !!}</div>
             @endif
+
+                @if(session()->has('warning'))
+                    <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
+                @endif
             <div class="row">
 
 
@@ -54,7 +58,7 @@
                                                     <a href="{{ route('dmd.statutDoc', [$data->id, 1]) }}"> Envoyé </a>
                                                 </li>
                                                 @endif
-                                                @if($data->statut_doc == 0 || $data->statut_doc == 1)
+                                                @if($data->statut_doc <= 1)
                                                 <li>
                                                     <a href="{{ route('dmd.statutDoc', [$data->id, 3]) }}"> Annuler </a>
                                                 </li>
@@ -140,7 +144,7 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Produit</th>
-                                    <th class="col-xs-1">Quantité</th>
+                                    <th class="col-xs-2">Quantité</th>
                                 </tr>
                                 </thead>
                                 <tbody>

@@ -10,7 +10,7 @@ class GroupePrix extends Model
 
 	protected $table = 'groupe_prix';
 
-	protected $fillable = ['produit_id','famille_id','client_id', 'type_client', 'type_prix', 'valeur', 'quantite_min', 'date_debut', 'date_fin', 'active'];
+	protected $fillable = ['produit_id','famille_id','client_id', 'type_client','type_remise', 'prix', 'quantite_min', 'date_debut', 'date_fin', 'active', 'remise'];
 
 	public function Produit(){
 		return $this->belongsTo('App\Produits', 'produit_id', 'id');

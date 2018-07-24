@@ -227,42 +227,42 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 
 	Route::prefix('/demandes/send')->group(function () {
 
-		Route::get('/', 'TransfertController@indexSend')->middleware('auth')->name('dmd.index');
-		Route::get('/create', 'TransfertController@createSend')->middleware('auth')->name('dmd.create');
-		Route::get('/edit/{id}', 'TransfertController@editSend')->middleware('auth')->name('dmd.edit');
-		Route::get('/show/{id}', 'TransfertController@showSend')->middleware('auth')->name('dmd.show');
-		Route::get('/change/statut/{id}/{statut}', 'TransfertController@changeStatutDoc')->middleware('auth')->name('dmd.statutDoc');
+		Route::get('/', 'OrdreTransfertController@indexSend')->middleware('auth')->name('dmd.index');
+		Route::get('/create', 'OrdreTransfertController@createSend')->middleware('auth')->name('dmd.create');
+		Route::get('/edit/{id}', 'OrdreTransfertController@editSend')->middleware('auth')->name('dmd.edit');
+		Route::get('/show/{id}', 'OrdreTransfertController@showSend')->middleware('auth')->name('dmd.show');
+		Route::get('/change/statut/{id}/{statut}', 'OrdreTransfertController@changeStatutDoc')->middleware('auth')->name('dmd.statutDoc');
 
-		Route::post('/store', 'TransfertController@storeSend')->middleware('auth')->name('dmd.store');
-		Route::post('/update/{id}', 'TransfertController@updateSend')->middleware('auth')->name('dmd.update');
+		Route::post('/store', 'OrdreTransfertController@storeSend')->middleware('auth')->name('dmd.store');
+		Route::post('/update/{id}', 'OrdreTransfertController@updateSend')->middleware('auth')->name('dmd.update');
 
-		Route::get('/add/produit/{id}', 'TransfertController@addProduit')->middleware('auth')->name('dmd.addProduit');
-		Route::get('/remove/produit/{key?}', 'TransfertController@removeProduit')->middleware('auth')->name('dmd.removeProduit');
-		Route::get('/list/produit', 'TransfertController@listProduit')->middleware('auth')->name('dmd.listingProduit');
-		Route::post('/valide/produit/{id}', 'TransfertController@validProduit')->middleware('auth')->name('dmd.valideProduit');
+		Route::get('/add/produit/{id}', 'OrdreTransfertController@addProduit')->middleware('auth')->name('dmd.addProduit');
+		Route::get('/remove/produit/{key?}', 'OrdreTransfertController@removeProduit')->middleware('auth')->name('dmd.removeProduit');
+		Route::get('/list/produit', 'OrdreTransfertController@listProduit')->middleware('auth')->name('dmd.listingProduit');
+		Route::post('/valide/produit/{id}', 'OrdreTransfertController@validProduit')->middleware('auth')->name('dmd.valideProduit');
 
 	});
 
 	Route::prefix('/demandes/receive')->group(function () {
 
-		Route::get('/', 'TransfertController@indexReceive')->middleware('auth')->name('receive.index');
-		Route::get('/edit/{id}', 'TransfertController@editReceive')->middleware('auth')->name('receive.edit');
-		Route::get('/show/{id}', 'TransfertController@showReceive')->middleware('auth')->name('receive.show');
-		Route::get('/change/statut/{id}/{statut}', 'TransfertController@changeStatutDoc')->middleware('auth')->name('receive.statutDoc');
+		Route::get('/', 'OrdreTransfertController@indexReceive')->middleware('auth')->name('receive.index');
+		Route::get('/edit/{id}', 'OrdreTransfertController@editReceive')->middleware('auth')->name('receive.edit');
+		Route::get('/show/{id}', 'OrdreTransfertController@showReceive')->middleware('auth')->name('receive.show');
+		Route::get('/change/statut/{id}/{statut}', 'OrdreTransfertController@changeStatutDoc')->middleware('auth')->name('receive.statutDoc');
 
-		Route::get('/save/stock/appro', 'TransfertController@saveStockAppro')->middleware('auth')->name('receive.saveStockAppro');
+		Route::get('/save/stock/appro', 'OrdreTransfertController@saveStockAppro')->middleware('auth')->name('receive.saveStockAppro');
 
-		Route::get('/add/serie/{ligne_id}', 'TransfertController@addSerie')->middleware('auth')->name('receive.addSerie');
-		Route::get('/check/add/serie/{ligne_id}', 'TransfertController@checkSerie')->middleware('auth')->name('receive.checkSerie');
-		Route::get('/list/ligne_transfert/{demande_id}', 'TransfertController@listdmd')->middleware('auth')->name('receive.listing');
-
-
-		Route::post('/expedition/{demande_id}', 'TransfertController@expedition')->middleware('auth')->name('receive.expedition');
+		Route::get('/add/serie/{ligne_id}', 'OrdreTransfertController@addSerie')->middleware('auth')->name('receive.addSerie');
+		Route::get('/check/add/serie/{ligne_id}', 'OrdreTransfertController@checkSerie')->middleware('auth')->name('receive.checkSerie');
+		Route::get('/list/ligne_transfert/{demande_id}', 'OrdreTransfertController@listdmd')->middleware('auth')->name('receive.listing');
 
 
-		Route::post('/update/{id}', 'TransfertController@updateReceive')->middleware('auth')->name('receive.update');
+		Route::post('/expedition/{demande_id}', 'OrdreTransfertController@expedition')->middleware('auth')->name('receive.expedition');
 
-		Route::post('/check/valid/serie/{ligne_id}', 'TransfertController@validSerie')->middleware('auth')->name('receive.validSerie');
+
+		Route::post('/update/{id}', 'OrdreTransfertController@updateReceive')->middleware('auth')->name('receive.update');
+
+		Route::post('/check/valid/serie/{ligne_id}', 'OrdreTransfertController@validSerie')->middleware('auth')->name('receive.validSerie');
 
 	});
 

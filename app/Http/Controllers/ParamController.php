@@ -120,6 +120,26 @@ class ParamController extends Controller
 			endif;
 		endif;
 
+		if($module == 'demandes'):
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'transfertref']
+				]
+			)->first();
+
+			if($coderef):
+				$coderef->value = $data['transfertref'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'transfertref';
+				$saved['value'] = $data['transfertref'];
+				$this->modelRepository->store($saved);
+			endif;
+		endif;
+
 		if($module == 'point_de_vente'):
 
 			$coderef = $this->modelRepository->getWhere()->where(

@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Transferts extends Model
+class OrdreTransfert extends Model
 {
     //
 	protected $table = 'ordre_transfert';
@@ -28,7 +28,11 @@ class Transferts extends Model
 	}
 
 	public function ligne_transfert(){
-		return $this->hasMany('App\LigneTransfert', 'transfert_id', 'id');
+		return $this->hasMany('App\LigneTransfert', 'ordre_transfert_id', 'id');
+	}
+
+	public function Transfert(){
+		return $this->hasMany('App\Transfert', 'ordre_transfert_id', 'id');
 	}
 
 

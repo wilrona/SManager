@@ -197,7 +197,8 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Client</th>
-                                    <th>Prix/Pourc.</th>
+                                    <th>Prix.</th>
+                                    <th>Remise</th>
                                     <th>Qté min</th>
                                     <th>Programmé</th>
                                 </tr>
@@ -214,7 +215,8 @@
                                         <?= $value->client_id ? $value->Client()->first()->display_name : ''; ?>
                                         <?= $value->famille_id ? $value->Famille()->first()->name : ''; ?>
                                     </td>
-                                    <td><?= $value->valeur ?> <?= $value->type_prix ? "%" : ''; ?></td>
+                                    <td><?= $value->prix ?> </td>
+                                    <td><?= $value->remise ?> <?= $value->type_remise ? "%" : ''; ?></td>
                                     <td><?= $value->quantite_min ?></td>
                                     <td>
                                         <?= empty($value->date_debut) && empty($value->date_fin) ? "Non" : '' ?>

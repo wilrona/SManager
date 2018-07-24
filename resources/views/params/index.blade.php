@@ -72,6 +72,19 @@
                                                                 </div>
                                                             </div>
                                                         @endif
+                                                        @if($data['name'] == 'demandes')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">N° de séquence des transferts (Expédition/Reception) </h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <input type="text" class="form-control" name="transfertref" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['transfertref']) ? $values[$data['name']]['transfertref'] : '' ?>">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
                                                         @if($data['name'] == 'point_de_vente')
                                                             <div class="well well-sm">
                                                                 <h3 style="margin: 0;">Point de vente principal</h3>

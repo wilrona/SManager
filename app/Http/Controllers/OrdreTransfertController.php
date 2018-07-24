@@ -12,11 +12,11 @@ use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
 use App\Repositories\SerieRepository;
-use App\Repositories\TransfertRepository;
+use App\Repositories\OrdreTransfertRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class TransfertController extends Controller
+class OrdreTransfertController extends Controller
 {
 	protected $modelRepository;
 	protected $posRepository;
@@ -28,7 +28,7 @@ class TransfertController extends Controller
 
 	protected $custom;
 
-	public function __construct(TransfertRepository $transfert_repository, PointDeVenteRepository $point_de_vente_repository,
+	public function __construct(OrdreTransfertRepository $transfert_repository, PointDeVenteRepository $point_de_vente_repository,
 		MagasinRepository $magasin_repository, ParametreRepository $parametre_repository,
 		ProduitRepository $produit_repository, LigneTransfertRepository $ligne_transfert_repository,
         SerieRepository $serie_repository
@@ -58,7 +58,7 @@ class TransfertController extends Controller
 
 	    $datas = $this->modelRepository->getWhere()->where('pos_dmd_id', '=', $currentUser->pos_id)->get();
 
-	    return view('transfert.dmdsend.index', compact('datas'));
+	    return view('ordretransfert.dmdsend.index', compact('datas'));
     }
 
     /**
@@ -104,7 +104,7 @@ class TransfertController extends Controller
 	    $count += $incref ? intval($incref->value) : 0;
 	    $reference = $this->custom->setReference($coderef, $count, 4);
 
-	    return view('transfert.dmdsend.create', compact('pos', 'my_mag', 'reference', 'currentMag'));
+	    return view('ordretransfert.dmdsend.create', compact('pos', 'my_mag', 'reference', 'currentMag'));
     }
 
     /**
@@ -156,7 +156,7 @@ class TransfertController extends Controller
 
 	    $data = $this->modelRepository->getById($id);
 
-	    return view('transfert.dmdsend.show', compact('pos', 'my_mag', 'data'));
+	    return view('ordretransfert.dmdsend.show', compact('pos', 'my_mag', 'data'));
     }
 
 	/**
@@ -217,7 +217,7 @@ class TransfertController extends Controller
 	    $request->session()->put('produit_send_id', $produit_ids);
 
 
-	    return view('transfert.dmdsend.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'produits'));
+	    return view('ordretransfert.dmdsend.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'produits'));
 
     }
 
@@ -247,7 +247,7 @@ class TransfertController extends Controller
                 $ligne = $this->ligneTransfertRepository->getWhere()->where(
                         [
                             ['produit_id', '=', $prod['produit_id']],
-                            ['transfert_id', '=', $id]
+                            ['ordre_transfert_id', '=', $id]
                         ]
                 )->first();
 
@@ -255,7 +255,7 @@ class TransfertController extends Controller
                 if(!$ligne):
                     $ligne_array = array();
                     $ligne_array['produit_id'] = $prod['produit_id'];
-                    $ligne_array['transfert_id'] = $id;
+                    $ligne_array['ordre_transfert_id'] = $id;
                     $ligne_array['qte_dmd'] = $prod['quantite'];
 
                     $this->ligneTransfertRepository->store($ligne_array);
@@ -300,7 +300,7 @@ class TransfertController extends Controller
 			endif;
 		}
 
-		return view('transfert.dmdsend.addProduit', compact('produits', 'id'));
+		return view('ordretransfert.dmdsend.addProduit', compact('produits', 'id'));
 	}
 
 	public function validProduit(TransfertProduitRequest $request, $id){
@@ -408,6 +408,38 @@ class TransfertController extends Controller
 
 	}
 
+	public function changeStatutDoc($id, $statut)
+	{
+		//
+		$data = $this->modelRepository->getById($id);
+
+		$redirect = redirect()->route('dmd.show', $id);
+
+		if($data->statut_doc == 0):
+
+			if($data->ligne_transfert()->count()):
+
+				if($statut == 1):
+					$redirect->withOk('La demande de stock a été envoyé');
+                elseif ($statut == 3):
+					$redirect->withOk('La dmande de stock a été annulé');
+				endif;
+
+			else:
+
+				return $redirect->withWarning('Vous devez associer des produits à demander avant l\'envoie de la demande');
+
+			endif;
+
+		endif;
+
+		$data->statut_doc = $statut;
+		$data->save();
+
+		return $redirect;
+
+	}
+
 
 
 	/**
@@ -438,7 +470,7 @@ class TransfertController extends Controller
 			['statut_doc', '!=', 0]
 		])->get();
 
-		return view('transfert.dmdreceive.index', compact('datas'));
+		return view('ordretransfert.dmdreceive.index', compact('datas'));
 	}
 
 
@@ -470,7 +502,7 @@ class TransfertController extends Controller
 
 		$data = $this->modelRepository->getById($id);
 
-		return view('transfert.dmdreceive.show', compact('pos', 'my_mag', 'data'));
+		return view('ordretransfert.dmdreceive.show', compact('pos', 'my_mag', 'data'));
 	}
 
 	/**
@@ -541,7 +573,7 @@ class TransfertController extends Controller
 		$request->session()->put('produit_receive_id', $produit_ids);
 
 
-		return view('transfert.dmdreceive.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'mag', 'produits'));
+		return view('ordretransfert.dmdreceive.edit', compact('pos', 'my_mag', 'data', 'currentMag', 'mag', 'produits'));
 
 	}
 
@@ -562,41 +594,7 @@ class TransfertController extends Controller
 		$redirect = redirect()->route('receive.show', $id)->withOk("La demande a été modifiée.");
 
 		return $redirect;
-	}
-
-
-
-	public function changeStatutDoc($id, $statut)
-    {
-        //
-	    $data = $this->modelRepository->getById($id);
-
-	    $redirect = redirect()->route('dmd.show', $id);
-
-	    if($data->statut_doc == 0):
-
-		    if($data->ligne_transfert()->count()):
-
-                if($statut == 1):
-				    $redirect->withOk('La demande de stock a été envoyé');
-                elseif ($statut == 2):
-				    $redirect->withOk('La dmande de stock a été annulé');
-			    endif;
-
-		    else:
-
-			    return $redirect->withWarning('Vous devez associer des produits à demander avant l\'envoie de la demande');
-
-		    endif;
-
-        endif;
-
-	    $data->statut_doc = $statut;
-	    $data->save();
-
-	    return $redirect;
-
-    }
+	}	
 
 
     public function validSerie(Request $request, $ligne_id){
@@ -798,7 +796,7 @@ class TransfertController extends Controller
 
         $data = $request->all();
 
-        $lignes = $this->ligneTransfertRepository->getWhere()->where('transfert_id', '=', $data['id'])->get();
+        $lignes = $this->ligneTransfertRepository->getWhere()->where('ordre_transfert_id', '=', $data['id'])->get();
         $exist = false;
         foreach ($lignes as $ligne):
             if($ligne->serie_ligne()->count()):
@@ -837,18 +835,18 @@ class TransfertController extends Controller
         endif;
 
 		$series = $this->magasinRepository->getById($magasin_id);
-		$series = $series->Stock()->get();
+		$series = $series->Stock()->where('produit_id', '=', $ligne->produit_id)->get();
 
 		$produits = array();
 		$current_serie = array();
 		$serie_exp = array();
 		foreach ($series as $serie):
 
-            $inDmd = $serie->ligne_serie()->where('transfert_id', '=', $demande->id)->first();
+            $inDmd = $serie->Transferts()->where('ordre_transfert_id', '=', $demande->id)->first();
 		    if($inDmd):
-                if($inDmd->pivot->exp == 0):
+                if($inDmd->pivot->ok == 0):
                     array_push($current_serie, $serie->id);
-                elseif($inDmd->pivot->exp == 1):
+                elseif($inDmd->pivot->ok == 1):
                     array_push($serie_exp, $serie->id);
                 endif;
 			    if($serie->type == 1):
@@ -858,7 +856,7 @@ class TransfertController extends Controller
 			    endif;
             endif;
 
-            if(!$serie->ligne_serie()->count()):
+            if(!$serie->Transferts()->count()):
                 if($serie->type == 0):
                     if($serie->lot_id):
                         if(!$serie->Lot()->first()->ligne_serie()->count()):
@@ -872,7 +870,7 @@ class TransfertController extends Controller
                 endif;
             else:
                 if($inDmd):
-	                if($serie->type == 0 && $inDmd->pivot->exp == 0):
+	                if($serie->type == 0 && $inDmd->pivot->ok == 0):
 		                if($serie->lot_id):
 			                if(!$serie->Lot()->first()->ligne_serie()->count()):
 				                array_push($produits, $serie->id);
@@ -888,7 +886,7 @@ class TransfertController extends Controller
 
         endforeach;
 
-		return view('transfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series'));
+		return view('ordretransfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series'));
 	}
 
 	public function expedition(Request $request, $id){

@@ -35,6 +35,18 @@ class CreateOrdreTransfertTable extends Migration
 
 	        $table->timestamps();
         });
+
+	    Schema::create('transfert', function (Blueprint $table) {
+		    $table->increments('id');
+		    $table->string('reference')->unique();
+		    $table->integer('etat')->default(0);
+		    $table->integer('position')->default(0);
+
+		    $table->integer('ordre_transfert_id')->unsigned();
+		    $table->foreign('ordre_transfert_id')->references('id')->on('ordre_transfert');
+
+		    $table->timestamps();
+	    });
     }
 
     /**
@@ -45,5 +57,6 @@ class CreateOrdreTransfertTable extends Migration
     public function down()
     {
         Schema::dropIfExists('ordre_transfert');
+        Schema::dropIfExists('transfert');
     }
 }

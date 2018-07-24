@@ -34,6 +34,6 @@ class Precommande extends Model
     }
 
     public function transferts(){
-        return $this->hasMany('App\Transferts', 'precommande_id', 'id');
+        return $this->hasMany( 'App\OrdreTransfert', 'precommande_id', 'id');
     }
 }

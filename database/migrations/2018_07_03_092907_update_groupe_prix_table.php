@@ -22,7 +22,7 @@ class UpdateGroupePrixTable extends Migration
 		    $table->integer('famille_id')->nullable($value = true)->unsigned();
 		    $table->integer('client_id')->nullable($value = true)->unsigned();
 		    $table->integer('type_client')->default(0); // 0 : Client; 1: Famille de client
-		    $table->integer('prix');
+		    $table->integer('prix')->default(0);
 		    $table->integer('type_remise')->default(0); // 0 : Prix fixe ; 1 : Pourcentage
 		    $table->float('remise');
 		    $table->integer('quantite_min')->default(1);

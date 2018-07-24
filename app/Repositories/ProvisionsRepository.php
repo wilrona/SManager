@@ -9,21 +9,21 @@
 namespace App\Repositories;
 
 use App\Library\CustomFunction;
-use App\Transferts;
+use App\OrdreTransfert;
 
 class ProvisionsRepository
 {
 
 	protected $model;
 
-	public function __construct(Transferts $modelcurrent)
+	public function __construct(OrdreTransfert $modelcurrent)
 	{
 		$this->model = $modelcurrent;
 	}
 
 
 	// Enregistrement d'un precommande vers un transfert
-	private function save(Transferts $modelcurrent, Array $inputs)
+	private function save(OrdreTransfert $modelcurrent, Array $inputs)
 	{
 		$modelcurrent->qte_total = $inputs['qte'];
 		$modelcurrent->montant_total = $inputs['montant'];

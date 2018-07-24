@@ -8,14 +8,14 @@
 
 namespace App\Repositories;
 
-use App\Transferts;
+use App\OrdreTransfert;
 
-class TransfertRepository extends ResourceRepository
+class OrdreTransfertRepository extends ResourceRepository
 {
 
 	protected $model;
 
-	public function __construct(Transferts $modelcurrent)
+	public function __construct(OrdreTransfert $modelcurrent)
 	{
 		$this->model = $modelcurrent;
 	}

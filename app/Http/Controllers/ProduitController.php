@@ -226,13 +226,15 @@ class ProduitController extends Controller
 		foreach ($data->GroupePrix()->get() as $items):
 			$save = array();
 
-			$save['produit_id']  = $items->id;
+
 			if($items->type_client == 0):
+				$save['produit_id']  = $items->client_id;
 			    $save['produit_name']  = $items->Client()->first()->display_name;
-				array_push($client_id, $items->id);
+				array_push($client_id, $items->client_id);
 			else:
+				$save['produit_id']  = $items->famille_id;
 				$save['produit_name']  = $items->Famille()->first()->name;
-				array_push($famille_id, $items->id);
+				array_push($famille_id, $items->famille_id);
             endif;
 
 			$save['type_client'] = $items->type_client;
@@ -292,7 +294,9 @@ class ProduitController extends Controller
 
             if($groupes):
 
+
                 foreach ($groupes as $groupe):
+
                     if($groupe['type_client'] == 0):
                         $existe_cli = $current->GroupePrix()->where('client_id', '=', $groupe['produit_id'])->first();
                         if(!$existe_cli):
@@ -306,6 +310,7 @@ class ProduitController extends Controller
                             $saved_item['quantite_min'] = $groupe['quantite'];
 	                        $saved_item['date_debut'] = $groupe['date_debut'] ? date('Y-m-d', strtotime($groupe['date_debut'])) : null;
 	                        $saved_item['date_fin'] = $groupe['date_fin'] ? date('Y-m-d', strtotime($groupe['date_fin'])) : null;
+
                             $this->groupeRepository->store($saved_item);
                         endif;
                     else:
@@ -315,23 +320,24 @@ class ProduitController extends Controller
 		                    $saved_item['famille_id'] = $groupe['produit_id'];
 		                    $saved_item['produit_id'] = $id;
 		                    $saved_item['type_client'] = $groupe['type_client'];
-		                    $saved_item['prix'] = $groupe['prix'];
+		                    $saved_item['prix'] = intval($groupe['prix']);
 		                    $saved_item['type_remise'] = $groupe['type_remise'];
 		                    $saved_item['remise'] = $groupe['remise'];
 		                    $saved_item['quantite_min'] = $groupe['quantite'];
 		                    $saved_item['date_debut'] = $groupe['date_debut'] ? date('Y-m-d', strtotime($groupe['date_debut'])) : null;
 		                    $saved_item['date_fin'] = $groupe['date_fin'] ? date('Y-m-d', strtotime($groupe['date_fin'])) : null;
+
 		                    $this->groupeRepository->store($saved_item);
 	                    endif;
                     endif;
                 endforeach;
 
                 foreach ($current->GroupePrix()->get() as $del):
-                    if($del->type_client == 0 && !in_array($del->id, $request->session()->get('client_id'))):
+                    if($del->type_client == 0 && !in_array($del->client_id, $request->session()->get('client_id'))):
                         $del->delete();
                     endif;
 
-	                if($del->type_client == 1 && !in_array($del->id, $request->session()->get('famille_id'))):
+	                if($del->type_client == 1 && !in_array($del->famille_id, $request->session()->get('famille_id'))):
 		                $del->delete();
 	                endif;
 
