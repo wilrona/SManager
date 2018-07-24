@@ -257,7 +257,7 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/list/ligne_transfert/{demande_id}', 'TransfertController@listdmd')->middleware('auth')->name('receive.listing');
 
 
-		Route::get('/expedition/{demande_id}', 'TransfertController@expedition')->middleware('auth')->name('receive.expedition');
+		Route::post('/expedition/{demande_id}', 'TransfertController@expedition')->middleware('auth')->name('receive.expedition');
 
 
 		Route::post('/update/{id}', 'TransfertController@updateReceive')->middleware('auth')->name('receive.update');

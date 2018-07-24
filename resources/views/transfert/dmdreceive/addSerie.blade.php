@@ -58,7 +58,7 @@
                     <label> Quantité à expédier / Quantité demandée</label>
                     <div class="input-group">
                         <input type="number" class="form-control text-right qte_dmd" value="{{ $ligne->qte_a_exp }}" disabled>
-                        <span class="input-group-addon"> / {{ $ligne->qte_dmd }} </span>
+                        <span class="input-group-addon"> / {{ $ligne->qte_dmd - $ligne->qte_exp }} </span>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
         <tbody>
 
         @foreach ($series as $data)
-            @if(in_array($data->id, $produits))
+            @if(in_array($data->id, $produits) && !in_array($data->id, $serie_exp))
             <tr id="{{ $data->id }}" class="@if(in_array($data->id, $current_serie)) success @endif">
                 <td>
                     <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $current_serie)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">

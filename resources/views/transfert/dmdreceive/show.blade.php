@@ -38,7 +38,7 @@
                                 <li class="middle-center">
                                     <a href="{{ route('receive.index') }}" class="btn btn-o btn-sm btn-default">Retour</a>
                                 </li>
-                                @if($data->statut_doc < 2 && $data->statut_exp == 0)
+                                @if($data->statut_doc < 2 && $data->statut_exp <= 1)
                                 <li class="middle-center">
                                     <div class="pull-right">
                                         <div class="btn-group">

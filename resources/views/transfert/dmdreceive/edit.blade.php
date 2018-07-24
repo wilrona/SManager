@@ -30,6 +30,10 @@
                     <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
                 @endif
             <div class="row">
+                <form id="expedition_submit" method="post" action="{{ route('receive.expedition', $data->id) }}">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="expedition" value="1">
+                </form>
                 {!! Form::model($data, ['route' => ['receive.update', $data->id], 'id'=> 'submitFormulaire']) !!}
                 <div class="col-md-8">
                     <div class="panel panel-white">
@@ -46,16 +50,16 @@
                                         </div>
                                     </div>
                                 </li>
+                                @if($data->statut_exp != 2)
                                 <li class="middle-center">
-                                    <form id="form-id" method="post" action="{{ route('receive.expedition', $data->id) }}">
                                         <div class="pull-right">
                                             <div class="btn-group" dropdown="">
-                                                <button class="btn btn-blue btn-sm" type="submit">Expédier les produits</button>
+                                                <button class="btn btn-blue btn-sm" id="submit_exp" type="button">Expédier les produits</button>
                                             </div>
                                         </div>
-                                    </form>
 
                                 </li>
+                                @endif
 
 
                             </ul>
@@ -109,8 +113,14 @@
 
                             <div class="form-group {!! $errors->has('mag_appro_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Magasin approvisionneur : </label>
+                                @if($data->statut_exp == 0)
 
-                                {!! Form::select('mag_appro_id', $my_mag, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez l\'un de vos magasins...']) !!}
+                                    {!! Form::select('mag_appro_id', $my_mag, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez l\'un de vos magasins...']) !!}
+
+                                @else
+                                    {!! Form::select('mag_appro_id', $my_mag, null, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! Form::hidden('mag_appro_id') !!}
+                                @endif
 
                                 {!! $errors->first('mag_appro_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
@@ -244,6 +254,12 @@
                     }
                 });
             });
+
+            $('#submit_exp').on('click', function(e){
+                e.preventDefault();
+                $('form#expedition_submit').submit();
+            });
+
 
         });
 

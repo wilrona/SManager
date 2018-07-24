@@ -340,7 +340,7 @@ class TransfertController extends Controller
 		$produits = session('produit_send');
 
 		?>
-		<table class="table table-stylish">
+		<table class="table">
 			<thead>
             <tr>
                 <th class="col-xs-1">#</th>
@@ -580,7 +580,7 @@ class TransfertController extends Controller
                 if($statut == 1):
 				    $redirect->withOk('La demande de stock a été envoyé');
                 elseif ($statut == 2):
-				    $redirect->withOk('La dmande de stock a été cloturé');
+				    $redirect->withOk('La dmande de stock a été annulé');
 			    endif;
 
 		    else:
@@ -605,20 +605,40 @@ class TransfertController extends Controller
 
         $ligne_id = $this->ligneTransfertRepository->getById($ligne_id);
 
-        $ligne_id->serie_ligne()->detach();
-
         $count = 0;
         if(isset($data['produit'])):
+
             foreach ($data['produit'] as $produit):
                 $serie = $this->serieRepository->getById($produit);
-                if($serie->type == 1):
-                    $ligne_id->serie_ligne()->save($serie, ['qte' => $serie->SeriesLots()->count()]);
-                    $count += $serie->SeriesLots()->count();
+                if(!$serie->ligne_serie()->where('id', $ligne_id->id)->first()):
+                    if($serie->type == 1):
+                        $ligne_id->serie_ligne()->save($serie, ['qte' => $serie->SeriesLots()->count()]);
+                        $count += $serie->SeriesLots()->count();
+                    else:
+                        $ligne_id->serie_ligne()->save($serie, ['qte' => 1]);
+                        $count += 1;
+                    endif;
                 else:
-                    $ligne_id->serie_ligne()->save($serie, ['qte' => 1]);
-                    $count += 1;
+	                if($serie->type == 1):
+		                $count += $serie->SeriesLots()->count();
+	                else:
+		                $count += 1;
+	                endif;
                 endif;
             endforeach;
+
+            foreach ($ligne_id->serie_ligne()->get() as $ser):
+                if(!in_array($ser->id, $data['produit']) && $ser->pivot->exp == 0):
+                    $ligne_id->serie_ligne()->detach($ser->id);
+                endif;
+            endforeach;
+
+        else:
+	        foreach ($ligne_id->serie_ligne()->get() as $ser):
+		        if($ser->pivot->exp == 0):
+			        $ligne_id->serie_ligne()->detach($ser->id);
+		        endif;
+	        endforeach;
         endif;
 
 	    $ligne_id->qte_a_exp = $count;
@@ -744,7 +764,8 @@ class TransfertController extends Controller
 	    );
 
         $ligne = $this->ligneTransfertRepository->getById($ligne_id);
-        if($ligne->qte_dmd >= $count):
+        $qte_dmd = $ligne->qte_dmd - $ligne->qte_exp;
+        if($qte_dmd >= $count):
 	        $response['count'] = $count;
             if(!$exist):
                 if($data['action'] == 'add'):
@@ -820,28 +841,54 @@ class TransfertController extends Controller
 
 		$produits = array();
 		$current_serie = array();
+		$serie_exp = array();
 		foreach ($series as $serie):
 
             $inDmd = $serie->ligne_serie()->where('transfert_id', '=', $demande->id)->first();
 		    if($inDmd):
-                array_push($current_serie, $serie->id);
+                if($inDmd->pivot->exp == 0):
+                    array_push($current_serie, $serie->id);
+                elseif($inDmd->pivot->exp == 1):
+                    array_push($serie_exp, $serie->id);
+                endif;
+			    if($serie->type == 1):
+                    foreach ($serie->SeriesLots()->get() as $item):
+	                    array_push($serie_exp, $item->id);
+                    endforeach;
+			    endif;
             endif;
 
-            if($serie->type == 0):
-                if($serie->lot_id):
-                    if(!$serie->Lot()->first()->ligne_serie()->count()):
+            if(!$serie->ligne_serie()->count()):
+                if($serie->type == 0):
+                    if($serie->lot_id):
+                        if(!$serie->Lot()->first()->ligne_serie()->count()):
+                            array_push($produits, $serie->id);
+                        endif;
+                    else:
                         array_push($produits, $serie->id);
                     endif;
-                else:
+                elseif($serie->type == 1):
                     array_push($produits, $serie->id);
                 endif;
-            elseif($serie->type == 1):
-                array_push($produits, $serie->id);
+            else:
+                if($inDmd):
+	                if($serie->type == 0 && $inDmd->pivot->exp == 0):
+		                if($serie->lot_id):
+			                if(!$serie->Lot()->first()->ligne_serie()->count()):
+				                array_push($produits, $serie->id);
+			                endif;
+		                else:
+			                array_push($produits, $serie->id);
+		                endif;
+                    elseif($serie->type == 1 && $inDmd->pivot->exp == 0):
+		                array_push($produits, $serie->id);
+	                endif;
+                endif;
             endif;
 
         endforeach;
 
-		return view('transfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'ligne', 'demande', 'series'));
+		return view('transfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series'));
 	}
 
 	public function expedition(Request $request, $id){
@@ -864,15 +911,35 @@ class TransfertController extends Controller
 	        return redirect()->route('receive.edit', $id)->withWarning('Une expédition vide n\'est pas autorisée.');
         endif;
 
+        $exp_partiel = false;
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
 
             $lign = $this->ligneTransfertRepository->getById($ligne->id);
 
-			$lign->qte_exp = $dmd->qte_a_exp;
+		    if($lign->qte_a_exp < $lign->qte_dmd):
+                $exp_partiel = true;
+            endif;
+
+			$lign->qte_exp += $lign->qte_a_exp;
 			$lign->qte_a_exp = 0;
+
+			foreach ($lign->serie_ligne()->get() as $serie):
+                $updated = $lign->serie_ligne()->where('id', $serie->id)->first();
+				$updated->pivot->exp = 1;
+			    $updated->pivot->save();
+            endforeach;
+
 			$lign->save();
 
 		endforeach;
+
+		if($exp_partiel):
+		    $dmd->statut_exp = 1;
+		else:
+			$dmd->statut_exp = 2;
+		endif;
+
+		$dmd->save();
 
         return redirect()->route('receive.show', $id)->withOk('Votre expédition a été prise en compte avec succès.');
 
