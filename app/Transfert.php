@@ -11,7 +11,7 @@ class Transfert extends Model
 	protected $table = 'transfert';
 
 
-	protected $fillable = ['position', 'etat', 'ordre_transfert_id'];
+	protected $fillable = ['reference','position', 'etat', 'ordre_transfert_id'];
 
 
 	public function OrdreTransfert(){
@@ -19,6 +19,6 @@ class Transfert extends Model
 	}
 
 	public function Series(){
-		return $this->belongsToMany('App\Serie', 'transfert_serie', 'transfert_id', 'serie_id')->withPivot('ok');
+		return $this->belongsToMany('App\Serie', 'transfert_serie', 'transfert_id', 'serie_id')->withPivot('ok')->withTimestamps();
 	}
 }

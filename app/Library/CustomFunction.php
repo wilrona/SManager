@@ -96,13 +96,13 @@ class CustomFunction {
 		return $passwords[0];
 	}
 
-	public function setReference($prefix = '', $count = 1, $lenght = 7){
+	public function setReference($prefix = '', $count = 1, $lenght = 7, $parent_prefix = ''){
 
 		$fix = str_pad($count, $lenght, 0, STR_PAD_LEFT);
 		if(is_object($prefix)){
-			$mot = $prefix->value.''.$fix;
+			$mot = $parent_prefix.''.$prefix->value.''.$fix;
 		}else{
-			$mot = '';
+			$mot = $parent_prefix.'';
 		}
 
 		return $mot;

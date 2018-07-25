@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\EcritureStock;
 use App\Http\Requests\DemandeReceiveRequest;
 use App\Http\Requests\DemandeSendRequest;
 use App\Http\Requests\TransfertProduitRequest;
 use App\Library\CustomFunction;
+use App\Repositories\EcritureStockRepository;
 use App\Repositories\LigneTransfertRepository;
 use App\Repositories\MagasinRepository;
 use App\Repositories\ParametreRepository;
@@ -13,6 +15,7 @@ use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
 use App\Repositories\SerieRepository;
 use App\Repositories\OrdreTransfertRepository;
+use App\Repositories\TransfertRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,22 +28,32 @@ class OrdreTransfertController extends Controller
 	protected $produitRepository;
 	protected $ligneTransfertRepository;
 	protected $serieRepository;
+	protected $transfertRepository;
+	protected $ecritureStockRepository;
 
 	protected $custom;
+	protected $transitRef;
 
-	public function __construct(OrdreTransfertRepository $transfert_repository, PointDeVenteRepository $point_de_vente_repository,
+	public function __construct(OrdreTransfertRepository $ordre_transfert_repository, PointDeVenteRepository $point_de_vente_repository,
 		MagasinRepository $magasin_repository, ParametreRepository $parametre_repository,
 		ProduitRepository $produit_repository, LigneTransfertRepository $ligne_transfert_repository,
-        SerieRepository $serie_repository
+        SerieRepository $serie_repository, TransfertRepository $transfert_repository,
+        EcritureStockRepository $ecriture_stock_repository
 	) {
 
-		$this->modelRepository = $transfert_repository;
+		$this->modelRepository = $ordre_transfert_repository;
 		$this->posRepository = $point_de_vente_repository;
 		$this->magasinRepository = $magasin_repository;
 		$this->parametreRepository = $parametre_repository;
 		$this->produitRepository = $produit_repository;
 		$this->ligneTransfertRepository = $ligne_transfert_repository;
 		$this->serieRepository = $serie_repository;
+		$this->transfertRepository = $transfert_repository;
+		$this->ecritureStockRepository = $ecriture_stock_repository;
+
+		$transit = $this->magasinRepository->getWhere()->where('transite', '=', 1)->first();
+
+		$this->transitRef = $transit;
 
 		$this->custom = new CustomFunction();
 
@@ -626,16 +639,14 @@ class OrdreTransfertController extends Controller
             endforeach;
 
             foreach ($ligne_id->serie_ligne()->get() as $ser):
-                if(!in_array($ser->id, $data['produit']) && $ser->pivot->exp == 0):
+                if(!in_array($ser->id, $data['produit'])):
                     $ligne_id->serie_ligne()->detach($ser->id);
                 endif;
             endforeach;
 
         else:
 	        foreach ($ligne_id->serie_ligne()->get() as $ser):
-		        if($ser->pivot->exp == 0):
-			        $ligne_id->serie_ligne()->detach($ser->id);
-		        endif;
+                $ligne_id->serie_ligne()->detach($ser->id);
 	        endforeach;
         endif;
 
@@ -826,7 +837,7 @@ class OrdreTransfertController extends Controller
 
 		$ligne = $this->ligneTransfertRepository->getById($ligne_id);
 
-		$demande = $ligne->transfert()->first();
+		$demande = $ligne->OrdreTransfert()->first();
 
 		$magasin_id = $demande->mag_appro_id;
 
@@ -839,54 +850,101 @@ class OrdreTransfertController extends Controller
 
 		$produits = array();
 		$current_serie = array();
+		$no_demande = array();
 		$serie_exp = array();
 		foreach ($series as $serie):
 
-            $inDmd = $serie->Transferts()->where('ordre_transfert_id', '=', $demande->id)->first();
+            $inDmd = $serie->ligne_serie()->where('ordre_transfert_id', '=', $demande->id)->first();
 		    if($inDmd):
-                if($inDmd->pivot->ok == 0):
-                    array_push($current_serie, $serie->id);
-                elseif($inDmd->pivot->ok == 1):
-                    array_push($serie_exp, $serie->id);
-                endif;
-			    if($serie->type == 1):
-                    foreach ($serie->SeriesLots()->get() as $item):
-	                    array_push($serie_exp, $item->id);
-                    endforeach;
-			    endif;
-            endif;
-
-            if(!$serie->Transferts()->count()):
-                if($serie->type == 0):
-                    if($serie->lot_id):
-                        if(!$serie->Lot()->first()->ligne_serie()->count()):
-                            array_push($produits, $serie->id);
+                $inExp = $serie->Transferts()->where('ordre_transfert_id', '=', $demande->id)->first();
+		        if($inExp):
+			        // Serie qui ne sont pas dans la demande en cours mais qui sont dans une demande
+			        if($serie->ligne_serie()->count()):
+				        if($serie->type == 0): // traitement des series
+					        if($serie->lot_id):
+						        $lot = $serie->Lot()->first();
+						        if(!$lot->ligne_serie()->count()):
+							        if(!in_array($serie->id, $no_demande)):
+								        array_push($no_demande, $serie->id);
+							        endif;
+							        $coun_serie_dmd = 0;
+							        $coun_serie = 0;
+							        foreach ($lot->SeriesLots()->get() as $item):
+								        if($item->ligne_serie()->count()):
+									        $coun_serie_dmd += 1;
+								        endif;
+								        $coun_serie += 1;
+							        endforeach;
+							        // Elever de la demande en cours les numéros de lot dont la totalité a été prise
+							        if($coun_serie == $coun_serie_dmd && !in_array($lot->id, $no_demande)):
+								        array_push($no_demande, $lot->id);
+							        endif;
+						        endif;
+					        else:
+						        if (!in_array($serie->id, $no_demande)):
+							        array_push($no_demande, $serie->id);
+						        endif;
+					        endif;
+                        elseif ($serie->type == 1): /// Traitement des lots
+					        if (!in_array($serie->id, $no_demande)):
+						        array_push($no_demande, $serie->id);
+					        endif;
+					        foreach ($serie->SeriesLots()->get() as $item):
+						        if(!in_array($item->id, $no_demande)):
+							        array_push($no_demande, $item->id);
+						        endif;
+					        endforeach;
+				        endif;
+			        endif;
+                else:
+			        array_push($current_serie, $serie->id);
+		        endif;
+		    else:
+                // Serie qui ne sont pas dans la demande en cours mais qui sont dans une demande
+                if($serie->ligne_serie()->count()):
+                    if($serie->type == 0): // traitement des series
+	                    if($serie->lot_id):
+                            $lot = $serie->Lot()->first();
+		                    if(!$lot->ligne_serie()->count()):
+                                if(!in_array($serie->id, $no_demande)):
+			                        array_push($no_demande, $serie->id);
+		                        endif;
+			                    $coun_serie_dmd = 0;
+		                        $coun_serie = 0;
+                                foreach ($lot->SeriesLots()->get() as $item):
+                                    if($item->ligne_serie()->count()):
+	                                    $coun_serie_dmd += 1;
+		                            endif;
+		                            $coun_serie += 1;
+                                endforeach;
+                                // Elever de la demande en cours les numéros de lot dont la totalité a été prise
+                                if($coun_serie == $coun_serie_dmd && !in_array($lot->id, $no_demande)):
+	                                array_push($no_demande, $lot->id);
+                                endif;
+                            endif;
+                        else:
+	                        if (!in_array($serie->id, $no_demande)):
+	                            array_push($no_demande, $serie->id);
+                            endif;
                         endif;
-                    else:
-                        array_push($produits, $serie->id);
+                    elseif ($serie->type == 1): /// Traitement des lots
+                        if (!in_array($serie->id, $no_demande)):
+	                        array_push($no_demande, $serie->id);
+                        endif;
+                        foreach ($serie->SeriesLots()->get() as $item):
+                            if(!in_array($item->id, $no_demande)):
+	                            array_push($no_demande, $item->id);
+                            endif;
+                        endforeach;
                     endif;
-                elseif($serie->type == 1):
-                    array_push($produits, $serie->id);
-                endif;
-            else:
-                if($inDmd):
-	                if($serie->type == 0 && $inDmd->pivot->ok == 0):
-		                if($serie->lot_id):
-			                if(!$serie->Lot()->first()->ligne_serie()->count()):
-				                array_push($produits, $serie->id);
-			                endif;
-		                else:
-			                array_push($produits, $serie->id);
-		                endif;
-                    elseif($serie->type == 1 && $inDmd->pivot->exp == 0):
-		                array_push($produits, $serie->id);
-	                endif;
                 endif;
             endif;
 
         endforeach;
 
-		return view('ordretransfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series'));
+		$request->session()->put('serie_ligne', $current_serie);
+
+		return view('ordretransfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series', 'no_demande'));
 	}
 
 	public function expedition(Request $request, $id){
@@ -910,6 +968,25 @@ class OrdreTransfertController extends Controller
         endif;
 
         $exp_partiel = false;
+
+		$count = $this->transfertRepository->getWhere()->where('ordre_transfert_id', '=', $dmd->id)->count();
+		$coderef = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'demandes'],
+				['type_config', '=', 'transfertref']
+			]
+		)->first();
+		$count += 1;
+		$reference = $this->custom->setReference($coderef, $count, 4, $dmd->reference.'/');
+
+		$save_transfert = array();
+		$save_transfert['reference'] = $reference;
+		$save_transfert['position'] = $count;
+		$save_transfert['ordre_transfert_id'] = $dmd->id;
+
+        $transfert = $this->transfertRepository->store($save_transfert);
+        $transfert = $this->transfertRepository->getById($transfert->id);
+
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
 
             $lign = $this->ligneTransfertRepository->getById($ligne->id);
@@ -918,13 +995,35 @@ class OrdreTransfertController extends Controller
                 $exp_partiel = true;
             endif;
 
+            $ecriture_stock = array();
+            $ecriture_stock['type_ecriture'] = 1;
+            $ecriture_stock['quantite'] = (-1 * $lign->qte_a_exp);
+            $ecriture_stock['produit_id'] = $lign->produit_id;
+            $ecriture_stock['ordre_transfert_id'] = $dmd->id;
+            $ecriture_stock['transfert_id'] = $transfert->id;
+			$currentUser= Auth::user();
+			$ecriture_stock['user_id'] = $currentUser->id;
+			$ecriture_stock['magasin_id'] = $dmd->mag_appro_id;
+
+			$this->ecritureStockRepository->store($ecriture_stock);
+
+			$ecriture_stock = array();
+			$ecriture_stock['type_ecriture'] = 1;
+			$ecriture_stock['quantite'] = (1 * $lign->qte_a_exp);
+			$ecriture_stock['produit_id'] = $lign->produit_id;
+			$ecriture_stock['ordre_transfert_id'] = $dmd->id;
+			$ecriture_stock['transfert_id'] = $transfert->id;
+			$currentUser= Auth::user();
+			$ecriture_stock['user_id'] = $currentUser->id;
+			$ecriture_stock['magasin_id'] = $this->transitRef->id;
+
+			$this->ecritureStockRepository->store($ecriture_stock);
+
 			$lign->qte_exp += $lign->qte_a_exp;
 			$lign->qte_a_exp = 0;
 
 			foreach ($lign->serie_ligne()->get() as $serie):
-                $updated = $lign->serie_ligne()->where('id', $serie->id)->first();
-				$updated->pivot->exp = 1;
-			    $updated->pivot->save();
+                $transfert->Series()->save($serie);
             endforeach;
 
 			$lign->save();

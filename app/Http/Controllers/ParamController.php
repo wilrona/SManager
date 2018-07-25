@@ -142,6 +142,8 @@ class ParamController extends Controller
 
 		if($module == 'point_de_vente'):
 
+			var_dump($data['pos_center']);
+
 			$coderef = $this->modelRepository->getWhere()->where(
 				[
 					['module', '=', $module],
@@ -158,9 +160,11 @@ class ParamController extends Controller
 					$center_pos->save();
 
 					// Enlever l'ancien POS Centrale
-					$center_pos = $this->posRepository->getById($coderef->value);
-					$center_pos->centrale = 0;
-					$center_pos->save();
+					if($coderef->value):
+						$center_pos = $this->posRepository->getById($coderef->value);
+						$center_pos->centrale = 0;
+						$center_pos->save();
+					endif;
 				endif;
 				$coderef->value = $data['pos_center'];
 				$coderef->save();

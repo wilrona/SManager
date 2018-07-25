@@ -76,7 +76,7 @@
         <tbody>
 
         @foreach ($series as $data)
-            @if(in_array($data->id, $produits) && !in_array($data->id, $serie_exp))
+            @if(!in_array($data->id, $no_demande))
             <tr id="{{ $data->id }}" class="@if(in_array($data->id, $current_serie)) success @endif">
                 <td>
                     <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $current_serie)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">

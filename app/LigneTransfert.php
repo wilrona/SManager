@@ -13,7 +13,7 @@ class LigneTransfert extends Model
 
 	protected $fillable = ['qte_dmd', 'qte_exp','qte_a_exp', 'qte_recu', 'qte_a_recu' , 'produit_id', 'ordre_transfert_id'];
 
-	public function transfert(){
+	public function OrdreTransfert(){
 		return $this->belongsTo( 'App\OrdreTransfert', 'ordre_transfert_id', 'id');
 	}
 	public function produit(){
