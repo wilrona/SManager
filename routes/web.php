@@ -241,6 +241,10 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/list/produit', 'OrdreTransfertController@listProduit')->middleware('auth')->name('dmd.listingProduit');
 		Route::post('/valide/produit/{id}', 'OrdreTransfertController@validProduit')->middleware('auth')->name('dmd.valideProduit');
 
+		Route::get('/show/reception/{id}', 'OrdreTransfertController@receiveSend')->middleware('auth')->name('dmd.receiveSend');
+		Route::get('/show/reception/valid/{transfert_id}', 'OrdreTransfertController@showSerieReception')->middleware('auth')->name('dmd.showSerieReception');
+		Route::get('/show/reception/check_serie/{transfert_id}', 'OrdreTransfertController@checkSerieReception')->middleware('auth')->name('dmd.checkSerieReception');
+
 	});
 
 	Route::prefix('/demandes/receive')->group(function () {
@@ -255,6 +259,7 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::get('/add/serie/{ligne_id}', 'OrdreTransfertController@addSerie')->middleware('auth')->name('receive.addSerie');
 		Route::get('/check/add/serie/{ligne_id}', 'OrdreTransfertController@checkSerie')->middleware('auth')->name('receive.checkSerie');
 		Route::get('/list/ligne_transfert/{demande_id}', 'OrdreTransfertController@listdmd')->middleware('auth')->name('receive.listing');
+		Route::get('/list/transfert_serie/{transfert_id}', 'OrdreTransfertController@showSerieExpedition')->middleware('auth')->name('receive.showTransfert');
 
 
 		Route::post('/expedition/{demande_id}', 'OrdreTransfertController@expedition')->middleware('auth')->name('receive.expedition');

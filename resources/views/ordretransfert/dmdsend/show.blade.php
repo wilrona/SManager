@@ -68,13 +68,34 @@
                                     </div>
                                 </li>
                                 @endif
+
+                                @if($data->statut_exp > 0 && $data->Transferts()->count())
+                                    <li class="middle-center">
+                                        <div class="pull-right">
+                                            <div class="btn-group">
+                                                <a href="#" data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle"> Actions <span class="caret"></span> </a>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li>
+                                                        <a href="{{ route('dmd.receiveSend', $data->id) }}"> Reception </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                @endif
                                 <li>
                                     @if($data->statut_doc == 0)
                                     <a data-original-title="Brouillon" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-beige"></i></a>
                                     @endif
                                     @if($data->statut_doc == 1)
                                         @if($data->mag_appro_id)
-                                            <a data-original-title="En traitement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-info"></i></a>
+                                                @if($data->transferts()->where('etat', '=', 0)->count())
+                                                    <a data-original-title="Reception en court ({{ $data->transferts()->where('etat', '=', 0)->count() }})" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-warning"></i></a>
+
+                                                @else:
+                                                    <a data-original-title="En traitement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-info"></i></a>
+                                                @endif
+
                                         @else
                                             <a data-original-title="Envoyée" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-success"></i></a>
                                         @endif
@@ -177,7 +198,42 @@
                     </div>
 
                 </div>
-                <div class="col-md-4"></div>
+                <div class="col-md-4">
+	                <?php if($data->Transferts()->count()): ?>
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Reception</h4>
+
+                        </div>
+                        <div class="panel-body">
+                            <table class="table sample_3">
+                                <thead>
+                                <tr>
+                                    <th class="no-sort">Reference</th>
+                                    <th class="col-xs-3 no-sort">Reçue</th>
+                                    <th class="col-xs-3 no-sort">Exp.</th>
+                                    <th class="col-xs-1"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                @foreach($data->Transferts()->get() as $key => $value)
+                                    <tr class="@if($value->etat == 1) success @elseif($value->Series()->where("ok", '=', 1)->count() && $value->Series()->where("ok", '=', 1)->count() < $value->Series()->count()) warning @endif" >
+                                        <td><?= $value->reference ?></td>
+                                        <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
+                                        <td><?= $value->Series()->count(); ?></td>
+                                        <td>
+                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-eye"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+	                <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>

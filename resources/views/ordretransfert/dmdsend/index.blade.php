@@ -55,7 +55,7 @@
                                 <tbody>
 
                                 @foreach($datas as $data)
-                                    <tr>
+                                    <tr class="@if($data->statut_doc == 2) danger @endif @if($data->Transferts()->count()) warning @endif">
                                         <td>{{ $loop->index + 1 }}</td>
                                         <td>{{ $data->reference }}</td>
                                         <td>{{ $data->pos_appro()->first()->name }}</td>
@@ -65,7 +65,11 @@
                                             @endif
                                             @if($data->statut_doc == 1)
                                                 @if($data->mag_appro_id)
-                                                    En traitement
+                                                    @if($data->transferts()->where('etat', '=', 0)->count())
+                                                        Reception en court <b>({{ $data->transferts()->where('etat', '=', 0)->count() }})</b>
+                                                    @else:
+                                                        En traitement
+                                                    @endif
                                                 @else
                                                     Envoyée
                                                 @endif
@@ -73,6 +77,9 @@
 
                                             @if($data->statut_doc == 3)
                                                 Annulée
+                                            @endif
+                                            @if($data->statut_doc == 2)
+                                                Cloturée
                                             @endif
                                         </td>
                                         <td>

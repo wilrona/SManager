@@ -51,7 +51,8 @@ var oTable_3 = $('.sample_3').dataTable({
     ],
     // set the initial value
     "iDisplayLength" : 10,
-    "searching": true
+    "searching": true,
+    "destroy": true,
 
 });
 $('#sample_3_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
@@ -98,7 +99,8 @@ var oTable_4 = $('.sample_4').dataTable({
     ],
     // set the initial value
     "iDisplayLength" : 25,
-    "searching": false
+    "searching": false,
+    "destroy": true,
 
 });
 $('#sample_4_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
@@ -146,6 +148,8 @@ var oTable_5 = $('.sample_5').dataTable({
     ],
     // set the initial value
     "iDisplayLength" : 25,
+
+    "destroy": true,
     "searching": true
 
 });

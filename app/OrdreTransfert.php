@@ -31,7 +31,7 @@ class OrdreTransfert extends Model
 		return $this->hasMany('App\LigneTransfert', 'ordre_transfert_id', 'id');
 	}
 
-	public function Transfert(){
+	public function Transferts(){
 		return $this->hasMany('App\Transfert', 'ordre_transfert_id', 'id');
 	}
 

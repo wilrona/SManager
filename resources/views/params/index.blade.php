@@ -96,7 +96,7 @@
                                                                         <select name="pos_center" id="" class="form-control">
                                                                             <option value="">Choix du point de vente</option>
                                                                             @foreach($pos as $point)
-                                                                                <option value="{{ $point->id }}" <?= isset($values[$data['name']]) && isset($values[$data['name']]['pos_center']) ? 'selected' : '' ?>>{{ $point->name }}</option>
+                                                                                <option value="{{ $point->id }}" <?= isset($values[$data['name']]) && isset($values[$data['name']]['pos_center']) && intval($values[$data['name']]['pos_center']) == $point->id  ? 'selected' : '' ?>>{{ $point->name }}</option>
                                                                             @endforeach
                                                                         </select>
                                                                     </div>
