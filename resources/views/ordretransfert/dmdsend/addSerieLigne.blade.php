@@ -16,28 +16,14 @@
 
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h4 class="modal-title" id="myModalLabel">Reception des produits</h4>
+    <h4 class="modal-title" id="myModalLabel">Reception du produit <b>{{ $datas->produit()->first()->name }}</b></h4>
 </div>
 
 <div class="modal-body">
     <fieldset>
         <legend>
-            Information sur la reception
+            Information sur la reception du produit
         </legend>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label> Reference de la reception</label>
-                    <input type="text" value="{{ $datas->reference }}" class="form-control" disabled>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label class="control-label"> Date de l'expédition </label>
-                    <input type="text" value="{{ $datas->created_at->format('d-m-Y H:i') }}" class="form-control" disabled>
-                </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -55,10 +41,10 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label> Quantité à recevoir / Quantité en expédition</label>
+                    <label> Quantité reçue / Quantité expédiée</label>
                     <div class="input-group">
-                        <input type="number" class="form-control text-right qte_dmd" value="{{ $qte_recept }}" disabled>
-                        <span class="input-group-addon"> / {{ $qte_exp }} </span>
+                        <input type="number" class="form-control text-right qte_dmd" value="{{ $datas->qte_a_recu }}" disabled>
+                        <span class="input-group-addon"> / {{ $datas->qte_exp - $datas->qte_recu }} </span>
                     </div>
                 </div>
             </div>
@@ -69,32 +55,35 @@
             <thead>
             <tr>
                 <th class="no-sort">#</th>
-                <th class="col-xs-5">No Serie</th>
-                <th class="col-xs-5">No Lot</th>
-                <th class="no-sort col-xs-2">Type</th>
+                <th class="col-xs-4">No Serie</th>
+                <th class="col-xs-4">No Lot</th>
+                <th class="col-xs-4">Ref. Reception</th>
+                <th class="no-sort col-xs-4">Type</th>
             </tr>
             </thead>
             <tbody>
-
-            @foreach ($datas->Series()->get() as $data)
-                @if($data->pivot->ok == 0)
-                <tr class="@if(in_array($data->id, $selected)) success @endif" id="{{ $data->id }}">
-                    <td>
-                        <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $selected)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
-                    </td>
-                    <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
-                    <td>
-                        @if($data->type == 1)
-                            {{ $data->reference }} <br>
-                            Qté du lot : {{ $data->SeriesLots()->count() }}
-                        @else
-                            {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
-                        @endif
-                    </td>
-                    <td>@if($data->type == 1) Lot @else Série @endif</td>
-                </tr>
-                @endif
-            @endforeach
+                @foreach ($series as $data)
+                    @if($data->transferts()->where([['ordre_transfert_id', '=', $ordre_transfert], ['ok', '=', 0]])->count())
+                    <tr class="@if(in_array($data->id, $selected)) success @endif" id="{{ $data->id }}">
+                        <td>
+                            <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $selected)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
+                        </td>
+                        <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
+                        <td>
+                            @if($data->type == 1)
+                                {{ $data->reference }} <br>
+                                Qté du lot : {{ $data->SeriesLots()->count() }}
+                            @else
+                                {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
+                            @endif
+                        </td>
+                        <td>
+                            {{ $data->transferts()->where('ordre_transfert_id', '=', $ordre_transfert)->first()->reference }}
+                        </td>
+                        <td>@if($data->type == 1) Lot @else Série @endif</td>
+                    </tr>
+                    @endif
+                @endforeach
 
             </tbody>
         </table>
@@ -117,7 +106,7 @@
 
     oTable_5.api().columns().every( function () {
         var column = this;
-        if(column.index() === 3){
+        if(column.index() === 4){
             var name = null;
             name = 'Type';
 
@@ -165,7 +154,7 @@
             }
 
             $.ajax({
-                url: "<?= route('dmd.checkSerieReception', $datas->id)?>",
+                url: "<?= route('dmd.checkSerieProduitReception', $datas->id)?>",
                 type: 'GET',
                 data: { id: $id, action: $action, count: $count },
                 success: function(data) {
@@ -198,14 +187,11 @@
         $('#submits').on('click', function (e) {
             e.preventDefault();
 
-            var $qte_a_exp = "<?= $qte_recept ?>";
+            var $qte_a_exp = "<?= $datas->qte_a_recu ?>";
 
             if(oTable_5.$('input.checkbox-item:checked').length > 0 ){
-
                 save();
-
             }else{
-
                 if(parseInt($qte_a_exp) > 0){
                     save()
                 }else{
@@ -217,7 +203,7 @@
 
         function save(){
             $.ajax({
-                url: "<?= route('dmd.validSerieReception', $datas->id)?>",
+                url: "<?= route('dmd.validSerieProduitReception', $datas->id)?>",
                 type: 'POST',
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: oTable_5.$('input.checkbox-item:checked').serialize(),

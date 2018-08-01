@@ -20,7 +20,6 @@
     <table class="table sample_5 table-bordered">
         <thead>
         <tr>
-            <th>#</th>
             <th class="col-xs-5">No Serie</th>
             <th class="col-xs-5">No Lot</th>
             <th class="no-sort col-xs-2">Type</th>
@@ -31,7 +30,6 @@
         @foreach ($datas->Series()->get() as $data)
 
             <tr class="@if($data->pivot->ok == 1) success @endif">
-                <td></td>
                 <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
                 <td>
                     @if($data->type == 1)

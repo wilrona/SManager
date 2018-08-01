@@ -67,7 +67,7 @@
                                                 @if($data->mag_appro_id)
                                                     @if($data->transferts()->where('etat', '=', 0)->count())
                                                         Reception en court <b>({{ $data->transferts()->where('etat', '=', 0)->count() }})</b>
-                                                    @else:
+                                                    @else
                                                         En traitement
                                                     @endif
                                                 @else

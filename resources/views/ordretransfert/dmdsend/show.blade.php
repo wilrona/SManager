@@ -92,7 +92,7 @@
                                                 @if($data->transferts()->where('etat', '=', 0)->count())
                                                     <a data-original-title="Reception en court ({{ $data->transferts()->where('etat', '=', 0)->count() }})" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-warning"></i></a>
 
-                                                @else:
+                                                @else
                                                     <a data-original-title="En traitement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-info"></i></a>
                                                 @endif
 
@@ -223,7 +223,7 @@
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td><?= $value->Series()->count(); ?></td>
                                         <td>
-                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-eye"></i></a>
+                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach

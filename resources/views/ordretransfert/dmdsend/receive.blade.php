@@ -32,7 +32,10 @@
                     <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
                 @endif
             <div class="row">
-
+                <form id="expedition_submit" method="post" action="{{ route('receive.expedition', $data->id) }}">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="expedition" value="1">
+                </form>
 
                 <div class="col-md-8">
                     <div class="panel panel-white">
@@ -67,6 +70,17 @@
                                         </div>
                                     </div>
                                 </li>
+                                @endif
+
+                                @if($data->transferts()->where('etat', '=', 0)->count())
+                                    <li class="middle-center">
+                                        <div class="pull-right">
+                                            <div class="btn-group" dropdown="">
+                                                <button class="btn btn-blue btn-sm" id="submit_exp" type="button">Reception des produits</button>
+                                            </div>
+                                        </div>
+
+                                    </li>
                                 @endif
 
                             </ul>
@@ -131,6 +145,8 @@
                                     <th class="col-xs-2">Qte ddée</th>
                                     <th class="col-xs-2">Qté Reçue</th>
                                     <th class="col-xs-2">Qté Exp.</th>
+                                    <th class="col-xs-2">Qté à Rec.</th>
+                                    <th class="col-xs-1"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -146,6 +162,14 @@
                                     <td><?= $value->qte_dmd; ?></td>
                                     <td><?= $value->qte_recu; ?></td>
                                     <td><?= $value->qte_exp; ?></td>
+                                    <td><?= $value->qte_a_recu; ?></td>
+                                    <td>
+                                        @if($value->qte_exp)
+                                                <a href="{{ route('dmd.showSerieProduitReception', $value->id) }}" class="btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
+                                                    <i class="fa fa-list-alt"></i>
+                                                </a>
+                                        @endif
+                                    </td>
 
                                 </tr>
 				                <?php
@@ -153,7 +177,7 @@
 				                else:
 				                ?>
                                 <tr>
-                                    <td colspan="5">
+                                    <td colspan="7">
                                         <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
                                     </td>
                                 </tr>
@@ -190,7 +214,7 @@
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td><?= $value->Series()->count(); ?></td>
                                         <td>
-                                            <a href="{{ route('dmd.showSerieReception', $value->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-download"></i></a>
+                                            <a href="{{ route('dmd.showSerieReception', $value->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -208,5 +232,10 @@
 
 @section('footer')
     @parent
-
+    <script>
+        $('#submit_exp').on('click', function(e){
+            e.preventDefault();
+            $('form#expedition_submit').submit();
+        });
+    </script>
 @stop

@@ -51,7 +51,7 @@
                                                     <li>
                                                         @if($data->statut_exp == 0)
                                                             <a href="{{ route('receive.edit', $data->id) }}"> Modifier </a>
-                                                        @else:
+                                                        @else
                                                             <a href="{{ route('receive.edit', $data->id) }}"> Nouvelle Expédition </a>
                                                         @endif
                                                     </li>
@@ -220,7 +220,7 @@
                                         <td><?= $value->Series()->count(); ?></td>
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td>
-                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-eye"></i></a>
+                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
 				                @endforeach

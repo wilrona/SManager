@@ -181,11 +181,9 @@
                                     <td class="text-center"><?= $value['quantite_exp'] ?></td>
                                     <td class="text-center"><?= $value['quantite_a_exp']; ?></td>
                                     <td>
-                                        <div aria-label="First group" role="group" class="btn-group col-xs-12">
-                                            <a href="{{ route('receive.addSerie', [$value['ligne_id']]) }}" class="btn btn-primary btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static" data-quantite="<?= $value['quantite'] ?>" data-ligne="<?= $value['ligne_id'] ?>" data-produit="<?= $value['produit_id'] ?>">
-                                                <i class="fa fa-list-alt"></i>
-                                            </a>
-                                        </div>
+                                        <a href="{{ route('receive.addSerie', [$value['ligne_id']]) }}" class="btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static" data-quantite="<?= $value['quantite'] ?>" data-ligne="<?= $value['ligne_id'] ?>" data-produit="<?= $value['produit_id'] ?>">
+                                            <i class="fa fa-list-alt"></i>
+                                        </a>
                                     </td>
                                 </tr>
 				                <?php

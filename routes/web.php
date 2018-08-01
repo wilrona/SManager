@@ -242,8 +242,17 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::post('/valide/produit/{id}', 'OrdreTransfertController@validProduit')->middleware('auth')->name('dmd.valideProduit');
 
 		Route::get('/show/reception/{id}', 'OrdreTransfertController@receiveSend')->middleware('auth')->name('dmd.receiveSend');
+
 		Route::get('/show/reception/valid/{transfert_id}', 'OrdreTransfertController@showSerieReception')->middleware('auth')->name('dmd.showSerieReception');
+		Route::get('/show/reception/valid/produit/{ligne_id}', 'OrdreTransfertController@showSerieProduitReception')->middleware('auth')->name('dmd.showSerieProduitReception');
+
 		Route::get('/show/reception/check_serie/{transfert_id}', 'OrdreTransfertController@checkSerieReception')->middleware('auth')->name('dmd.checkSerieReception');
+		Route::get('/show/reception/check_serie/produit/{ligne_id}', 'OrdreTransfertController@checkSerieProduitReception')->middleware('auth')->name('dmd.checkSerieProduitReception');
+
+
+		Route::post('/check/valid/ligne_serie/{ligne_id}', 'OrdreTransfertController@validSerieProduitReception')->middleware('auth')->name('dmd.validSerieProduitReception');
+		Route::post('/check/valid/trasnfert_serie/{transfert_id}', 'OrdreTransfertController@validSerieReception')->middleware('auth')->name('dmd.validSerieReception');
+		Route::get('/list/ligne_transfert/{demande_id}', 'OrdreTransfertController@listdmdProduitReception')->middleware('auth')->name('dmd.listdmdProduitReception');
 
 	});
 
