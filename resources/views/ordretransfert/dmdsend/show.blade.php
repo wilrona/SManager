@@ -162,11 +162,12 @@
                         <div class="panel-body" id="loading">
                             <table class="table ">
                                 <thead>
-                                <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Produit</th>
-                                    <th class="col-xs-2">Quantité</th>
-                                </tr>
+                                    <th class="col-xs-2">Qte ddée</th>
+                                    <th class="col-xs-2">Qté Reçue</th>
+                                    <th class="col-xs-2">Qté Exp.</th>
+                                    <th class="col-xs-2">Qté à Rec.</th>
                                 </thead>
                                 <tbody>
 
@@ -179,6 +180,9 @@
                                     <td><?= $key + 1 ?></td>
                                     <td><?= $value->produit()->first()->name ?></td>
                                     <td><?= $value->qte_dmd; ?></td>
+                                    <td><?= $value->qte_recu; ?></td>
+                                    <td><?= $value->qte_exp; ?></td>
+                                    <td><?= $value->qte_a_recu; ?></td>
 
                                 </tr>
 				                <?php
@@ -186,7 +190,7 @@
 				                else:
 				                ?>
                                 <tr>
-                                    <td colspan="3">
+                                    <td colspan="6">
                                         <h4 class="text-center" style="margin: 0;">Aucun produit enregistré</h4>
                                     </td>
                                 </tr>
@@ -221,7 +225,7 @@
                                     <tr class="@if($value->etat == 1) success @elseif($value->Series()->where("ok", '=', 1)->count() && $value->Series()->where("ok", '=', 1)->count() < $value->Series()->count()) warning @endif" >
                                         <td><?= $value->reference ?></td>
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
-                                        <td><?= $value->Series()->count(); ?></td>
+                                        <td><?= $value->Series()->count() - $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td>
                                             <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>

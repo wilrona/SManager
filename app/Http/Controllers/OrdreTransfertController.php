@@ -328,7 +328,6 @@ class OrdreTransfertController extends Controller
 
 		$ligne_id = $this->ligneTransfertRepository->getById($ligne_id);
 
-
 		$count = 0;
 		if(isset($data['produit'])):
 
@@ -628,25 +627,25 @@ class OrdreTransfertController extends Controller
 				if($ligne_serie->count()):
 
 					$saved = $ligne_serie->first();
-
-                    $saved->pivot->a_recu = 1;
-                    $saved->qte_a_recu += 1;
-
-					$saved->pivot->save();
+					$saved->qte_a_recu += $saved->pivot->qte;
+					$saved->pivot->a_recu = 1;
 					$saved->save();
+					$saved->pivot->save();
+
 				endif;
 
 			endforeach;
 			foreach ($transfert_id->Series()->get() as $ser):
                 if(!in_array($ser->id, $data['produit'])):
-                    $ligne_serie = $ser->ligne_serie()->where('ordre_transfert_id', '=', $transfert_id->ordre_transfert_id)->first();
+                    $ligne_serie = $ser->ligne_serie()->where([['a_recu', '=', 1],['ordre_transfert_id', '=', $transfert_id->ordre_transfert_id]])->first();
                     if($ligne_serie):
                         $ligne_serie->pivot->a_recu = 0;
                         if($ligne_serie->qte_a_recu > 0):
-                            $ligne_serie->qte_a_recu -= 1;
+                            $ligne_serie->qte_a_recu -= $ligne_serie->pivot->qte;
                         endif;
+	                    $ligne_serie->save();
                         $ligne_serie->pivot->save();
-                        $ligne_serie->save();
+
                     endif;
 				endif;
 			endforeach;
@@ -656,10 +655,10 @@ class OrdreTransfertController extends Controller
                 if($ligne_serie):
                     $ligne_serie->pivot->a_recu = 0;
                     if($ligne_serie->qte_a_recu > 0):
-                        $ligne_serie->qte_a_recu -= 1;
+                        $ligne_serie->qte_a_recu -= $ligne_serie->pivot->qte;
                     endif;
+	                $ligne_serie->save();
                     $ligne_serie->pivot->save();
-                    $ligne_serie->save();
 				endif;
 			endforeach;
 		endif;
@@ -670,6 +669,128 @@ class OrdreTransfertController extends Controller
 
 		return response()->json($response);
 	}
+
+
+	public function reception(Request $request, $id){
+
+		$dmd = $this->modelRepository->getById($id);
+
+		$exit_ligne_zero = 0;
+
+		foreach ($dmd->ligne_transfert()->get() as $ligne):
+			if($ligne->qte_a_recu):
+				$exit_ligne_zero += 1;
+			endif;
+		endforeach;
+
+		if(!$exit_ligne_zero):
+			return redirect()->route('receive.edit', $id)->withWarning('Une reception vide n\'est pas autorisée.');
+		endif;
+
+		$transferts = $dmd->transferts()->get();
+
+		foreach ($transferts as $transfert):
+
+            $count_serie = array();
+		    $produit = array();
+
+		    $series = $transfert->Series();
+
+		    foreach ($series->get() as $serie):
+
+                $lign_serie = $serie->ligne_serie()->where('ordre_transfert_id', '=', $dmd->id)->first();
+
+                if($lign_serie->pivot->a_recu == 1):
+
+                    $lign_serie->pivot->a_recu = 2;
+                    $lign_serie->pivot->save();
+
+                    $serie->pivot->ok = 1;
+                    $serie->pivot->save();
+
+                    $mah = $this->magasinRepository->getById($dmd->mag_dmd_id);
+                    $serie->Magasins()->detach();
+                    $serie->Magasins()->save($mah);
+
+                    if($serie->type == 1):
+                        foreach ($serie->SeriesLots()->get() as $item):
+	                        $item->Magasins()->detach();
+	                        $item->Magasins()->save($mah);
+                        endforeach;
+                    endif;
+
+                    if(!in_array($serie->produit_id, $produit)):
+
+	                    $info = array();
+                        $info['produit_id'] = $serie->produit_id;
+                        $info['count'] = $lign_serie->pivot->qte;
+
+                        array_push($count_serie, $info);
+                        array_push($produit, $serie->produit_id);
+
+                    else:
+
+	                    $key = array_search($serie->produit_id, array_column($count_serie, 'produit_id'));
+                        $count_serie[$key]['count'] += $lign_serie->pivot->qte;
+
+                    endif;
+
+                endif;
+
+            endforeach;
+
+            if($series->where('ok', '=', 1)->count() == $series->count()):
+                $transfert->etat = 1;
+                $transfert->save();
+            endif;
+
+			$currentUser= Auth::user();
+
+			foreach ($count_serie as $value):
+
+				$ecriture_stock = array();
+				$ecriture_stock['type_ecriture'] = 0;
+				$ecriture_stock['quantite'] = (-1 * $value['count']);
+				$ecriture_stock['produit_id'] = $value['produit_id'];
+				$ecriture_stock['ordre_transfert_id'] = $dmd->id;
+				$ecriture_stock['transfert_id'] = $transfert->id;
+				$ecriture_stock['user_id'] = $currentUser->id;
+				$ecriture_stock['magasin_id'] = $this->transitRef->id;
+
+				$this->ecritureStockRepository->store($ecriture_stock);
+
+				$ecriture_stock = array();
+				$ecriture_stock['type_ecriture'] = 0;
+				$ecriture_stock['quantite'] = (1 * $value['count']);
+				$ecriture_stock['produit_id'] = $value['produit_id'];
+				$ecriture_stock['ordre_transfert_id'] = $dmd->id;
+				$ecriture_stock['transfert_id'] = $transfert->id;
+
+				$ecriture_stock['user_id'] = $currentUser->id;
+				$ecriture_stock['magasin_id'] = $dmd->mag_dmd_id;
+
+				$this->ecritureStockRepository->store($ecriture_stock);
+
+            endforeach;
+
+
+        endforeach;
+
+		foreach ($dmd->ligne_transfert()->get() as $ligne):
+
+
+			$ligne->qte_recu += $ligne->qte_a_recu;
+			$ligne->qte_a_recu = 0;
+
+			$ligne->save();
+
+		endforeach;
+
+		return redirect()->route('dmd.show', $id)->withOk('Votre reception a été prise en compte avec succès.');
+
+	}
+
+
 
 	/**
      * Show the form for editing the specified resource.
@@ -1533,13 +1654,14 @@ class OrdreTransfertController extends Controller
             endif;
 
             if($lign->qte_a_exp):
+	            $currentUser= Auth::user();
+
                 $ecriture_stock = array();
                 $ecriture_stock['type_ecriture'] = 1;
                 $ecriture_stock['quantite'] = (-1 * $lign->qte_a_exp);
                 $ecriture_stock['produit_id'] = $lign->produit_id;
                 $ecriture_stock['ordre_transfert_id'] = $dmd->id;
                 $ecriture_stock['transfert_id'] = $transfert->id;
-                $currentUser= Auth::user();
                 $ecriture_stock['user_id'] = $currentUser->id;
                 $ecriture_stock['magasin_id'] = $dmd->mag_appro_id;
 
@@ -1551,7 +1673,6 @@ class OrdreTransfertController extends Controller
                 $ecriture_stock['produit_id'] = $lign->produit_id;
                 $ecriture_stock['ordre_transfert_id'] = $dmd->id;
                 $ecriture_stock['transfert_id'] = $transfert->id;
-                $currentUser= Auth::user();
                 $ecriture_stock['user_id'] = $currentUser->id;
                 $ecriture_stock['magasin_id'] = $this->transitRef->id;
 

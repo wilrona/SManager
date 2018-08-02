@@ -32,7 +32,7 @@
                     <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
                 @endif
             <div class="row">
-                <form id="expedition_submit" method="post" action="{{ route('receive.expedition', $data->id) }}">
+                <form id="expedition_submit" method="post" action="{{ route('dmd.reception', $data->id) }}">
                     {{ csrf_field() }}
                     <input type="hidden" name="expedition" value="1">
                 </form>
@@ -212,7 +212,7 @@
                                     <tr class="@if($value->etat == 1) success @elseif($value->Series()->where("ok", '=', 1)->count() && $value->Series()->where("ok", '=', 1)->count() < $value->Series()->count()) warning @endif" >
                                         <td><?= $value->reference ?></td>
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
-                                        <td><?= $value->Series()->count(); ?></td>
+                                        <td><?= $value->Series()->count() - $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td>
                                             <a href="{{ route('dmd.showSerieReception', $value->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>

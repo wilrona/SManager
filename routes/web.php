@@ -254,6 +254,9 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::post('/check/valid/trasnfert_serie/{transfert_id}', 'OrdreTransfertController@validSerieReception')->middleware('auth')->name('dmd.validSerieReception');
 		Route::get('/list/ligne_transfert/{demande_id}', 'OrdreTransfertController@listdmdProduitReception')->middleware('auth')->name('dmd.listdmdProduitReception');
 
+
+		Route::post('/reception/{demande_id}', 'OrdreTransfertController@reception')->middleware('auth')->name('dmd.reception');
+
 	});
 
 	Route::prefix('/demandes/receive')->group(function () {
