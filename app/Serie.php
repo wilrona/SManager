@@ -35,4 +35,8 @@ class Serie extends Model
 	public function Transferts(){
 		return $this->belongsToMany('App\Transfert', 'transfert_serie', 'serie_id', 'transfert_id')->withPivot('ok');
 	}
+
+	public function EcriureStocks(){
+		return $this->belongsToMany('App\EcritureStock', 'ecriture_stock_serie', 'serie_id', 'ecriture_stock_id');
+	}
 }

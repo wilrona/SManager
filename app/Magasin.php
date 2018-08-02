@@ -34,4 +34,8 @@ class Magasin extends Model
 	public function ApproTransfert(){
 		return $this->hasMany( 'App\Transfert', 'mag_appro_id', 'id');
 	}
+
+	public function EcritureStock(){
+		return $this->hasMany( 'App\EcritureStock', 'magasin_id', 'id');
+	}
 }

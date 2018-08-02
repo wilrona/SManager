@@ -35,6 +35,10 @@ class OrdreTransfert extends Model
 		return $this->hasMany('App\Transfert', 'ordre_transfert_id', 'id');
 	}
 
+	public function EcritureStock(){
+		return $this->hasMany( 'App\EcritureStock', 'ordre_transfert_id', 'id');
+	}
+
 
 //	public function vendeur(){
 //		return $this->belongsTo( 'App\User', 'vendeur_id', 'id');

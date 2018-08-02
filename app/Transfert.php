@@ -21,4 +21,8 @@ class Transfert extends Model
 	public function Series(){
 		return $this->belongsToMany('App\Serie', 'transfert_serie', 'transfert_id', 'serie_id')->withPivot('ok')->withTimestamps();
 	}
+
+	public function EcritureStock(){
+		return $this->hasMany('App\EcritureStock', 'transfert_id', 'id');
+	}
 }

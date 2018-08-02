@@ -37,6 +37,10 @@ class Produits extends Model
 		return $this->hasMany('App\LigneTransfert', 'produit_id', 'id');
 	}
 
+	public function EcritureStock(){
+		return $this->hasMany( 'App\EcritureStock', 'produit_id', 'id');
+	}
+
 
 
 
