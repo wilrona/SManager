@@ -13,7 +13,7 @@ class Serie extends Model
 	protected $table = 'series';
 
 	public function Magasins(){
-		return $this->belongsToMany('App\Magasin', 'stock_serie');
+		return $this->belongsToMany('App\Magasin', 'stock_serie')->withPivot('mouvement');
 	}
 
 	public function Produit(){

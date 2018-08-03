@@ -34,7 +34,18 @@
                 <td>
                     @if($data->type == 1)
                         {{ $data->reference }} <br>
-                        Qté du lot : {{ $data->SeriesLots()->count() }}
+		                <?php
+		                $count = 0;
+		                $serial = $data->SeriesLots()->get();
+
+		                ?>
+
+                        @foreach($serial as $ser)
+                            @if($ser->ligne_serie()->where('ordre_transfert_id', '=', $datas->ordre_transfert_id)->count())
+				                <?php $count += 1 ?>
+                            @endif
+                        @endforeach
+                        Qté du lot : {{ $count }}
                     @else
                         {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
                     @endif

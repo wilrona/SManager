@@ -59,6 +59,12 @@
                                 <label for="exampleInputEmail1" class="text-bold"> Magasin en cours : </label>
                                 {!! Form::text('magasin_id', $data->Magasins()->first()->name, ['class' => 'form-control', 'disabled' => '']) !!}
                             </div>
+                            @if($data->lot_id)
+                            <div class="form-group">
+                                <label for="exampleInputEmail1" class="text-bold"> Numéro de lot : </label>
+                                {!! Form::text('magasin_id', $data->Lot()->first()->reference, ['class' => 'form-control', 'disabled' => '']) !!}
+                            </div>
+                            @endif
                         </div>
                     </div>
 

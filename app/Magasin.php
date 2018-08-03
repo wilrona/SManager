@@ -24,7 +24,7 @@ class Magasin extends Model
 	}
 
 	public function Stock(){
-		return $this->belongsToMany('App\Serie', 'stock_serie');
+		return $this->belongsToMany('App\Serie', 'stock_serie')->withPivot('mouvement');
 	}
 
 	public function DemandesTransfert(){

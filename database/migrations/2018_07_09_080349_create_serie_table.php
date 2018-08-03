@@ -30,6 +30,7 @@ class CreateSerieTable extends Migration
 	    Schema::create('stock_serie', function (Blueprint $table) {
 		    $table->integer('serie_id')->unsigned();
 		    $table->integer('magasin_id')->unsigned();
+		    $table->integer('mouvement')->default(0);
 
 		    $table->foreign('serie_id')->references('id')->on('series')
 		          ->onUpdate('cascade')->onDelete('cascade');

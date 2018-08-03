@@ -441,7 +441,7 @@ class OrdreTransfertController extends Controller
 		        array_push($exist_exp, $item->id);
 		    else:
                 if($item->lot_id):
-                    if(in_array($item->id, $exist_exp)):
+                    if(!in_array($item->lot_id, $exist_exp)):
 	                    $qte_exp += 1;
                     endif;
                 else:
@@ -462,7 +462,7 @@ class OrdreTransfertController extends Controller
 
                 else:
                     if($item->lot_id):
-                        if(in_array($item->id, $exist_recept)):
+                        if(!in_array($item->lot_id, $exist_recept)):
                             $qte_recept += 1;
                         endif;
                     else:
@@ -689,6 +689,9 @@ class OrdreTransfertController extends Controller
 
 		$transferts = $dmd->transferts()->get();
 
+		$transit = null;
+		$dmdeur = null;
+
 		foreach ($transferts as $transfert):
 
             $count_serie = array();
@@ -703,20 +706,37 @@ class OrdreTransfertController extends Controller
                 if($lign_serie->pivot->a_recu == 1):
 
                     $lign_serie->pivot->a_recu = 2;
-                    $lign_serie->pivot->save();
+//                    $lign_serie->pivot->save();
 
                     $serie->pivot->ok = 1;
-                    $serie->pivot->save();
+//                    $serie->pivot->save();
 
                     $mah = $this->magasinRepository->getById($dmd->mag_dmd_id);
-                    $serie->Magasins()->detach();
-                    $serie->Magasins()->save($mah);
+//                    $serie->Magasins()->detach();
+//                    $serie->Magasins()->save($mah);
 
                     if($serie->type == 1):
                         foreach ($serie->SeriesLots()->get() as $item):
 	                        $item->Magasins()->detach();
 	                        $item->Magasins()->save($mah);
                         endforeach;
+                    else:
+                        if($serie->lot_id):
+                            $lot = $serie->Lot()->first();
+                            var_dump($lot);
+                            die();
+                            $exist_in_appro = false;
+                            foreach ($lot->SeriesLots()->get() as $otem):
+                                if($otem->Magasins()->where('id', '=', $dmd->mag_appro_id)->count()):
+                                    $exist_in_appro = true;
+                                endif;
+                            endforeach;
+	                        $lot->Magasins()->save($mah);
+                            if(!$exist_in_appro):
+                                $ag_appro = $this->magasinRepository->getById($dmd->mag_appro_id);
+                                $lot->Magasins()->detach($ag_appro);
+                            endif;
+                        endif;
                     endif;
 
                     if(!in_array($serie->produit_id, $produit)):
@@ -757,7 +777,7 @@ class OrdreTransfertController extends Controller
 				$ecriture_stock['user_id'] = $currentUser->id;
 				$ecriture_stock['magasin_id'] = $this->transitRef->id;
 
-				$this->ecritureStockRepository->store($ecriture_stock);
+				$transit = $this->ecritureStockRepository->store($ecriture_stock);
 
 				$ecriture_stock = array();
 				$ecriture_stock['type_ecriture'] = 0;
@@ -769,7 +789,7 @@ class OrdreTransfertController extends Controller
 				$ecriture_stock['user_id'] = $currentUser->id;
 				$ecriture_stock['magasin_id'] = $dmd->mag_dmd_id;
 
-				$this->ecritureStockRepository->store($ecriture_stock);
+				$dmdeur = $this->ecritureStockRepository->store($ecriture_stock);
 
             endforeach;
 
@@ -778,6 +798,18 @@ class OrdreTransfertController extends Controller
 
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
 
+			foreach ($ligne->serie_ligne()->get() as $serie):
+                $serie_ckeck = $serie->ligne_serie()->where([['ordre_transfert_id', '=', $ligne->ordre_transfert_id], ['a_recu', '=', 2]]);
+
+				if($serie_ckeck->count()):
+					if($dmdeur):
+						$serie->EcriureStocks()->save($dmdeur);
+					endif;
+					if($transit):
+						$serie->EcriureStocks()->save($transit);
+					endif;
+				endif;
+			endforeach;
 
 			$ligne->qte_recu += $ligne->qte_a_recu;
 			$ligne->qte_a_recu = 0;
@@ -1265,14 +1297,197 @@ class OrdreTransfertController extends Controller
 		$redirect = redirect()->route('receive.show', $id)->withOk("La demande a été modifiée.");
 
 		return $redirect;
-	}	
+	}
 
+	public function saveStockAppro(Request $request){
+
+		$request->session()->forget('serie_ligne');
+
+		$data = $request->all();
+
+		$lignes = $this->ligneTransfertRepository->getWhere()->where('ordre_transfert_id', '=', $data['id'])->get();
+		$exist = false;
+		foreach ($lignes as $ligne):
+			if($ligne->serie_ligne()->count()):
+				$exist = true;
+			endif;
+		endforeach;
+
+		$response = array('success' => '', 'error' => '');
+
+		if(!$exist):
+			$save = $this->modelRepository->getById($data['id']);
+			$save->mag_appro_id = $data['mag_appro_id'];
+			$save->save();
+
+			$response['success'] = 'Your enquiry has been successfully submitted!';
+		else:
+			$appro = $this->magasinRepository->getById($data['mag_appro_id']);
+			$response['error'] = 'Les modifications ne peuvent pas être prise en compte car vous utilisez déja des produits du magasin "'.$appro->name.'"';
+		endif;
+
+		return response()->json($response);
+	}
+
+	public function addSerie(Request $request, $ligne_id){
+
+		$request->session()->forget('serie_ligne');
+
+		$ligne = $this->ligneTransfertRepository->getById($ligne_id);
+
+		$demande = $ligne->OrdreTransfert()->first();
+
+		$magasin_id = $demande->mag_appro_id;
+
+		if(!$magasin_id):
+			return redirect()->route('receive.edit', $demande->id)->withWarning('Le magasin d\'approvisionnement n\'a pas été définie');
+		endif;
+
+		$series = $this->magasinRepository->getById($magasin_id);
+		$series = $series->Stock()->where([['produit_id', '=', $ligne->produit_id], ['mouvement', '<=', 1]])->get();
+
+		$produits = array();
+		$current_serie = array();
+		$no_demande = array();
+		$serie_exp = array();
+		foreach ($series as $serie):
+
+			if($serie->pivot->mouvement == 1 && $serie->type == 1):
+                array_push($current_serie, $serie->id);
+			endif;
+
+		endforeach;
+
+		$request->session()->put('serie_ligne', $current_serie);
+
+		return view('ordretransfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series', 'no_demande'));
+	}
+
+	public function checkSerie(Request $request, $ligne_id){
+		$data = $request->all();
+
+		$ligne = $this->ligneTransfertRepository->getById($ligne_id);
+		$demande = $ligne->OrdreTransfert()->first();
+
+		$serie_id = array();
+
+		if($request->session()->has('serie_ligne')):
+			$serie_id = $request->session()->get('serie_ligne');
+		endif;
+
+		$count = $data['count'];
+
+		$serie = $this->serieRepository->getById($data['id']);
+
+		$exist = false;
+
+		$stock_0 = $serie->Magasins()->where([['mouvement', '=', 0], ['id', '=', $demande->mag_appro_id]]);
+		$stock_1 = $serie->Magasins()->where([['mouvement', '=', 1], ['id', '=', $demande->mag_appro_id]]);
+
+		if($serie->type == 1):
+			$count_serieLot = 0;
+			$count_serieLot_r = 0;
+			foreach ($serie->SeriesLots()->get() as $sousSerie):
+				if(in_array($sousSerie->id, $serie_id)):
+					$exist = true;
+				endif;
+				if($sousSerie->Magasins()->where([['mouvement', '=', 0], ['id', '=', $demande->mag_appro_id]])->count()):
+					$count_serieLot += 1;
+				endif;
+
+				if($sousSerie->Magasins()->where([['mouvement', '=', 1], ['id', '=', $demande->mag_appro_id]])->count()):
+					$count_serieLot_r += 1;
+				endif;
+
+			endforeach;
+
+			if(!$exist):
+
+				if($stock_0->count()):
+                    $count += $count_serieLot;
+                    array_push($serie_id, $serie->id);
+					$c = $stock_0->first();
+                    $c->pivot->mouvement = 1;
+                    $c->pivot->save();
+                else:
+                    $count -= $count_serieLot_r;
+                    if (($key = array_search($serie->id, $serie_id)) !== false) {
+                        unset($serie_id[$key]);
+                    }
+	                $c = $stock_1->first();
+	                $c->pivot->mouvement = 0;
+	                $c->pivot->save();
+				endif;
+			endif;
+		else:
+			if($serie->lot_id):
+				if(in_array($serie->lot_id, $serie_id)):
+					$exist = true;
+				endif;
+			endif;
+
+			if(!$exist):
+				if($stock_0->count()):
+                    $count += 1;
+                    array_push($serie_id, $serie->id);
+					$c = $stock_0->first();
+					$c->pivot->mouvement = 1;
+					$c->pivot->save();
+                else:
+                    $count -= 1;
+                    if (($key = array_search($serie->id, $serie_id)) !== false) {
+                        unset($serie_id[$key]);
+                    }
+	                $c = $stock_1->first();
+	                $c->pivot->mouvement = 0;
+	                $c->pivot->save();
+                endif;
+			endif;
+		endif;
+
+		$response = array(
+			'success' => '',
+			'error' => '',
+			'count' => 0,
+			'action' => $data['action']
+		);
+
+
+		$qte_dmd = $ligne->qte_dmd - $ligne->qte_exp;
+		if($qte_dmd >= $count):
+			$response['count'] = $count;
+			if(!$exist):
+				if($data['action'] == 'add'):
+					$response['success'] = 'Le produit a été pris en compte';
+				else:
+					$response['success'] = 'Le produit a été retiré avec succès';
+				endif;
+			else:
+				if($serie->type == 0):
+					$response['error'] = 'Le produit est affecté à un numéro de lot déjà selectionné';
+				else:
+					$response['error'] = 'Un numéro de serie du lot a été selectionné';
+				endif;
+			endif;
+		else:
+			$response['count'] = $data['count'];
+			$response['error'] = 'Quantité de produit selectionnée supérieure par rapport à la quantité demandé';
+		endif;
+
+		$request->session()->put('serie_ligne', $serie_id);
+
+
+		return response()->json($response);
+
+	}
 
     public function validSerie(Request $request, $ligne_id){
 
 	    $data = $request->all();
 
         $ligne_id = $this->ligneTransfertRepository->getById($ligne_id);
+
+	    $demande_en_cours = $ligne_id->OrdreTransfert()->first();
 
         $count = 0;
         if(isset($data['produit'])):
@@ -1281,30 +1496,87 @@ class OrdreTransfertController extends Controller
                 $serie = $this->serieRepository->getById($produit);
                 if(!$serie->ligne_serie()->where('id', $ligne_id->id)->count()):
                     if($serie->type == 1):
-                        $ligne_id->serie_ligne()->save($serie, ['qte' => $serie->SeriesLots()->count()]);
-                        $count += $serie->SeriesLots()->count();
+
+	                    $count_SeriesLots = $serie->SeriesLots()->whereHas('Magasins', function($q)
+	                    {
+		                    $q->where('mouvement', '=', 0);
+	                    });
+
+                        $ligne_id->serie_ligne()->save($serie, ['qte' => $count_SeriesLots->count()]);
+                        $count += $count_SeriesLots->count();
+
+	                    foreach ($count_SeriesLots->get() as $item):
+		                    $c = $item->Magasins()->where('id', '=', $demande_en_cours->mag_appro_id)->first();
+		                    $c->pivot->mouvement = 1;
+		                    $c->pivot->save();
+	                    endforeach;
                     else:
                         $ligne_id->serie_ligne()->save($serie, ['qte' => 1]);
                         $count += 1;
                     endif;
                 else:
 	                if($serie->type == 1):
-		                $count += $serie->SeriesLots()->count();
+		                $count_SeriesLots = $serie->SeriesLots()->whereHas('Magasins', function($q)
+		                {
+			                $q->where('mouvement', '=', 0);
+		                });
+
+		                $count += $count_SeriesLots->count();
+
+		                foreach ($count_SeriesLots->get() as $item):
+			                $c = $item->Magasins()->where('id', '=', $demande_en_cours->mag_appro_id)->first();
+			                $c->pivot->mouvement = 1;
+			                $c->pivot->save();
+		                endforeach;
 	                else:
 		                $count += 1;
 	                endif;
                 endif;
+
+                $stock = $serie->Magasins()->where('id', '=', $demande_en_cours->mag_appro_id)->first();
+                $stock->pivot->mouvement = 1;
+                $stock->pivot->save();
             endforeach;
 
             foreach ($ligne_id->serie_ligne()->get() as $ser):
-                if(!in_array($ser->id, $data['produit']) && !$ser->transferts()->where('ordre_transfert_id', '=', $ligne_id->ordre_transfert_id)->count()):
+	            $en_mag = $ser->Magasins()->where([['mouvement', '=', 1], ['id', '=', $demande_en_cours->mag_appro_id]]);
+                if(!in_array($ser->id, $data['produit']) && $en_mag->count()):
                     $ligne_id->serie_ligne()->detach($ser->id);
+                    $stock = $en_mag->first();
+	                $stock->pivot->mouvement = 0;
+	                $stock->pivot->save();
+
+	                if($ser->type == 1):
+
+		                foreach ($ser->SeriesLots()->get() as $item):
+			                $c = $item->Magasins()->where('id', '=', $demande_en_cours->mag_appro_id)->first();
+			                $c->pivot->mouvement = 0;
+			                $c->pivot->save();
+		                endforeach;
+
+                    endif;
                 endif;
             endforeach;
 
         else:
 	        foreach ($ligne_id->serie_ligne()->get() as $ser):
                 $ligne_id->serie_ligne()->detach($ser->id);
+		        $en_mag = $ser->Magasins()->where([['mouvement', '=', 1], ['id', '=', $demande_en_cours->mag_appro_id]]);
+		        if($en_mag->count()):
+                    $stock = $en_mag->first();
+                    $stock->pivot->mouvement = 0;
+                    $stock->pivot->save();
+		        endif;
+
+		        if($ser->type == 1):
+
+			        foreach ($ser->SeriesLots()->get() as $item):
+				        $c = $item->Magasins()->where('id', '=', $demande_en_cours->mag_appro_id)->first();
+				        $c->pivot->mouvement = 0;
+				        $c->pivot->save();
+			        endforeach;
+
+		        endif;
 	        endforeach;
         endif;
 
@@ -1368,244 +1640,7 @@ class OrdreTransfertController extends Controller
 		<?php
 	}
 
-    public function checkSerie(Request $request, $ligne_id){
-	    $data = $request->all();
-
-	    $serie_id = array();
-
-	    if($request->session()->has('serie_ligne')):
-		    $serie_id = $request->session()->get('serie_ligne');
-	    endif;
-
-        $count = $data['count'];
-
-        $serie = $this->serieRepository->getById($data['id']);
-
-	    $exist = false;
-
-
-        if($serie->type == 1):
-
-            foreach ($serie->SeriesLots()->get() as $sousSerie):
-                if(in_array($sousSerie->id, $serie_id)):
-                    $exist = true;
-                endif;
-            endforeach;
-
-            if(!$exist):
-                if($data['action'] == 'add'):
-                    $count += $serie->SeriesLots()->count();
-                    array_push($serie_id, $serie->id);
-                else:
-                    $count -= $serie->SeriesLots()->count();
-                    if (($key = array_search($serie->id, $serie_id)) !== false) {
-                        unset($serie_id[$key]);
-                    }
-                endif;
-            endif;
-        else:
-            if($serie->lot_id):
-                if(in_array($serie->lot_id, $serie_id)):
-                    $exist = true;
-                endif;
-	        endif;
-
-	        if(!$exist):
-                if($data['action'] == 'add'):
-                    $count += 1;
-	                array_push($serie_id, $serie->id);
-                else:
-                    $count -= 1;
-	                if (($key = array_search($serie->id, $serie_id)) !== false) {
-		                unset($serie_id[$key]);
-	                }
-                endif;
-	        endif;
-        endif;
-
-	    $response = array(
-		    'success' => '',
-		    'error' => '',
-            'count' => 0,
-            'action' => $data['action']
-	    );
-
-        $ligne = $this->ligneTransfertRepository->getById($ligne_id);
-        $qte_dmd = $ligne->qte_dmd - $ligne->qte_exp;
-        if($qte_dmd >= $count):
-	        $response['count'] = $count;
-            if(!$exist):
-                if($data['action'] == 'add'):
-                    $response['success'] = 'Le produit a été pris en compte';
-                else:
-                    $response['success'] = 'Le produit a été retiré avec succès';
-                endif;
-            else:
-                if($serie->type == 0):
-	                $response['error'] = 'Le produit est affecté à un numéro de lot déjà selectionné';
-                else:
-	                $response['error'] = 'Un numéro de serie du lot a été selectionné';
-                endif;
-            endif;
-        else:
-	        $response['count'] = $data['count'];
-	        $response['error'] = 'Quantité de produit selectionnée supérieure par rapport à la quantité demandé';
-        endif;
-
-	    $request->session()->put('serie_ligne', $serie_id);
-
-
-	    return response()->json($response);
-
-    }
-
-	public function saveStockAppro(Request $request){
-
-		$request->session()->forget('serie_ligne');
-
-        $data = $request->all();
-
-        $lignes = $this->ligneTransfertRepository->getWhere()->where('ordre_transfert_id', '=', $data['id'])->get();
-        $exist = false;
-        foreach ($lignes as $ligne):
-            if($ligne->serie_ligne()->count()):
-                $exist = true;
-            endif;
-        endforeach;
-
-        $response = array('success' => '', 'error' => '');
-
-        if(!$exist):
-            $save = $this->modelRepository->getById($data['id']);
-            $save->mag_appro_id = $data['mag_appro_id'];
-            $save->save();
-
-            $response['success'] = 'Your enquiry has been successfully submitted!';
-        else:
-            $appro = $this->magasinRepository->getById($data['mag_appro_id']);
-            $response['error'] = 'Les modifications ne peuvent pas être prise en compte car vous utilisez déja des produits du magasin "'.$appro->name.'"';
-        endif;
-
-		return response()->json($response);
-	}
-
-	public function addSerie(Request $request, $ligne_id){
-
-		$request->session()->forget('serie_ligne');
-
-		$ligne = $this->ligneTransfertRepository->getById($ligne_id);
-
-		$demande = $ligne->OrdreTransfert()->first();
-
-		$magasin_id = $demande->mag_appro_id;
-
-		if(!$magasin_id):
-            return redirect()->route('receive.edit', $demande->id)->withWarning('Le magasin d\'approvisionnement n\'a pas été définie');
-        endif;
-
-		$series = $this->magasinRepository->getById($magasin_id);
-		$series = $series->Stock()->where('produit_id', '=', $ligne->produit_id)->get();
-
-		$produits = array();
-		$current_serie = array();
-		$no_demande = array();
-		$serie_exp = array();
-		foreach ($series as $serie):
-
-            $inDmd = $serie->ligne_serie()->where('ordre_transfert_id', '=', $demande->id)->first();
-		    if($inDmd):
-                $inExp = $serie->Transferts()->where('ordre_transfert_id', '=', $demande->id)->first();
-		        if($inExp):
-			        // Serie qui ne sont pas dans la demande en cours mais qui sont dans une demande
-			        if($serie->ligne_serie()->count()):
-				        if($serie->type == 0): // traitement des series
-					        if($serie->lot_id):
-						        $lot = $serie->Lot()->first();
-						        if(!$lot->ligne_serie()->count()):
-							        if(!in_array($serie->id, $no_demande)):
-								        array_push($no_demande, $serie->id);
-							        endif;
-							        $coun_serie_dmd = 0;
-							        $coun_serie = 0;
-							        foreach ($lot->SeriesLots()->get() as $item):
-								        if($item->ligne_serie()->count()):
-									        $coun_serie_dmd += 1;
-								        endif;
-								        $coun_serie += 1;
-							        endforeach;
-							        // Elever de la demande en cours les numéros de lot dont la totalité a été prise
-							        if($coun_serie == $coun_serie_dmd && !in_array($lot->id, $no_demande)):
-								        array_push($no_demande, $lot->id);
-							        endif;
-						        endif;
-					        else:
-						        if (!in_array($serie->id, $no_demande)):
-							        array_push($no_demande, $serie->id);
-						        endif;
-					        endif;
-                        elseif ($serie->type == 1): /// Traitement des lots
-					        if (!in_array($serie->id, $no_demande)):
-						        array_push($no_demande, $serie->id);
-					        endif;
-					        foreach ($serie->SeriesLots()->get() as $item):
-						        if(!in_array($item->id, $no_demande)):
-							        array_push($no_demande, $item->id);
-						        endif;
-					        endforeach;
-				        endif;
-			        endif;
-                else:
-			        array_push($current_serie, $serie->id);
-		        endif;
-		    else:
-                // Serie qui ne sont pas dans la demande en cours mais qui sont dans une demande
-                if($serie->ligne_serie()->count()):
-                    if($serie->type == 0): // traitement des series
-	                    if($serie->lot_id):
-                            $lot = $serie->Lot()->first();
-		                    if(!$lot->ligne_serie()->count()):
-                                if(!in_array($serie->id, $no_demande)):
-			                        array_push($no_demande, $serie->id);
-		                        endif;
-			                    $coun_serie_dmd = 0;
-		                        $coun_serie = 0;
-                                foreach ($lot->SeriesLots()->get() as $item):
-                                    if($item->ligne_serie()->count()):
-	                                    $coun_serie_dmd += 1;
-		                            endif;
-		                            $coun_serie += 1;
-                                endforeach;
-                                // Elever de la demande en cours les numéros de lot dont la totalité a été prise
-                                if($coun_serie == $coun_serie_dmd && !in_array($lot->id, $no_demande)):
-	                                array_push($no_demande, $lot->id);
-                                endif;
-                            endif;
-                        else:
-	                        if (!in_array($serie->id, $no_demande)):
-	                            array_push($no_demande, $serie->id);
-                            endif;
-                        endif;
-                    elseif ($serie->type == 1): /// Traitement des lots
-                        if (!in_array($serie->id, $no_demande)):
-	                        array_push($no_demande, $serie->id);
-                        endif;
-                        foreach ($serie->SeriesLots()->get() as $item):
-                            if(!in_array($item->id, $no_demande)):
-	                            array_push($no_demande, $item->id);
-                            endif;
-                        endforeach;
-                    endif;
-                endif;
-            endif;
-
-        endforeach;
-
-		$request->session()->put('serie_ligne', $current_serie);
-
-		return view('ordretransfert.dmdreceive.addSerie', compact('produits',  'current_serie', 'serie_exp', 'ligne', 'demande', 'series', 'no_demande'));
-	}
-
-	public function expedition(Request $request, $id){
+    public function expedition(Request $request, $id){
 
 	    $dmd = $this->modelRepository->getById($id);
 
@@ -1645,50 +1680,60 @@ class OrdreTransfertController extends Controller
         $transfert = $this->transfertRepository->store($save_transfert);
         $transfert = $this->transfertRepository->getById($transfert->id);
 
+		$currentUser= Auth::user();
+
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
 
-            $lign = $this->ligneTransfertRepository->getById($ligne->id);
+//            $lign = $this->ligneTransfertRepository->getById($ligne->id);
 
-		    if($lign->qte_a_exp < $lign->qte_dmd):
+		    if($ligne->qte_a_exp < $ligne->qte_dmd):
                 $exp_partiel = true;
             endif;
 
-            if($lign->qte_a_exp):
-	            $currentUser= Auth::user();
+			$appro = null;
+			$transit = null;
+
+            if($ligne->qte_a_exp):
 
                 $ecriture_stock = array();
                 $ecriture_stock['type_ecriture'] = 1;
-                $ecriture_stock['quantite'] = (-1 * $lign->qte_a_exp);
-                $ecriture_stock['produit_id'] = $lign->produit_id;
+                $ecriture_stock['quantite'] = (-1 * $ligne->qte_a_exp);
+                $ecriture_stock['produit_id'] = $ligne->produit_id;
                 $ecriture_stock['ordre_transfert_id'] = $dmd->id;
                 $ecriture_stock['transfert_id'] = $transfert->id;
                 $ecriture_stock['user_id'] = $currentUser->id;
                 $ecriture_stock['magasin_id'] = $dmd->mag_appro_id;
 
-                $this->ecritureStockRepository->store($ecriture_stock);
+                $appro = $this->ecritureStockRepository->store($ecriture_stock);
 
                 $ecriture_stock = array();
                 $ecriture_stock['type_ecriture'] = 1;
-                $ecriture_stock['quantite'] = (1 * $lign->qte_a_exp);
-                $ecriture_stock['produit_id'] = $lign->produit_id;
+                $ecriture_stock['quantite'] = (1 * $ligne->qte_a_exp);
+                $ecriture_stock['produit_id'] = $ligne->produit_id;
                 $ecriture_stock['ordre_transfert_id'] = $dmd->id;
                 $ecriture_stock['transfert_id'] = $transfert->id;
                 $ecriture_stock['user_id'] = $currentUser->id;
                 $ecriture_stock['magasin_id'] = $this->transitRef->id;
 
-                $this->ecritureStockRepository->store($ecriture_stock);
+                $transit = $this->ecritureStockRepository->store($ecriture_stock);
 			endif;
 
-			$lign->qte_exp += $lign->qte_a_exp;
-			$lign->qte_a_exp = 0;
+			$ligne->qte_exp += $ligne->qte_a_exp;
+			$ligne->qte_a_exp = 0;
 
-			foreach ($lign->serie_ligne()->get() as $serie):
+			foreach ($ligne->serie_ligne()->get() as $serie):
                 if(!$serie->transferts()->where('ordre_transfert_id', '=', $ligne->ordre_transfert_id)->count()):
                     $transfert->Series()->save($serie);
+			        if($appro):
+			            $serie->EcriureStocks()->save($appro);
+			        endif;
+	                if($transit):
+		                $serie->EcriureStocks()->save($transit);
+	                endif;
 			    endif;
             endforeach;
 
-			$lign->save();
+			$ligne->save();
 
 		endforeach;
 
@@ -1708,8 +1753,9 @@ class OrdreTransfertController extends Controller
     public function showSerieExpedition($transfert_id){
 
 	    $datas = $this->transfertRepository->getById($transfert_id);
+	    $demande = $datas->OrdreTransfert()->first();
 
-	    return view('ordretransfert.dmdreceive.serieExpedition', compact('datas'));
+	    return view('ordretransfert.dmdreceive.serieExpedition', compact('datas', 'demande'));
     }
 
 

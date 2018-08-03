@@ -76,26 +76,28 @@
         <tbody>
 
         @foreach ($series as $data)
-            @if(!in_array($data->id, $no_demande))
-            <tr id="{{ $data->id }}" class="@if(in_array($data->id, $current_serie)) success @endif">
+            <tr id="{{ $data->id }}" class="@if($data->pivot->mouvement == 1 && in_array($data->id, $current_serie)) success @endif">
                 <td>
-                    <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $current_serie)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
+                    <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if($data->pivot->mouvement == 1 && in_array($data->id, $current_serie)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
                 </td>
                 <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
                 <td>
                     @if($data->type == 1)
                         {{ $data->reference }} <br>
-                        Qté du lot : {{ $data->SeriesLots()->whereHas('Magasins', function($q) use ($demande)
-                                                    {
-                                                        $q->whereIn('id', [$demande->mag_appro_id]);
-                                                    })->count() }}
+                        <?php
+		                    $count = $data->SeriesLots()->whereHas('Magasins', function($q) use ($demande, $data)
+                            {
+	                            $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '=', $data->pivot->mouvement);
+                            })->count();
+
+                        ?>
+                        Qté du lot : {{ $count }}
                     @else
                         {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
                     @endif
                 </td>
                 <td>@if($data->type == 1) Lot @else Série @endif</td>
             </tr>
-            @endif
         @endforeach
 
 
