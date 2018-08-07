@@ -41,7 +41,7 @@
 		                ?>
 
                         @foreach($serial as $ser)
-                            @if($ser->ligne_serie()->where('ordre_transfert_id', '=', $datas->ordre_transfert_id)->count())
+                            @if($ser->Transferts()->where('id', '=', $datas->id)->count())
 				                <?php $count += 1 ?>
                             @endif
                         @endforeach
@@ -75,7 +75,7 @@
 
     oTable_5.api().columns().every( function () {
         var column = this;
-        if(column.index() === 3){
+        if(column.index() === 2){
             var name = null;
             name = 'Type';
 

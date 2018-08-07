@@ -217,10 +217,10 @@
 				                @foreach($data->Transferts()->get() as $key => $value)
                                     <tr class="@if($value->etat == 1) success @elseif($value->Series()->where("ok", '=', 1)->count() && $value->Series()->where("ok", '=', 1)->count() < $value->Series()->count()) warning @endif" >
                                         <td><?= $value->reference ?></td>
-                                        <td><?= $value->Series()->count(); ?></td>
+                                        <td><?= $value->Series()->where('type', '=', 0)->count(); ?></td>
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td>
-                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
+                                            <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
 				                @endforeach

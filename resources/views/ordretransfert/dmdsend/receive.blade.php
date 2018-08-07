@@ -155,24 +155,25 @@
 
 
 				                foreach($data->ligne_transfert()->get() as $key => $value):
-				                ?>
-                                <tr>
-                                    <td><?= $key + 1 ?></td>
-                                    <td><?= $value->produit()->first()->name ?></td>
-                                    <td><?= $value->qte_dmd; ?></td>
-                                    <td><?= $value->qte_recu; ?></td>
-                                    <td><?= $value->qte_exp; ?></td>
-                                    <td><?= $value->qte_a_recu; ?></td>
-                                    <td>
-                                        @if($value->qte_exp)
-                                                <a href="{{ route('dmd.showSerieProduitReception', $value->id) }}" class="btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
-                                                    <i class="fa fa-list-alt"></i>
-                                                </a>
-                                        @endif
-                                    </td>
+                                    ?>
+                                    <tr>
+                                        <td><?= $key + 1 ?></td>
+                                        <td><?= $value->produit()->first()->name ?></td>
+                                        <td><?= $value->qte_dmd; ?></td>
+                                        <td><?= $value->qte_recu; ?></td>
+                                        <td><?= $value->qte_exp; ?></td>
+                                        <td><?= $value->qte_a_recu; ?></td>
+                                        <td>
+                                            @if($value->qte_exp)
+                                                    <a href="{{ route('dmd.showSerieProduitReception', $value->id) }}" class="btn-serie" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
+                                                        <i class="fa fa-list-alt"></i>
+                                                    </a>
+                                            @endif
+                                        </td>
 
-                                </tr>
-				                <?php
+                                    </tr>
+                                <?php
+
 				                endforeach;
 				                else:
 				                ?>
@@ -212,7 +213,7 @@
                                     <tr class="@if($value->etat == 1) success @elseif($value->Series()->where("ok", '=', 1)->count() && $value->Series()->where("ok", '=', 1)->count() < $value->Series()->count()) warning @endif" >
                                         <td><?= $value->reference ?></td>
                                         <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
-                                        <td><?= $value->Series()->count() - $value->Series()->where("ok", '=', 1)->count(); ?></td>
+                                        <td><?= $value->Series()->where('type', '=', 0)->count() - $value->Series()->where("ok", '=', 1)->count(); ?></td>
                                         <td>
                                             <a href="{{ route('dmd.showSerieReception', $value->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>

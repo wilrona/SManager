@@ -64,24 +64,48 @@
             <tbody>
                 @foreach ($series as $data)
                     @if($data->transferts()->where([['ordre_transfert_id', '=', $ordre_transfert], ['ok', '=', 0]])->count())
-                    <tr class="@if(in_array($data->id, $selected)) success @endif" id="{{ $data->id }}">
-                        <td>
-                            <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $selected)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
-                        </td>
-                        <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
-                        <td>
-                            @if($data->type == 1)
-                                {{ $data->reference }} <br>
-                                Qté du lot : {{ $data->SeriesLots()->count() }}
-                            @else
-                                {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
-                            @endif
-                        </td>
-                        <td>
-                            {{ $data->transferts()->where('ordre_transfert_id', '=', $ordre_transfert)->first()->reference }}
-                        </td>
-                        <td>@if($data->type == 1) Lot @else Série @endif</td>
-                    </tr>
+                        <tr class="@if(in_array($data->id, $selected)) success @endif" id="{{ $data->id }}">
+                            <td>
+                                <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if(in_array($data->id, $selected)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
+                            </td>
+                            <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
+                            <td>
+                                @if($data->type == 1)
+                                    {{ $data->reference }} <br>
+                                    Qté du lot : {{ $data->SeriesLots()->whereHas('transferts', function($q) use($ordre_transfert){
+                                        $q->where([['ordre_transfert_id', '=', $ordre_transfert], ['ok', '=', 0]]);
+                                    })->count() }}
+                                @else
+                                    {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
+                                @endif
+                            </td>
+                            <td>
+                                {{ $data->transferts()->where('ordre_transfert_id', '=', $ordre_transfert)->first()->reference }}
+                            </td>
+                            <td>@if($data->type == 1) Lot @else Série @endif</td>
+                        </tr>
+
+                        @if($data->type == 1)
+
+                            @foreach($data->SeriesLots()->get() as $item)
+                                @if($item->transferts()->where('ordre_transfert_id', '=', $ordre_transfert)->count())
+                                    <tr class="@if(in_array($item->id, $selected)) success @endif" id="{{ $item->id }}">
+                                        <td>
+                                            <input type="checkbox" name="produit[]" value="{{ $item->id }}" @if(in_array($item->id, $selected)) checked @endif class="checkbox-item checkbox_{{ $item->id }}">
+                                        </td>
+                                        <td>@if($item->type == 0) {{ $item->reference }} @else Aucun @endif</td>
+                                        <td>
+                                                {{ $item->lot_id ? $item->Lot()->first()->reference : '' }}
+                                        </td>
+                                        <td>
+                                            {{ $item->transferts()->where('ordre_transfert_id', '=', $ordre_transfert)->first()->reference }}
+                                        </td>
+                                        <td>@if($item->type == 1) Lot @else Série @endif</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+
+                        @endif
                     @endif
                 @endforeach
 

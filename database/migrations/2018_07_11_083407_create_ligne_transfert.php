@@ -51,6 +51,7 @@ class CreateLigneTransfert extends Migration
 		    $table->integer('transfert_id')->unsigned();
 
 		    $table->integer('ok')->default(0);
+		    $table->integer('show')->default(1);
 
 		    $table->foreign('serie_id')->references('id')->on('series')
 		          ->onUpdate('cascade')->onDelete('cascade');

@@ -19,7 +19,7 @@ class Transfert extends Model
 	}
 
 	public function Series(){
-		return $this->belongsToMany('App\Serie', 'transfert_serie', 'transfert_id', 'serie_id')->withPivot('ok')->withTimestamps();
+		return $this->belongsToMany('App\Serie', 'transfert_serie', 'transfert_id', 'serie_id')->withPivot('ok', 'show')->withTimestamps();
 	}
 
 	public function EcritureStock(){

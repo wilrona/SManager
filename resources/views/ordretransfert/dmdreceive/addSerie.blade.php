@@ -76,6 +76,7 @@
         <tbody>
 
         @foreach ($series as $data)
+            @if(!in_array($data->id, $no_demande))
             <tr id="{{ $data->id }}" class="@if($data->pivot->mouvement == 1 && in_array($data->id, $current_serie)) success @endif">
                 <td>
                     <input type="checkbox" name="produit[]" value="{{ $data->id }}" @if($data->pivot->mouvement == 1 && in_array($data->id, $current_serie)) checked @endif class="checkbox-item checkbox_{{ $data->id }}">
@@ -87,17 +88,24 @@
                         <?php
 		                    $count = $data->SeriesLots()->whereHas('Magasins', function($q) use ($demande, $data)
                             {
-	                            $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '=', $data->pivot->mouvement);
-                            })->count();
+	                            $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '=', 0);
 
+                            })->count();
                         ?>
-                        Qté du lot : {{ $count }}
+		                <?php
+		                $count_select = $data->SeriesLots()->whereHas('Magasins', function($q) use ($demande, $data)
+		                {
+			                $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '=', 1);
+		                })->count();
+		                ?>
+                        Qté du lot : {{ $count }} @if($count_select) <small><b>({{ $count_select }} en reserve)</b></small> @endif
                     @else
                         {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
                     @endif
                 </td>
                 <td>@if($data->type == 1) Lot @else Série @endif</td>
             </tr>
+            @endif
         @endforeach
 
 
