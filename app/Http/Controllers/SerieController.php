@@ -49,7 +49,7 @@ class SerieController extends Controller
 
 		$datas = $this->modelRepository->getWhere()->where('importe', '=', 1)->whereHas('Magasins', function ($q) use ($mags){
 			$q->whereIn('id', $mags);
-		})->get();
+		})->has('magasins', '=', 1)->get();
 
 		return view('series.index', compact('datas', 'mags'));
 	}
@@ -103,7 +103,17 @@ class SerieController extends Controller
 			$select[$type->id] = $type->name;
 		endforeach;
 
-		return view('series.showLot',  compact('data', 'select'));
+		$currentUser= Auth::user();
+		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+
+		$mags = array();
+		if($pos_user):
+			foreach ($pos_user->Magasins()->get() as $mag):
+				array_push($mags, $mag->id);
+			endforeach;
+		endif;
+
+		return view('series.showLot',  compact('data', 'select', 'mags'));
 	}
 
 	public function import(SerieFileRequest $request){

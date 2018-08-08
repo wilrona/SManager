@@ -11,9 +11,11 @@ use App\Repositories\ClientRepository;
 use App\Repositories\FamilleRepository;
 use App\Repositories\GroupePrixRepository;
 use App\Repositories\ParametreRepository;
+use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
 use App\Repositories\UniteRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProduitController extends Controller
 {
@@ -24,6 +26,7 @@ class ProduitController extends Controller
 	protected $clientRepository;
 	protected $groupeRepository;
 	protected $parametreRepository;
+	protected $pointdeventeRepository;
 
 	protected $bundle;
 	protected $type_prix;
@@ -32,7 +35,7 @@ class ProduitController extends Controller
 
 	public function __construct(ProduitRepository $produitRepository, FamilleRepository $familleRepository,
         UniteRepository  $uniteRepository, ClientRepository $client_repository, GroupePrixRepository $groupe_prix_repository,
-        ParametreRepository $parametre_repository
+        ParametreRepository $parametre_repository, PointDeVenteRepository $point_de_vente_repository
     )
 	{
 		$this->modelRepository = $produitRepository;
@@ -41,6 +44,7 @@ class ProduitController extends Controller
 		$this->clientRepository = $client_repository;
         $this->groupeRepository = $groupe_prix_repository;
         $this->parametreRepository = $parametre_repository;
+        $this->pointdeventeRepository = $point_de_vente_repository;
 
 		$this->bundle = array(
 			'0' => 'Produit unique',
@@ -130,7 +134,10 @@ class ProduitController extends Controller
 			$unites[$item->id] = $item->name;
 		}
 
-		return view('produits.show',  compact('data', 'select_bundle', 'familles', 'unites'));
+		$currentUser = Auth::user();
+		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+
+		return view('produits.show',  compact('data', 'select_bundle', 'familles', 'unites', 'pos_user'));
 	}
 
 	public function store(ProduitRequest $request){

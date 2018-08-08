@@ -34,7 +34,7 @@
                 <div class="col-md-8">
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
-                            <h4 class="panel-title">Information de la serie</h4>
+                            <h4 class="panel-title">Information du lot</h4>
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
@@ -48,7 +48,7 @@
                         <div class="panel-body">
 
                             <div class="form-group {!! $errors->has('reference') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Numéro de serie : </label>
+                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Numéro de lot : </label>
                                 {!! Form::text('reference', $data->reference, ['class' => 'form-control', 'disabled' => '']) !!}
                             </div>
                             <div class="form-group {!! $errors->has('produit_id') ? 'has-error' : '' !!}">
@@ -59,6 +59,37 @@
                                 <label for="exampleInputEmail1" class="text-bold"> Magasin en cours : </label>
                                 {!! Form::text('magasin_id', $data->Magasins()->first()->name, ['class' => 'form-control', 'disabled' => '']) !!}
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Numéro de serie</h4>
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table sample_5">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Reference</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+				                <?php
+				                $series = $data->SeriesLots()->whereHas('Magasins', function ($q) use ($mags){
+					                $q->whereIn('id', $mags);
+				                })->get();
+				                ?>
+				                @foreach($series as $serie)
+
+                                <tr>
+                                    <td>{{ $loop->index + 1 }}</td>
+                                    <td>{{ $serie->reference }}</td>
+                                </tr>
+				                @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 

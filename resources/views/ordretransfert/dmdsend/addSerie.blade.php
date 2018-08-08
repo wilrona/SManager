@@ -86,7 +86,9 @@
                     <td>
                         @if($data->type == 1)
                             {{ $data->reference }} <br>
-                            Qté du lot : {{ $data->SeriesLots()->count() }}
+                            Qté du lot : {{ $data->SeriesLots()->whereHas('transferts', function($q) use($datas){
+                                        $q->where([['ordre_transfert_id', '=', $datas->ordre_transfert_id], ['ok', '=', 0]]);
+                                    })->count() }}
                         @else
                             {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
                         @endif

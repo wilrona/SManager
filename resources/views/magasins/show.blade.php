@@ -91,6 +91,105 @@
                         </div>
                     </div>
 
+                    @if(!$data->transite)
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Numéro de serie en stock</h4>
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table sample_5">
+                                <thead>
+                                <tr>
+                                    <th class="">#</th>
+                                    <th class="col-xs-4">No Serie</th>
+                                    <th class="col-xs-4">No Lot</th>
+                                    <th class="col-xs-3">Produit</th>
+                                    <th class="col-xs-1 no-sort">Type</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+				                <?php
+				                $series = $data->Stock()->has('magasins', '=', 1)->get();
+				                $id = $data->id;
+				                ?>
+                                @foreach($series as $serie)
+
+                                    <tr>
+                                        <td>{{ $loop->index + 1 }}</td>
+                                        <td>@if($serie->type == 0) {{ $serie->reference }} @else Aucun @endif</td>
+                                        <td>
+                                            @if($serie->type == 1)
+                                                {{ $serie->reference }} <br>
+                                                Qté du lot : {{ $serie->SeriesLots()->whereHas('Magasins', function($q) use ($id)
+                                                        {
+                                                                $q->where('id','=', $id);
+                                                        })->count() }}
+                                            @else
+                                                {{ $serie->lot_id ? $serie->Lot()->first()->reference : '' }}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $serie->Produit()->first()->name }}
+                                        </td>
+                                        <td>@if($serie->type == 1) Lot @else Série @endif</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    @else
+
+                        <div class="panel panel-white">
+                            <div class="panel-heading border-light">
+                                <h4 class="panel-title">Numéro de serie en stock</h4>
+                            </div>
+                            <div class="panel-body" id="loading">
+                                <table class="table sample_5">
+                                    <thead>
+                                    <tr>
+                                        <th class="">#</th>
+                                        <th class="col-xs-4">No Serie</th>
+                                        <th class="col-xs-4">No Lot</th>
+                                        <th class="col-xs-3">Produit</th>
+                                        <th class="col-xs-1 no-sort">Type</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    @foreach($allSerie as $serie)
+
+                                        <tr>
+                                            <td>{{ $loop->index + 1 }}</td>
+                                            <td>@if($serie->type == 0) {{ $serie->reference }} @else Aucun @endif</td>
+                                            <td>
+                                                @if($serie->type == 1)
+                                                    {{ $serie->reference }} <br>
+                                                    Qté du lot : {{ $serie->SeriesLots()->whereHas('Magasins', function($q) use ($id)
+                                                        {
+                                                                $q->where('id','=', $id);
+                                                        })->count() }}
+                                                @else
+                                                    {{ $serie->lot_id ? $serie->Lot()->first()->reference : '' }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                {{ $serie->Produit()->first()->name }}
+                                            </td>
+                                            <td>@if($serie->type == 1) Lot @else Série @endif</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    @endif
+
+
                 </div>
                 <div class="col-md-4">
 

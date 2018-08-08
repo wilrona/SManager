@@ -7,12 +7,14 @@ use App\Library\CustomFunction;
 use App\Repositories\MagasinRepository;
 use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
+use App\Repositories\SerieRepository;
 use Illuminate\Http\Request;
 
 class MagasinController extends Controller
 {
 	protected $modelRepository;
 	protected $posRepository;
+	protected $serieRepository;
 	protected $type;
 	protected $custom;
 	protected $listPOS;
@@ -21,11 +23,12 @@ class MagasinController extends Controller
 	protected $parametreRepository;
 
 	public function __construct(MagasinRepository $modelRepository, PointDeVenteRepository $point_de_vente_repository,
-		ParametreRepository $parametre_repository
+		ParametreRepository $parametre_repository, SerieRepository $serie_repository
 	) {
 		$this->modelRepository = $modelRepository;
 		$this->posRepository = $point_de_vente_repository;
 		$this->parametreRepository = $parametre_repository;
+		$this->serieRepository = $serie_repository;
 
 		$this->type = array(
 			0 => 'Magasin Normal',
@@ -150,7 +153,14 @@ class MagasinController extends Controller
 		    $pos[$item->id] = $item->name;
 	    endforeach;
 
-	    return view('magasins.show', compact('data', 'type', 'pos'));
+	    $allSerie = null;
+	    if($data->transite):
+	        $allSerie = $this->serieRepository->getWhere()->whereHas('magasins', function ($q){
+	        	$q->where('mouvement', '=', 2);
+	        })->get();
+	    endif;
+
+	    return view('magasins.show', compact('data', 'type', 'pos', 'allSerie'));
     }
 
     /**

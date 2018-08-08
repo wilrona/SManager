@@ -59,37 +59,38 @@
                                     <tbody>
 
                                     @foreach ($datas as $data)
-                                        <tr>
-                                            <td>{{ $loop->index + 1 }}</td>
-                                            <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
-                                            <td>
-                                                @if($data->type == 1)
-                                                    {{ $data->reference }} <br>
-                                                    Qté du lot : {{ $data->SeriesLots()->whereHas('Magasins', function($q) use ($mags)
-                                                    {
-                                                            $q->whereIn('id', $mags);
-                                                    })->count() }}
-                                                @else
-                                                    {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
-                                                @endif
-                                            </td>
-                                            <td>
-                                                {{ $data->Produit()->first()->name }}
-                                            </td>
-                                            <td>
-                                                @foreach($data->Magasins()->get() as $mag)
-                                                    @if(in_array($mag->id, $mags))
-                                                        {{ $mag->name }}
-                                                    @endif
 
-                                                @endforeach
-                                            </td>
-                                            <td>@if($data->type == 1) Lot @else Série @endif</td>
-                                            <td>
-                                                @if($data->type == 0)<a href="{{ route('serie.show', [$data->id]) }}"><i class="fa fa-eye"></i></a>@endif
-                                                @if($data->type == 1)<a href="{{ route('lot.show', [$data->id]) }}"><i class="fa fa-eye"></i></a>@endif
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td>{{ $loop->index + 1 }}</td>
+                                                <td>@if($data->type == 0) {{ $data->reference }} @else Aucun @endif</td>
+                                                <td>
+                                                    @if($data->type == 1)
+                                                        {{ $data->reference }} <br>
+                                                        Qté du lot : {{ $data->SeriesLots()->whereHas('Magasins', function($q) use ($mags)
+                                                        {
+                                                                $q->whereIn('id', $mags);
+                                                        })->count() }}
+                                                    @else
+                                                        {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    {{ $data->Produit()->first()->name }}
+                                                </td>
+                                                <td>
+                                                    @foreach($data->Magasins()->get() as $mag)
+                                                        @if(in_array($mag->id, $mags))
+                                                            {{ $mag->name }}
+                                                        @endif
+
+                                                    @endforeach
+                                                </td>
+                                                <td>@if($data->type == 1) Lot @else Série @endif</td>
+                                                <td>
+                                                    @if($data->type == 0)<a href="{{ route('serie.show', [$data->id]) }}"><i class="fa fa-eye"></i></a>@endif
+                                                    @if($data->type == 1)<a href="{{ route('lot.show', [$data->id]) }}"><i class="fa fa-eye"></i></a>@endif
+                                                </td>
+                                            </tr>
 
                                     @endforeach
 

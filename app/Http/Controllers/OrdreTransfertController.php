@@ -724,7 +724,7 @@ class OrdreTransfertController extends Controller
                         $child_in_appro_mag = false;
                         foreach ($serie->SeriesLots()->get() as $item):
                             if($item->Magasins()->where([['id', '=', $dmd->mag_appro_id], ['mouvement', '=', 2]])->count()):
-                                $item->Magasins()->detach();
+                                $item->Magasins()->wherePivot('magasin_id', '=', $dmd->mag_appro_id)->detach();
                                 $item->Magasins()->save($mah);
                                 if(!in_array($item->id, $serie_child_id)):
                                     array_push($serie_child_id, $item->id);
@@ -736,14 +736,14 @@ class OrdreTransfertController extends Controller
                         endforeach;
 
                         if(!$child_in_appro_mag):
-                            $serie->Magasins()->detach();
+                            $serie->Magasins()->wherePivot('magasin_id', '=', $dmd->mag_appro_id)->detach();
                         endif;
 
                         $serie->Magasins()->save($mah);
                     else:
                         if($serie->Magasins()->where('id', '=', $dmd->mag_appro_id)->count()):
 
-	                        $serie->Magasins()->detach();
+	                        $serie->Magasins()->wherePivot('magasin_id', '=', $dmd->mag_appro_id)->detach();
                             $serie->Magasins()->save($mah);
 
                             if($serie->lot_id):
@@ -755,12 +755,12 @@ class OrdreTransfertController extends Controller
                                     endif;
                                 endforeach;
 
-                                if(!$lot->Magasins()->where('id', '=', $mah)->count()):
+                                if(!$lot->Magasins()->where('id', '=', $mah->id)->count()):
                                     $lot->Magasins()->save($mah);
                                 endif;
 
                                 if(!$exist_in_appro):
-                                    $lot->Magasins()->detach();
+                                    $lot->Magasins()->wherePivot('magasin_id', '=', $dmd->mag_appro_id)->detach();
                                 endif;
                             endif;
 
@@ -864,6 +864,8 @@ class OrdreTransfertController extends Controller
 
         endforeach;
 
+        $recept_total = false;
+
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
 
 			$ligne->qte_recu += $ligne->qte_a_recu;
@@ -871,7 +873,20 @@ class OrdreTransfertController extends Controller
 
 			$ligne->save();
 
+			if($ligne->qte_recu == $ligne->qte_dmd):
+                $recept_total = true;
+			else:
+				$recept_total = false;
+            endif;
+
 		endforeach;
+
+		if($recept_total):
+            $dmd->statut_recept = 2;
+        else:
+	        $dmd->statut_recept = 1;
+        endif;
+		$dmd->save();
 
 		return redirect()->route('dmd.show', $id)->withOk('Votre reception a été prise en compte avec succès.');
 
@@ -1462,7 +1477,21 @@ class OrdreTransfertController extends Controller
                         endif;
                     endif;
                 endif;
+            else:
+	            if($serie->type == 1):
+		            $count_SeriesLots_in_appro = $serie->SeriesLots()->whereHas('Magasins', function($q) use ($demande)
+		            {
+			            $q->where([['mouvement', '=', 0], ['id', '=', $demande->mag_appro_id]]);
+		            })->count();
 
+		            $count_SeriesLots = $serie->SeriesLots()->count();
+		            if($count_SeriesLots != $count_SeriesLots_in_appro):
+			            if(!in_array($serie->id, $no_demande)):
+				            array_push($no_demande, $serie->id);
+			            endif;
+                    endif;
+
+                endif;
 			endif;
 
 		endforeach;
@@ -1786,8 +1815,12 @@ class OrdreTransfertController extends Controller
 
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
 
-		    if($ligne->qte_a_exp < $ligne->qte_dmd):
+            $qte = $ligne->qte_a_exp + $ligne->qte_exp;
+
+		    if($qte < $ligne->qte_dmd):
                 $exp_partiel = true;
+		    else:
+                $exp_partiel = false;
             endif;
 
 			$appro = null;
