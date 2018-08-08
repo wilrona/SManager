@@ -88,17 +88,12 @@
                         <?php
 		                    $count = $data->SeriesLots()->whereHas('Magasins', function($q) use ($demande, $data)
                             {
-	                            $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '=', 0);
+	                            $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '<=', 1);
 
                             })->count();
                         ?>
-		                <?php
-		                $count_select = $data->SeriesLots()->whereHas('Magasins', function($q) use ($demande, $data)
-		                {
-			                $q->whereIn('id', [$demande->mag_appro_id])->where('mouvement', '=', 1);
-		                })->count();
-		                ?>
-                        Qté du lot : {{ $count }} @if($count_select) <small><b>({{ $count_select }} en reserve)</b></small> @endif
+
+                        Qté du lot : {{ $count }}
                     @else
                         {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
                     @endif
