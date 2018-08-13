@@ -50,6 +50,10 @@ class User extends Authenticatable
 		return $this->hasMany('App\EcritureStock', 'user__id', 'id');
 	}
 
+	public function StoryEcritureStock(){
+		return $this->belongsToMany('App\EcritureStock', 'story_transfert_stock', 'user_id', 'ordre_transfert_id')->withPivot('action');
+	}
+
 //	public function transactions(){
 //		return $this->hasMany( 'App\Transactions', 'user_id', 'id');
 //	}

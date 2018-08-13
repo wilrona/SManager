@@ -175,10 +175,10 @@
 									<a href="javascript:void(0)">
 										<div class="item-content">
 											<div class="item-media">
-												<div class="lettericon" data-text="Stockages" data-size="sm" data-char-count="2"></div>
+												<div class="lettericon" data-text="Stock" data-size="sm" data-char-count="2"></div>
 											</div>
 											<div class="item-inner">
-												<span class="title"> Stockages </span><i class="icon-arrow"></i>
+												<span class="title"> Stock </span><i class="icon-arrow"></i>
 											</div>
 										</div> </a>
 									<ul class="sub-menu">
@@ -188,6 +188,10 @@
 
 										<li>
 											<a href="{{ route('serie.index') }}"> <span class="title">N° Serie </span> </a>
+										</li>
+
+										<li>
+											<a href="{{ route('serie.index') }}"> <span class="title">Ecriture Stock </span> </a>
 										</li>
 
 									</ul>

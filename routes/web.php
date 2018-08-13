@@ -225,6 +225,12 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 
 	});
 
+	Route::prefix('/stockages/ecriture/stock')->group(function () {
+
+		Route::get('/', 'EcritureStockController@index')->middleware('auth')->name('ecriture.index');
+
+	});
+
 	Route::prefix('/demandes/send')->group(function () {
 
 		Route::get('/', 'OrdreTransfertController@indexSend')->middleware('auth')->name('dmd.index');

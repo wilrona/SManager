@@ -189,7 +189,7 @@ class PointDeVenteController extends Controller
 
 	public function addCaisse(Request $request, $id){
 
-		$allProduits = $this->caisseRepository->getWhere()->get();
+		$allProduits = $this->caisseRepository->getWhereNotNULL('pos_id', true)->get();
 
 		$produits = array();
 		foreach ( $allProduits as $item ) {
