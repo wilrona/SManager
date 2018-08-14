@@ -93,28 +93,15 @@ class PointDeVenteController extends Controller
 
 	    $caisses = array();
 
-	    $caisses_ids = array();
-
-	    if($request->session()->has('caisse')):
-		    $request->session()->forget('caisse');
-	    endif;
-
-	    if($request->session()->has('caisse_id')):
-		    $request->session()->forget('caisse_id');
-	    endif;
-
 	    foreach ($data->Caisses()->get() as $items):
 		    $save = array();
 
 		    $save['caisse_id']  = $items->id;
 		    $save['caisse_name']  = $items->name;
+		    $save['caisse_principal']  = $items->pivot->principal;
 
 		    array_push($caisses, $save);
-		    array_push($caisses_ids, $items->id);
 	    endforeach;
-
-	    $request->session()->put('caisse', $caisses);
-	    $request->session()->put('caisse_id', $caisses_ids);
 
 	    // Traitement de l'affichage des magasins du point de vente
 	    $magasin = array();
@@ -189,63 +176,103 @@ class PointDeVenteController extends Controller
 
 	public function addCaisse(Request $request, $id){
 
-		$allProduits = $this->caisseRepository->getWhereNotNULL('pos_id', true)->get();
+		$caisse_pos = array();
+		$caisse_principal = array();
 
-		$produits = array();
-		foreach ( $allProduits as $item ) {
-			if($request->session()->has('caisse_id')):
-				if(!in_array($item->id, $request->session()->get('caisse_id'))):
-					$produits[$item->id] = $item->name;
-				endif;
-			else:
-				$produits[$item->id] = $item->name;
-			endif;
-		}
+		$pos = $this->modelRepository->getById($id);
 
-		return view('pointdeventes.addCaisse', compact('produits', 'id'));
+		foreach ($pos->Caisses()->get() as  $caisse):
+            array_push($caisse_pos, $caisse->id);
+            if($caisse->pivot->principal):
+                array_push($caisse_principal, $caisse->id);
+            endif;
+        endforeach;
+
+        $datas = $this->caisseRepository->getWhere()->get();
+
+		return view('pointdeventes.addCaisse', compact('datas', 'id', 'caisse_principal', 'caisse_pos'));
 	}
 
-	public function validCaisse(PosCaisseRequest $request, $id){
+	public function checkCaisse(Request $request, $pos_id, $type = 'select'){
+		$data = $request->all();
 
-		$produits = array();
-		$produit_id = array();
+		$pos = $this->modelRepository->getById($pos_id);
 
-		if($request->session()->has('caisse')):
-			$produits = $request->session()->get('caisse');
-		endif;
+		$caisse = $this->caisseRepository->getById($data['id']);
 
-		if($request->session()->has('caisse_id')):
-			$produit_id = $request->session()->get('caisse_id');
-		endif;
+		$response = array(
+			'success' => '',
+			'success_principal' => '',
+			'error' => '',
+			'error_principal' => '',
+			'action' => $data['action'],
+			'type' => $type
+		);
 
-		$produit = array();
+		if($type == 'select'):
+			if($data['action'] == 'add'):
+				$exist_other = $caisse->PointDeVente()->where([['id', '!=', $pos_id], ['principal', '=', 1]]);
+				if($exist_other->count()):
+					$response['error'] = 'La caisse est une caisse principale d\'un autre point de vente.';
+				else:
+					if(!$pos->Caisses()->where('principal', '=', 1)->count()):
+						$response['success_principal'] = 'La caisse est défini comme caisse principal du point de vente.';
+					endif;
+					$response['success'] = 'La caisse est ajouté au point de vente avec succès.';
+				endif;
+			else:
+				$response['success'] = 'La caisse est retirée au point de vente avec succès.';
+			endif;
+        else:
+	        if($data['action'] == 'add'):
+		        $exist_other = $caisse->PointDeVente()->where([['id', '!=', $pos_id], ['principal', '=', 1]]);
+		        if($exist_other->count()):
+			        $response['error'] = 'La caisse est une caisse principale d\'un autre point de vente.';
+		        else:
+			        if(!$pos->Caisses()->where('principal', '=', 1)->count()):
+				        $response['success'] = 'La caisse est défini comme caisse principal du point de vente.';
+			        endif;
+		        endif;
+	        else:
+		        $response['success'] = 'La caisse n\'est plus la caisse principale du vente avec succès.';
+	        endif;
+        endif;
 
-		$current_produit = $this->caisseRepository->getById($request['caisse_id']);
+		return response()->json($response);
 
-		$produit['caisse_id']  = $request['caisse_id'];
-		$produit['caisse_name']  = $current_produit->name;
+	}
 
+	public function validCaisse(Request $request, $id){
 
-		array_push($produits, $produit);
+        $data = $request->all();
 
-		array_push($produit_id, $request['caisse_id']);
+        $pos = $this->modelRepository->getById($id);
 
-		$request->session()->put('caisse', $produits);
-		$request->session()->put('caisse_id', $produit_id);
+        $pos->Caisses()->detach();
+
+        foreach ($data['caisse'] as $caisse_id){
+            $caisse = $this->caisseRepository->getById($caisse_id);
+            if(in_array($caisse_id, $data['caisse_principal'])):
+                $caisse->PointDeVente()->save($pos, ['principal' => 1]);
+            else:
+	            $caisse->PointDeVente()->save($pos);
+            endif;
+        }
 
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
 	}
 
-	public function listCaisse(){
+	public function listCaisse($id){
 
-		$produits = session('caisse');
+		$produits = $this->modelRepository->getById($id);
+		$produits = $produits->caisses()->get();
 		?>
 		<table class="table table-stylish">
 			<thead>
 			<tr>
 				<th class="col-xs-1">#</th>
 				<th>Caisse</th>
-				<th class="col-xs-1"></th>
+				<th>Principale</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -254,8 +281,8 @@ class PointDeVenteController extends Controller
 					?>
 					<tr>
 						<td><?= $key + 1 ?></td>
-						<td><?= $value['caisse_name'] ?></td>
-						<td><a class="delete" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
+						<td><?= $value->name ?></td>
+						<td><?php if($value->pivot->principal == 1): ?> OUI <?php else: ?> NON <?php endif; ?></td>
 					</tr>
 					<?php
 				endforeach;

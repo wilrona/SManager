@@ -86,7 +86,9 @@ class CaisseController extends Controller
         //
 	    $data = $request->all();
 
-	    $this->modelRepository->store($data);
+	    $save = $this->modelRepository->store($data);
+
+	    $save = $this->modelRepository->getById($save->id);
 
 	    return redirect()->route('caisse.index')->withOk('La caisse a été enregistré');
     }

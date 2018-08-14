@@ -25,7 +25,7 @@ class PointDeVente extends Model
 	}
 
 	public function Caisses(){
-		return $this->hasMany('App\Caisse', 'pos_id', 'id');
+		return $this->belongsToMany('App\Caisse', 'pos_caisse', 'pos_id', 'caisse_id')->withPivot('principal')->withTimestamps();
 	}
 
 	public function DemandesTransfert(){
@@ -41,8 +41,5 @@ class PointDeVente extends Model
 //		return $this->hasMany('App\PointDeVente', 'parent_id', 'id');
 //	}
 
-//	public function stock(){
-//		return $this->belongsToMany('App\Produits', 'stock', 'point_de_vente_id', 'produit_id')->withPivot('etat')->withTimestamps();
-//	}
 
 }

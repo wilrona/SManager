@@ -96,7 +96,7 @@
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
-                                        <a href="{{ route('pos.addCaisse', $data->id) }}" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-plus"></i> Ajouter une caisse</a>
+                                        <a href="{{ route('pos.addCaisse', $data->id) }}" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-plus"></i> Gerer les caisses</a>
                                     </div>
                                 </li>
 
@@ -108,7 +108,7 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Caisse</th>
-                                    <th class="col-xs-1"></th>
+                                    <th>Principale</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -120,7 +120,7 @@
                                 <tr>
                                     <td><?= $key + 1?></td>
                                     <td><?= $value['caisse_name'] ?></td>
-                                    <td><a class="delete" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
+                                    <td><?php if($value['caisse_principal']): ?> OUI <?php else: ?> NON <?php endif; ?></td>
                                 </tr>
 				                <?php
 				                endforeach;
@@ -200,21 +200,6 @@
     @parent
 
     <script>
-        function remove($key){
-            $.ajax({
-                url: "<?= route('pos.removeCaisse') ?>/"+$key,
-                type: 'GET',
-                success : function(data){
-                    $.ajax({
-                        url: "<?= route('pos.listing') ?>",
-                        type: 'GET',
-                        success : function(list){
-                            $('#loading').html(list);
-                        }
-                    });
-                }
-            });
-        }
 
         function remove_magasin($key){
             $.ajax({

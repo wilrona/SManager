@@ -110,8 +110,11 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::post('/update/{id}', 'PointDeVenteController@update')->middleware('auth')->name('pos.update');
 
 		Route::get('/add/caisse/{id}', 'PointDeVenteController@addCaisse')->middleware('auth')->name('pos.addCaisse');
+		Route::get('/add/caisse/check/{pos_id}/{type}', 'PointDeVenteController@checkCaisse')->middleware('auth')->name('pos.checkCaisse');
+
+
 		Route::get('/remove/caisse/{key?}', 'PointDeVenteController@removeCaisse')->middleware('auth')->name('pos.removeCaisse');
-		Route::get('/list/caisse', 'PointDeVenteController@listCaisse')->middleware('auth')->name('pos.listing');
+		Route::get('/list/caisse/{id}', 'PointDeVenteController@listCaisse')->middleware('auth')->name('pos.listingCaisse');
 		Route::post('/valide/caisse/{id}', 'PointDeVenteController@validCaisse')->middleware('auth')->name('pos.valideCaisse');
 
 		Route::get('/add/magasin/{id}', 'PointDeVenteController@addMagasin')->middleware('auth')->name('pos.addMagasin');
@@ -228,6 +231,7 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 	Route::prefix('/stockages/ecriture/stock')->group(function () {
 
 		Route::get('/', 'EcritureStockController@index')->middleware('auth')->name('ecriture.index');
+		Route::get('/serie/{ecriture_id}', 'EcritureStockController@serie')->middleware('auth')->name('ecriture.serie');
 
 	});
 

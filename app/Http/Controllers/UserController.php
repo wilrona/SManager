@@ -81,7 +81,7 @@ class UserController extends Controller
 	public function index()
 	{
 //		$datas = $this->modelRepository->getWhere()->whereHas('roles', function ($q){
-//			$q->where('name', '!=', 'super_admin');
+//			$q->where('name', '=', 'super_admin');
 //		})->get();
 
 		$datas = $this->modelRepository->getWhere()->get();

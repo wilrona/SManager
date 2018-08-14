@@ -191,7 +191,7 @@
 										</li>
 
 										<li>
-											<a href="{{ route('serie.index') }}"> <span class="title">Ecriture Stock </span> </a>
+											<a href="{{ route('ecriture.index') }}"> <span class="title">Ecriture Stock </span> </a>
 										</li>
 
 									</ul>
