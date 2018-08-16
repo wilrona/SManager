@@ -28,15 +28,15 @@
 
         @foreach ($datas as $data)
 
-            <tr id="{{ $data->id }}" class="@if(in_array($data->id, $caisse_pos)) success @endif @if($data->PointDeVente()->where('id', '!=', $id)->count()) danger @endif">
+            <tr id="{{ $data->id }}" class="@if(in_array($data->id, $caisse_pos)) success @endif @if($data->PointDeVente()->where('id', '!=', $pos_id)->count()) danger @endif">
                 <td>
-                    <input type="checkbox" name="caisse[]" value="{{ $data->id }}" class="checkbox-item checkbox_{{ $data->id }}" @if(in_array($data->id, $caisse_pos)) checked @endif @if($data->PointDeVente()->where('id', '!=', $id)->count()) disabled @endif>
+                    <input type="checkbox" name="caisse[]" value="{{ $data->id }}" class="checkbox-item checkbox_{{ $data->id }}" @if(in_array($data->id, $caisse_pos)) checked @endif @if($data->PointDeVente()->where('id', '!=', $pos_id)->count()) disabled @endif>
                 </td>
                 <td>{{ $data->reference }}</td>
                 <td>
                     {{ $data->name }}
                 </td>
-                <td><input type="checkbox" name="caisse_principal[]" value="{{ $data->id }}" class="checkbox-item-principal checkbox_principal_{{ $data->id }}" @if(in_array($data->id, $caisse_principal)) checked @endif @if($data->PointDeVente()->where('id', '!=', $id)->count()) disabled @endif></td>
+                <td><input type="checkbox" name="caisse_principal[]" value="{{ $data->id }}" class="checkbox-item-principal checkbox_principal_{{ $data->id }}" @if(in_array($data->id, $caisse_principal)) checked @endif @if($data->PointDeVente()->where('id', '!=', $pos_id)->count()) disabled @endif></td>
             </tr>
 
         @endforeach
@@ -73,7 +73,7 @@
             }
 
             $.ajax({
-                url: "<?= route('pos.checkCaisse', ['pos_id' => $id, 'type' => 'select']) ?>",
+                url: "<?= route('user.checkCaisse') ?>",
                 type: 'GET',
                 data: { id: $id, action: $action },
                 success: function(data) {
@@ -85,18 +85,16 @@
                     if(data['action'] === 'remove'){
                         $tr.removeClass('success').attr({'style':''});
                         $('.checkbox_'+$id).prop('checked', false);
-                        $tr.find('input.checkbox-item-principal').prop('checked', false);
+                        $('.checkbox_principal_'+$id).prop('checked', false);
                     }else{
                         $tr.addClass('success').attr({'style':'color:#fff'});
                         $('.checkbox_'+$id).prop('checked', true);
+                        if(oTable_3.$('input.checkbox-item-principal:checked').length === 0){
+                            $tr.find('input.checkbox-item-principal').prop('checked', true);
+                        }
                     }
 
-                    if(data['success_principal'].length > 0 && oTable_3.$('input.checkbox-item-principal:checked').length === 0){
-                        toastr["success"](data['success_principal'], "Caisse principale");
-                        $tr.find('input.checkbox-item-principal').prop('checked', true);
-                    }
-
-                    if(data['error'].length > 0 && oTable_3.$('input.checkbox-item-principal:checked').length === 0){
+                    if(data['error'].length > 0){
                         toastr["error"](data['error'], "Caisse principale");
                     }
                 }
@@ -121,33 +119,13 @@
                 $('.checkbox_principal_'+$id).prop('checked', false);
                 toastr["error"]('Il existe déja une caisse principale pour ce point de vente', "Erreur");
             }else{
-                $.ajax({
-                    url: "<?= route('pos.checkCaisse', ['pos_id' => $id, 'type' => 'principale']) ?>",
-                    type: 'GET',
-                    data: { id: $id, action: $action },
-                    success: function(data) {
-
-                        if(data['success'].length > 0){
-                            toastr["success"](data['success'], "Caisse principale");
-
-                            if(data['action'] === 'remove'){
-                                $tr.find('input.checkbox-item-principal').prop('checked', false);
-                            }else{
-                                $tr.addClass('success').attr({'style':'color:#fff'});
-                                $('.checkbox_'+$id).prop('checked', true);
-
-                            }
-                        }
-
-                        if(data['error'].length > 0){
-                            toastr["error"](data['error'], "Erreur");
-                        }
-                    }
-                });
+                if($action === 'remove'){
+                    $tr.find('input.checkbox-item-principal').prop('checked', false);
+                }else{
+                    $tr.addClass('success').attr({'style':'color:#fff'});
+                    $('.checkbox_'+$id).prop('checked', true);
+                }
             }
-
-
-
 
         });
 
@@ -172,7 +150,7 @@
 
         function save(){
             $.ajax({
-                url: "{{ route('pos.valideCaisse', $id) }}",
+                url: "{{ route('user.valideCaisse', $user_id) }}",
                 type: 'POST',
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                 data: oTable_3.$('input.checkbox-item:checked, input.checkbox-item-principal:checked').serialize(),
@@ -183,7 +161,7 @@
                     }
 
                     $.ajax({
-                        url: "{{ route('pos.listingCaisse', $id) }}",
+                        url: "{{ route('user.listingCaisse', $user_id) }}",
                         type: 'GET',
                         success : function(list){
                             $('#loading').html(list);

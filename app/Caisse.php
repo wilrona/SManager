@@ -19,4 +19,8 @@ class Caisse extends Model
 	public function PointDeVente(){
 		return $this->belongsToMany('App\PointDeVente', 'pos_caisse', 'caisse_id', 'pos_id')->withPivot('principal')->withTimestamps();
 	}
+
+	public function Users(){
+		return $this->belongsToMany('App\User', 'user_caisse', 'caisse_id', 'user_id')->withPivot('principal');
+	}
 }

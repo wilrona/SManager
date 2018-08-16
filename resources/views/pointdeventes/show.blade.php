@@ -23,6 +23,9 @@
         </div>
 
         <div class="container-fluid container-fullw padding-bottom-10">
+            @if(session()->has('ok'))
+                <div class="alert alert-success alert-dismissible">{!! session('ok') !!}</div>
+            @endif
             <div class="row">
                 <div class="col-md-8">
 
@@ -90,6 +93,7 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Caisse</th>
+                                    <th class="col-xs-2">Principale</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -100,13 +104,14 @@
                                     <tr>
                                         <td><?= $key + 1?></td>
                                         <td><?= $value->name ?></td>
+                                        <td><?php if($value->pivot->principal): ?> oui <?php else: ?> non <?php endif; ?></td>
                                     </tr>
                                     <?php
                                     endforeach;
 				                else:
 				                ?>
                                 <tr>
-                                    <td colspan="2">
+                                    <td colspan="3">
                                         <h4 class="text-center" style="margin: 0;">Aucune caisse enregistrée</h4>
                                     </td>
                                 </tr>

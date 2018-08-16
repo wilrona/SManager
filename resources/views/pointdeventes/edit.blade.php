@@ -108,7 +108,7 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Caisse</th>
-                                    <th>Principale</th>
+                                    <th class="col-xs-2">Principale</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -120,7 +120,7 @@
                                 <tr>
                                     <td><?= $key + 1?></td>
                                     <td><?= $value['caisse_name'] ?></td>
-                                    <td><?php if($value['caisse_principal']): ?> OUI <?php else: ?> NON <?php endif; ?></td>
+                                    <td><?php if($value['caisse_principal']): ?> oui <?php else: ?> non <?php endif; ?></td>
                                 </tr>
 				                <?php
 				                endforeach;
@@ -143,7 +143,7 @@
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
-                                        <a href="{{ route('pos.addMagasin', $data->id) }}" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal" data-backdrop="static"><i class="fa fa-plus"></i> Ajouter un magasin</a>
+                                        <a href="{{ route('pos.addMagasin', $data->id) }}" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-plus"></i> Ajouter un magasin</a>
                                     </div>
                                 </li>
 
@@ -155,7 +155,6 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Magasin</th>
-                                    <th class="col-xs-1"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -167,7 +166,6 @@
                                 <tr>
                                     <td><?= $key + 1?></td>
                                     <td><?= $value['magasin_name'] ?></td>
-                                    <td><a class="delete" onclick="remove_magasin(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
                                 </tr>
 				                <?php
 				                endforeach;
@@ -198,27 +196,5 @@
 
 @section('footer')
     @parent
-
-    <script>
-
-        function remove_magasin($key){
-            $.ajax({
-                url: "<?= route('pos.removeMagasin') ?>/"+$key,
-                type: 'GET',
-                success : function(data){
-                    $.ajax({
-                        url: "<?= route('pos.listingMagasin') ?>",
-                        type: 'GET',
-                        success : function(list){
-                            $('#loading_magasin').html(list);
-                        }
-                    });
-                }
-            });
-        }
-    </script>
-
-
-
 
 @stop

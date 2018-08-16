@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PointDeVenteRequest;
+use App\Repositories\CaisseRepository;
 use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProfileRepository;
@@ -12,6 +13,7 @@ use App\Http\Requests\UserRequest;
 use App\Library\CustomFunction;
 use Illuminate\Support\Facades\Hash;
 use App\Library\Roles;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -21,18 +23,20 @@ class UserController extends Controller
 	protected $profilesRepository;
 	protected $posRepository;
 	protected $parametreRepository;
+	protected $caisseRepository;
 
 	protected $custom;
 
 	public function __construct(RoleRepository $rolesRepository, UserRepository $modelRepository,
 		ProfileRepository $profilesRepository, PointDeVenteRepository $point_de_vente_repository,
-		ParametreRepository $parametre_repository
+		ParametreRepository $parametre_repository, CaisseRepository $caisse_repository
 	) {
 		$this->rolesRepository = $rolesRepository;
 		$this->modelRepository = $modelRepository;
 		$this->profilesRepository = $profilesRepository;
 		$this->posRepository = $point_de_vente_repository;
 		$this->parametreRepository = $parametre_repository;
+		$this->caisseRepository = $caisse_repository;
 
 		$this->custom = new CustomFunction();
 	}
@@ -80,9 +84,6 @@ class UserController extends Controller
 
 	public function index()
 	{
-//		$datas = $this->modelRepository->getWhere()->whereHas('roles', function ($q){
-//			$q->where('name', '=', 'super_admin');
-//		})->get();
 
 		$datas = $this->modelRepository->getWhere()->get();
 
@@ -169,7 +170,7 @@ class UserController extends Controller
 
 		// Pensez à renvoyer un mail à l'utilisateur pour recevoir son mot de passe
 
-		return redirect('settings/users')->withOk('Le compte utilisateur a été crée');
+		return redirect()->route('user.edit', $data-id)->withOk('Le compte utilisateur a été crée');
 
 	}
 
@@ -202,7 +203,7 @@ class UserController extends Controller
 			$pos[$item->id] = $item->name;
 		endforeach;
 
-		return view('users.show', compact('data', 'allRoles', 'profile', 'sexe', 'roles_profile', 'pos'));
+		return view('users.show', compact('data', 'allRoles', 'profile', 'sexe', 'roles_profile', 'pos', 'caisses'));
 	}
 
 	public function edit($id)
@@ -235,7 +236,19 @@ class UserController extends Controller
 			$pos[$item->id] = $item->name;
 		endforeach;
 
-		return view('users.edit', compact('allRoles', 'sexe', 'profile', 'data', 'roles_profile', 'pos'));
+		$caisses = array();
+
+		foreach ($data->Caisses()->get() as $items):
+			$save = array();
+
+			$save['caisse_id']  = $items->id;
+			$save['caisse_name']  = $items->name;
+			$save['caisse_principal']  = $items->pivot->principal;
+
+			array_push($caisses, $save);
+		endforeach;
+
+		return view('users.edit', compact('allRoles', 'sexe', 'profile', 'data', 'roles_profile', 'pos', 'caisses'));
 	}
 
 	public function update(UserRequest $request, $id){
@@ -278,6 +291,114 @@ class UserController extends Controller
 
 		return redirect()->route('user.show', ['id' => $id])->withOk('Le compte utilisateur a été modifié');
 
+	}
+
+	public function addCaisse(Request $request, $pos_id, $user_id){
+
+		$caisse_pos = array();
+		$caisse_principal = array();
+
+		$pos = $this->posRepository->getById($pos_id);
+		$user = $this->modelRepository->getById($user_id);
+//
+		foreach ($user->Caisses()->get() as  $caisse):
+			array_push($caisse_pos, $caisse->id);
+			if($caisse->pivot->principal):
+				array_push($caisse_principal, $caisse->id);
+			endif;
+		endforeach;
+
+		$datas = $pos->Caisses()->get();
+
+		return view('users.addCaisse', compact('datas', 'pos_id', 'user_id', 'caisse_principal', 'caisse_pos'));
+	}
+
+	public function checkCaisse(Request $request){
+		$data = $request->all();
+
+		$caisse = $this->caisseRepository->getById($data['id']);
+
+		$response = array(
+			'success' => '',
+			'error' => '',
+			'action' => $data['action']
+		);
+
+		if($data['action'] == 'add'):
+			if($caisse->etat == 1):
+				$response['error'] = 'La caisse est actuellement ouverte. Elle ne peut être ajoutée à l\'utilisateur.';
+			else:
+				$response['success'] = 'La caisse est ajoutée à l\'utilisateur avec succès.';
+			endif;
+		else:
+			if($caisse->etat == 1):
+				$response['error'] = 'La caisse est actuellement ouverte. Elle ne peut être retirée à l\'utilisateur.';
+			else:
+				$response['success'] = 'La caisse est retirée à l\'utilisateur avec succès.';
+			endif;
+		endif;
+
+
+		return response()->json($response);
+
+	}
+
+	public function validCaisse(Request $request, $id){
+
+		$data = $request->all();
+
+		$user = $this->modelRepository->getById($id);
+
+		$user->Caisses()->detach();
+
+		foreach ($data['caisse'] as $caisse_id){
+			$caisse = $this->caisseRepository->getById($caisse_id);
+			if(in_array($caisse_id, $data['caisse_principal'])):
+				$caisse->Users()->save($user, ['principal' => 1]);
+			else:
+				$caisse->Users()->save($user);
+			endif;
+		}
+
+		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
+	}
+
+	public function listCaisse($id){
+
+		$users = $this->modelRepository->getById($id);
+		$produits = $users->caisses()->get();
+		?>
+		<table class="table">
+			<thead>
+			<tr>
+				<th class="col-xs-1">#</th>
+				<th>Caisse</th>
+				<th class="col-xs-2">Principale</th>
+			</tr>
+			</thead>
+			<tbody>
+			<?php if($produits):
+				foreach($produits as $key => $value):
+					?>
+					<tr>
+						<td><?= $key + 1 ?></td>
+						<td><?= $value->name ?></td>
+						<td><?php if($value->pivot->principal == 1): ?> oui <?php else: ?> non <?php endif; ?></td>
+					</tr>
+					<?php
+				endforeach;
+			else:
+				?>
+				<tr>
+					<td colspan="3">
+						<h4 class="text-center" style="margin: 0;">Aucune caisse enregistrée</h4>
+					</td>
+				</tr>
+			<?php endif; ?>
+			</tbody>
+		</table>
+
+		<?php
 	}
 
 

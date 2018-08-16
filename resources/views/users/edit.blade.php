@@ -24,6 +24,9 @@
         </div>
 
         <div class="container-fluid container-fullw padding-bottom-10">
+            @if(session()->has('ok'))
+                <div class="alert alert-success alert-dismissible">{!! session('ok') !!}</div>
+            @endif
             <div class="row">
                 {!! Form::model($data, ['route' => ['user.update', $data->id]]) !!}
                 <div class="col-md-8">
@@ -131,6 +134,54 @@
 
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
+                            <h4 class="panel-title">Caisse de l'utilisateur</h4>
+                            <ul class="panel-heading-tabs border-light">
+                                <li>
+                                    <div class="pull-right">
+                                        <a href="@if($data->pos_id){{ route('user.addCaisse', ['pos_id' => $data->pos_id, 'user_id' => $data->id]) }}@endif" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-plus"></i> Affecter les caisses</a>
+                                    </div>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table ">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Caisse</th>
+                                    <th class="col-xs-2">Principale</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+				                <?php
+                                if($caisses):
+
+
+				                foreach($caisses as $key => $value):
+				                ?>
+                                <tr>
+                                    <td><?= $key + 1?></td>
+                                    <td><?= $value['caisse_name'] ?></td>
+                                    <td><?php if($value['caisse_principal']): ?> oui <?php else: ?> non <?php endif; ?></td>
+                                </tr>
+				                <?php
+				                endforeach;
+				                else:
+				                ?>
+                                <tr>
+                                    <td colspan="3">
+                                        <h4 class="text-center" style="margin: 0;">Aucune caisse enregistrée</h4>
+                                    </td>
+                                </tr>
+				                <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
                             <h4 class="panel-title">Information de Connexion</h4>
 
                         </div>
@@ -225,10 +276,6 @@
 
 @section('footer')
     @parent
-
-    <!--script src="assets/js/letter-icons.js"></script>
-	<script src="assets/js/main.js"></script>
-	<script src="assets/js/treetable.js"></script-->
 
 
 @stop

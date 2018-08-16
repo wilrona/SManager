@@ -15,7 +15,6 @@ class CaisseController extends Controller
 	protected $posRepository;
 	protected $parametreRepository;
 	protected $custom;
-	protected $listPOS;
 
 	public function __construct(CaisseRepository $caisse_repository, PointDeVenteRepository $point_de_vente_repository,
 		ParametreRepository $parametre_repository) {
@@ -24,7 +23,6 @@ class CaisseController extends Controller
 		$this->parametreRepository = $parametre_repository;
 
 		$this->custom = new CustomFunction();
-		$this->listPOS = $point_de_vente_repository->getWhere()->get();
 	}
 
 	/**
@@ -47,12 +45,7 @@ class CaisseController extends Controller
      */
     public function create()
     {
-        //
 
-	    $pos = array();
-	    foreach ($this->listPOS as $item):
-		    $pos[$item->id] = $item->name;
-	    endforeach;
 
 	    // Initialisation de la reference
 
@@ -72,7 +65,7 @@ class CaisseController extends Controller
 	    $count += $incref ? intval($incref->value) : 0;
 	    $reference = $this->custom->setReference($coderef, $count, 4);
 
-	    return view('caisses.create', compact( 'pos', 'reference'));
+	    return view('caisses.create', compact(  'reference'));
     }
 
     /**
@@ -87,8 +80,6 @@ class CaisseController extends Controller
 	    $data = $request->all();
 
 	    $save = $this->modelRepository->store($data);
-
-	    $save = $this->modelRepository->getById($save->id);
 
 	    return redirect()->route('caisse.index')->withOk('La caisse a été enregistré');
     }
@@ -105,12 +96,7 @@ class CaisseController extends Controller
 
 	    $data = $this->modelRepository->getById($id);
 
-	    $pos = array();
-	    foreach ($this->listPOS as $item):
-		    $pos[$item->id] = $item->name;
-	    endforeach;
-
-	    return view('caisses.show', compact( 'data', 'pos'));
+	    return view('caisses.show', compact( 'data'));
     }
 
     /**
@@ -125,12 +111,7 @@ class CaisseController extends Controller
 
 	    $data = $this->modelRepository->getById($id);
 
-	    $pos = array();
-	    foreach ($this->listPOS as $item):
-		    $pos[$item->id] = $item->name;
-	    endforeach;
-
-	    return view('caisses.edit', compact( 'data', 'pos'));
+	    return view('caisses.edit', compact( 'data'));
     }
 
     /**

@@ -158,6 +158,44 @@
 
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
+                            <h4 class="panel-title">Caisse de l'utilisateur</h4>
+                        </div>
+                        <div class="panel-body" id="loading">
+                            <table class="table ">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Caisse</th>
+                                    <th class="col-xs-2">Principale</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+				                <?php if($data->Caisses()->count()):
+
+				                foreach($data->Caisses()->get() as $key => $value):
+				                ?>
+                                <tr>
+                                    <td><?= $key + 1?></td>
+                                    <td><?= $value->name ?></td>
+                                    <td><?php if($value->pivot->principal): ?> oui <?php else: ?> non <?php endif; ?></td>
+                                </tr>
+				                <?php
+				                endforeach;
+				                else:
+				                ?>
+                                <tr>
+                                    <td colspan="3">
+                                        <h4 class="text-center" style="margin: 0;">Aucune caisse enregistrée</h4>
+                                    </td>
+                                </tr>
+				                <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
                             <h4 class="panel-title">Information de Connexion</h4>
                             <div class="panel-tools">
                                 <a data-original-title="Regroupement" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm panel-collapse" href="#"><i class="ti-minus collapse-off"></i><i class="ti-plus collapse-on"></i></a>

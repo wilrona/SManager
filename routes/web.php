@@ -84,6 +84,11 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::post('/update/{id}', 'UserController@update')->middleware('auth')->name('user.update');
 
 		Route::get('/activation/{id}', 'UserController@active')->middleware('auth')->name('user.active');
+
+		Route::get('/add/caisse/{pos_id}/{user_id}', 'UserController@addCaisse')->middleware('auth')->name('user.addCaisse');
+		Route::get('/add/caisse/check', 'UserController@checkCaisse')->middleware('auth')->name('user.checkCaisse');
+		Route::get('/list/caisse/{id}', 'UserController@listCaisse')->middleware('auth')->name('user.listingCaisse');
+		Route::post('/valide/caisse/{id}', 'UserController@validCaisse')->middleware('auth')->name('user.valideCaisse');
 	});
 
 	Route::prefix('/settings/magasin')->group(function () {
@@ -111,15 +116,12 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 
 		Route::get('/add/caisse/{id}', 'PointDeVenteController@addCaisse')->middleware('auth')->name('pos.addCaisse');
 		Route::get('/add/caisse/check/{pos_id}/{type}', 'PointDeVenteController@checkCaisse')->middleware('auth')->name('pos.checkCaisse');
-
-
-		Route::get('/remove/caisse/{key?}', 'PointDeVenteController@removeCaisse')->middleware('auth')->name('pos.removeCaisse');
 		Route::get('/list/caisse/{id}', 'PointDeVenteController@listCaisse')->middleware('auth')->name('pos.listingCaisse');
 		Route::post('/valide/caisse/{id}', 'PointDeVenteController@validCaisse')->middleware('auth')->name('pos.valideCaisse');
 
 		Route::get('/add/magasin/{id}', 'PointDeVenteController@addMagasin')->middleware('auth')->name('pos.addMagasin');
-		Route::get('/remove/magasin/{key?}', 'PointDeVenteController@removeMagasin')->middleware('auth')->name('pos.removeMagasin');
-		Route::get('/list/magasin', 'PointDeVenteController@listMagasin')->middleware('auth')->name('pos.listingMagasin');
+		Route::get('/add/magasin/check/{pos_id}', 'PointDeVenteController@checkMagasin')->middleware('auth')->name('pos.checkMagasin');
+		Route::get('/list/magasin/{id}', 'PointDeVenteController@listMagasin')->middleware('auth')->name('pos.listingMagasin');
 		Route::post('/valide/magasin/{id}', 'PointDeVenteController@validMagasin')->middleware('auth')->name('pos.valideMagasin');
 	});
 

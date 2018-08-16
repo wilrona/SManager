@@ -13,64 +13,133 @@
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h4 class="modal-title" id="myModalLabel">Ajouter un magasin </h4>
 </div>
-{!! Form::open(['id'=> 'submitFormulaire']) !!}
 <div class="modal-body">
-    <div class="form-group {!! $errors->has('magasin_id') ? 'has-error' : '' !!}" id="magasin_id">
-        <label for="exampleInputEmail1" class="text-bold"> Caisse : </label>
-        {!! Form::select('magasin_id', $produits, null, ['class' => 'form-control', 'placeholder' => 'Selectionnez un magasin...']) !!}
-        <span class="help-block hidden magasin_id">
-                    <i class="ti-alert text-primary"></i>
-                    <span class="text-danger">
 
-                    </span>
-                </span>
-    </div>
+        <table class="table sample_5 table-bordered">
+            <thead>
+            <tr>
+                <th class="no-sort">#</th>
+                <th class="col-xs-5">Reference</th>
+                <th class="col-xs-5">Nom</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            @foreach ($datas as $data)
+
+                <tr id="{{ $data->id }}" class="@if(in_array($data->id, $magasin_pos)) success @endif @if($data->pos_id != $id) danger @endif">
+                    <td>
+                        <input type="checkbox" name="magasin[]" value="{{ $data->id }}" class="checkbox-item checkbox_{{ $data->id }}" @if(in_array($data->id, $magasin_pos)) checked @endif @if($data->pos_id != $id) disabled @endif>
+                    </td>
+                    <td>{{ $data->reference }}</td>
+                    <td>
+                        {{ $data->name }}
+                    </td>
+                </tr>
+
+            @endforeach
+
+
+            </tbody>
+        </table>
 
 </div>
-{!! Form::close() !!}
 <div class="modal-footer">
     <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Fermer</button>
     <input type="button"  id="submits" class="btn btn-primary btn-sm" value="Valider"/>
 </div>
+
+<script src="{{ URL::asset('assets/js/app.js')}}"></script>
+
 <script>
     jQuery(document).ready(function() {
+        TableData.init();
         FormElements.init();
     });
 
-    $('#submits').on('click', function(e){
-        e.preventDefault();
+    jQuery(document).ready(function() {
 
-        $.each($('.help-block'), function(key, value){
-            $(this).addClass('hidden');
-        });
-        $.each($('.form-group'), function(key, value){
-            $(this).removeClass('has-error');
-        });
 
-        $.ajax({
-            url: "<?= route('pos.valideMagasin', $id) ?>",
-            data: $('#submitFormulaire').serialize(),
-            type: 'POST',
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            success: function(data) {
-                $.ajax({
-                    url: "<?= route('pos.listingMagasin') ?>",
-                    type: 'GET',
-                    success : function(list){
-                        $('#loading_magasin').html(list);
-                        $('.close').trigger('click');
-                    }
-                });
-            },
-            error: function (request, status, error) {
+        $('body table.sample_5').on('click', '.checkbox-item', function(e){
+            var $tr = $(this).parent().parent();
+            var $id = $tr.attr('id');
+            var $action;
 
-                json = $.parseJSON(request.responseText);
 
-                $.each(json.errors, function(key, value){
-                    $('.'+key).removeClass('hidden').find('.text-danger').html('<p>'+value+'</p>');
-                    $('#'+key).addClass('has-error');
-                });
+            if($tr.hasClass('success')){
+                $action = 'remove';
+            }else{
+                $action = 'add';
             }
+
+            $.ajax({
+                url: "<?= route('pos.checkMagasin', ['pos_id' => $id]) ?>",
+                type: 'GET',
+                data: { id: $id, action: $action },
+                success: function(data) {
+
+                    if(data['success'].length > 0){
+                        toastr["success"](data['success'], "Succès");
+                    }
+
+                    if(data['action'] === 'remove'){
+                        $tr.removeClass('success').attr({'style':''});
+                        $('.checkbox_'+$id).prop('checked', false);
+                    }else{
+                        $tr.addClass('success').attr({'style':'color:#fff'});
+                        $('.checkbox_'+$id).prop('checked', true);
+                    }
+
+                    if(data['error'].length > 0){
+                        toastr["error"](data['error'], "Erreur");
+                        $tr.addClass('success').attr({'style':'color:#fff'});
+                        $('.checkbox_'+$id).prop('checked', true);
+                    }
+                }
+            });
+
         });
+
+        $('#submits').on('click', function (e) {
+            e.preventDefault();
+
+            if(oTable_5.$('input.checkbox-item:checked').length > 0){
+
+                save();
+
+            }else{
+
+                toastr["error"]('Aucun magasin selectionné', "Enregistrement Impossible");
+
+            }
+
+        });
+
+        function save(){
+            $.ajax({
+                url: "{{ route('pos.valideMagasin', $id) }}",
+                type: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: oTable_5.$('input.checkbox-item:checked').serialize(),
+                success: function(data) {
+
+                    if(data['success'].length > 0){
+                        toastr["success"](data['success'], "Succès");
+                    }
+
+                    $.ajax({
+                        url: "{{ route('pos.listingMagasin', $id) }}",
+                        type: 'GET',
+                        success : function(list){
+                            $('#loading').html(list);
+                            $('.close').trigger('click');
+                        }
+                    });
+
+                }
+            });
+        }
+
     });
+
 </script>

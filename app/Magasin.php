@@ -28,11 +28,11 @@ class Magasin extends Model
 	}
 
 	public function DemandesTransfert(){
-		return $this->hasMany( 'App\Transfert', 'mag_dmd_id', 'id');
+		return $this->hasMany( 'App\OrdreTransfert', 'mag_dmd_id', 'id');
 	}
 
 	public function ApproTransfert(){
-		return $this->hasMany( 'App\Transfert', 'mag_appro_id', 'id');
+		return $this->hasMany( 'App\OrdreTransfert', 'mag_appro_id', 'id');
 	}
 
 	public function EcritureStock(){
