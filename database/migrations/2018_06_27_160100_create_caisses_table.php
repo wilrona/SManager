@@ -18,7 +18,7 @@ class CreateCaissesTable extends Migration
 	        $table->string('reference')->unique();
 	        $table->string('name');
 	        $table->integer('etat')->default(0);
-	        $table->float('montantEnCours')->nullable($value = true);
+	        $table->float('montantEnCours')->default(0);
 
 	        $table->integer('pos_id')->nullable($value = true)->unsigned();
 	        $table->foreign('pos_id')->references('id')->on('point_de_vente');

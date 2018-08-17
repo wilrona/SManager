@@ -36,7 +36,7 @@
                 <td>
                     {{ $data->name }}
                 </td>
-                <td><input type="checkbox" name="caisse_principal[]" value="{{ $data->id }}" class="checkbox-item-principal checkbox_principal_{{ $data->id }}" @if(in_array($data->id, $caisse_principal)) checked @endif @if($data->PointDeVente()->where('id', '!=', $id)->count()) disabled @endif></td>
+                <td><input type="checkbox" name="caisse_principal[]" value="{{ $data->id }}" class="checkbox-item-principal checkbox_principal_{{ $data->id }}" @if(in_array($data->id, $caisse_principal)) checked @endif @if($data->PointDeVente()->where('id', '!=', $id)->count() || $data->Users()->count()) disabled @endif></td>
             </tr>
 
         @endforeach
@@ -86,6 +86,11 @@
                         $tr.removeClass('success').attr({'style':''});
                         $('.checkbox_'+$id).prop('checked', false);
                         $tr.find('input.checkbox-item-principal').prop('checked', false);
+                        if(data['error'].length > 0){
+                            toastr["error"](data['error'], "Utilisateur affecté");
+                            $tr.addClass('success').attr({'style':'color:#fff'});
+                            $('.checkbox_'+$id).prop('checked', true);
+                        }
                     }else{
                         $tr.addClass('success').attr({'style':'color:#fff'});
                         $('.checkbox_'+$id).prop('checked', true);
@@ -141,13 +146,13 @@
 
                         if(data['error'].length > 0){
                             toastr["error"](data['error'], "Erreur");
+                            if(oTable_3.$('input.checkbox-item-principal:checked').length === 0){
+                                $('.checkbox_'+$id).prop('checked', true);
+                            }
                         }
                     }
                 });
             }
-
-
-
 
         });
 

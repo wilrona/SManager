@@ -181,11 +181,18 @@ class PointDeVenteController extends Controller
 				else:
 					if(!$pos->Caisses()->where('principal', '=', 1)->count()):
 						$response['success_principal'] = 'La caisse est défini comme caisse principal du point de vente.';
+				    else:
+					    $response['success_principal'] = 'La caisse est deja défini comme caisse principal du point de vente.';
 					endif;
 					$response['success'] = 'La caisse est ajouté au point de vente avec succès.';
 				endif;
 			else:
-				$response['success'] = 'La caisse est retirée au point de vente avec succès.';
+                $exist_user = $caisse->Users()->count();
+			    if($exist_user || $caisse->etat == 1 || $caisse->montantEnCours != 0):
+				    $response['error'] = 'La caisse ne peut être retirée au point de vente.';
+			    else:
+				    $response['success'] = 'La caisse est retirée au point de vente avec succès.';
+                endif;
 			endif;
         else:
 	        if($data['action'] == 'add'):
@@ -195,10 +202,17 @@ class PointDeVenteController extends Controller
 		        else:
 			        if(!$pos->Caisses()->where('principal', '=', 1)->count()):
 				        $response['success'] = 'La caisse est défini comme caisse principal du point de vente.';
+		            else:
+			            $response['success'] = 'La caisse est déja défini comme caisse principal du point de vente.';
 			        endif;
 		        endif;
 	        else:
-		        $response['success'] = 'La caisse n\'est plus la caisse principale du vente avec succès.';
+                if($caisse->montantEnCours != 0):
+	                $response['error'] = 'La caisse ne peut être retirée comme caisse principale de ce point de vente.';
+                else:
+	                $response['success'] = 'La caisse n\'est plus la caisse principale du vente avec succès.';
+                endif;
+
 	        endif;
         endif;
 

@@ -21,8 +21,7 @@
 
 var oTable_3 = $('.sample_3').dataTable({
     "aoColumnDefs" : [{
-        "aTargets" : [0, 3],
-        "bSortable": false
+        "aTargets" : [0]
     }],
     "oLanguage" : {
         "sProcessing":     "Traitement en cours...",
@@ -51,7 +50,7 @@ var oTable_3 = $('.sample_3').dataTable({
     ],
     // set the initial value
     "iDisplayLength" : 10,
-    "searching": true,
+    "searching": false,
     "destroy": true,
 
 });

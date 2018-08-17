@@ -47,7 +47,7 @@ class User extends Authenticatable
 	}
 
 	public function EcritureStock(){
-		return $this->hasMany('App\EcritureStock', 'user__id', 'id');
+		return $this->hasMany('App\EcritureStock', 'user_id', 'id');
 	}
 
 	public function StoryEcritureStock(){
@@ -56,6 +56,10 @@ class User extends Authenticatable
 
 	public function Caisses(){
 		return $this->belongsToMany('App\Caisse', 'user_caisse', 'user_id', 'caisse_id')->withPivot('principal');
+	}
+
+	public function EcritureCaisse(){
+		return $this->hasMany('App\EcritureCaisse', 'user_id', 'id');
 	}
 
 

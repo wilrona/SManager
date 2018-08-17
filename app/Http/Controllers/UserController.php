@@ -308,7 +308,9 @@ class UserController extends Controller
 			endif;
 		endforeach;
 
-		$datas = $pos->Caisses()->get();
+		$datas = $pos->Caisses()->whereHas('pointdevente', function($query){
+		    $query->where('principal', '=', 0);
+		})->get();
 
 		return view('users.addCaisse', compact('datas', 'pos_id', 'user_id', 'caisse_principal', 'caisse_pos'));
 	}
@@ -350,15 +352,16 @@ class UserController extends Controller
 		$user = $this->modelRepository->getById($id);
 
 		$user->Caisses()->detach();
-
-		foreach ($data['caisse'] as $caisse_id){
-			$caisse = $this->caisseRepository->getById($caisse_id);
-			if(in_array($caisse_id, $data['caisse_principal'])):
-				$caisse->Users()->save($user, ['principal' => 1]);
-			else:
-				$caisse->Users()->save($user);
-			endif;
-		}
+        if(isset($data['caisse'])):
+            foreach ($data['caisse'] as $caisse_id){
+                $caisse = $this->caisseRepository->getById($caisse_id);
+                if(in_array($caisse_id, $data['caisse_principal'])):
+                    $caisse->Users()->save($user, ['principal' => 1]);
+                else:
+                    $caisse->Users()->save($user);
+                endif;
+            }
+		endif;
 
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
 	}
@@ -394,7 +397,7 @@ class UserController extends Controller
 						<h4 class="text-center" style="margin: 0;">Aucune caisse enregistrée</h4>
 					</td>
 				</tr>
-			<?php endif; ?>
+			<?php endif;?>
 			</tbody>
 		</table>
 

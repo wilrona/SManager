@@ -41,7 +41,8 @@ Route::get('/', function () {
 Route::post('auth/login', 'Auth\LoginController@login'); // traitem de la connexion
 
 
-Route::group([ 'middleware' => ['role:super_admin']], function() {
+//Route::group([ 'middleware' => ['role:super_admin']], function() {
+Route::group([], function() {
 
 //	Route::prefix('clients')->group(function () {
 //
@@ -292,6 +293,12 @@ Route::group([ 'middleware' => ['role:super_admin']], function() {
 		Route::post('/update/{id}', 'OrdreTransfertController@updateReceive')->middleware('auth')->name('receive.update');
 
 		Route::post('/check/valid/serie/{ligne_id}', 'OrdreTransfertController@validSerie')->middleware('auth')->name('receive.validSerie');
+
+	});
+
+	Route::prefix('/caisse-manager')->group(function () {
+
+		Route::get('/', 'CaisseManagerController@index')->middleware('auth')->name('caisseManager.index');
 
 	});
 

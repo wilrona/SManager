@@ -118,16 +118,27 @@
                                 </span>
                                 ') !!}
                             </div>
-
-                            <div class="form-group {!! $errors->has('pos_id') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold"> Point de vente des opérations : </label>
-                                {!! Form::select('pos_id', $pos, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le point de vente']) !!}
-                                {!! $errors->first('pos_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
-                                        :message
+                            @if(!$caisses)
+                                <div class="form-group {!! $errors->has('pos_id') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold"> Point de vente des opérations : </label>
+                                    {!! Form::select('pos_id', $pos, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le point de vente']) !!}
+                                    {!! $errors->first('pos_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
                                     </span>
-                                </span>
-                                ') !!}
-                            </div>
+                                    ') !!}
+                                </div>
+                            @else
+                                <div class="form-group {!! $errors->has('pos_id') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold"> Point de vente des opérations : </label>
+                                    {!! Form::select('pos_id', $pos, $data->pos_id, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('pos_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+                            @endif
 
                         </div>
                     </div>

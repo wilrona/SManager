@@ -138,7 +138,19 @@
 										</div>
 									</div> </a>
 								</li>
-									<?php //if (Auth::user()->hasRole('super-admin')) { ?>
+
+								<li class="{{ Menu::active('caisse-manager') }}" >
+									<a href="<?= route('caisseManager.index') ?>">
+										<div class="item-content">
+											<div class="item-media">
+												<div class="lettericon" data-text="Caisse" data-size="sm" data-char-count="2"></div>
+											</div>
+											<div class="item-inner">
+												<span class="title"> Caisse </span>
+											</div>
+										</div>
+									</a>
+								</li>
 
 								<li class="{{ Menu::active('clients') }}" >
 									<a href="<?= route('client.index') ?>">

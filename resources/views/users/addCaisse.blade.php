@@ -28,15 +28,15 @@
 
         @foreach ($datas as $data)
 
-            <tr id="{{ $data->id }}" class="@if(in_array($data->id, $caisse_pos)) success @endif @if($data->PointDeVente()->where('id', '!=', $pos_id)->count()) danger @endif">
+            <tr id="{{ $data->id }}" class="@if(in_array($data->id, $caisse_pos)) success @endif">
                 <td>
-                    <input type="checkbox" name="caisse[]" value="{{ $data->id }}" class="checkbox-item checkbox_{{ $data->id }}" @if(in_array($data->id, $caisse_pos)) checked @endif @if($data->PointDeVente()->where('id', '!=', $pos_id)->count()) disabled @endif>
+                    <input type="checkbox" name="caisse[]" value="{{ $data->id }}" class="checkbox-item checkbox_{{ $data->id }}" @if(in_array($data->id, $caisse_pos)) checked @endif>
                 </td>
                 <td>{{ $data->reference }}</td>
                 <td>
                     {{ $data->name }}
                 </td>
-                <td><input type="checkbox" name="caisse_principal[]" value="{{ $data->id }}" class="checkbox-item-principal checkbox_principal_{{ $data->id }}" @if(in_array($data->id, $caisse_principal)) checked @endif @if($data->PointDeVente()->where('id', '!=', $pos_id)->count()) disabled @endif></td>
+                <td><input type="checkbox" name="caisse_principal[]" value="{{ $data->id }}" class="checkbox-item-principal checkbox_principal_{{ $data->id }}" @if(in_array($data->id, $caisse_principal)) checked @endif></td>
             </tr>
 
         @endforeach
@@ -132,17 +132,29 @@
         $('#submits').on('click', function (e) {
             e.preventDefault();
 
+            @if(count($caisse_pos))
+
+                    var $existe = true;
+            @else
+                    var $existe = false;
+
+            @endif
+
             if(oTable_3.$('input.checkbox-item:checked').length > 0 && oTable_3.$('input.checkbox-item-principal:checked').length > 0 ){
 
                 save();
 
             }else{
 
-                if(oTable_3.$('input.checkbox-item:checked').length === 0){
-                    toastr["error"]('Aucune caisse selectionnée', "Enregistrement Impossible");
-                }
-                if(oTable_3.$('input.checkbox-item-principal:checked').length === 0){
-                    toastr["error"]('Aucune caisse définie comme caisse principale de ce point de vente.', "Enregistrement Impossible");
+                if ($existe === true) {
+                    save();
+                }else{
+                    if(oTable_3.$('input.checkbox-item:checked').length === 0){
+                        toastr["error"]('Aucune caisse selectionnée', "Enregistrement Impossible");
+                    }
+                    if(oTable_3.$('input.checkbox-item-principal:checked').length === 0){
+                        toastr["error"]('Aucune caisse définie comme caisse principale de ce point de vente.', "Enregistrement Impossible");
+                    }
                 }
             }
 
