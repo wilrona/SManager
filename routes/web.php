@@ -299,6 +299,9 @@ Route::group([], function() {
 	Route::prefix('/caisse-manager')->group(function () {
 
 		Route::get('/', 'CaisseManagerController@index')->middleware('auth')->name('caisseManager.index');
+		Route::get('/preopen/{caisse_id}', 'CaisseManagerController@preopen')->middleware('auth')->name('caisseManager.preopen');
+		Route::post('/preopen/check/{caisse_id}', 'CaisseManagerController@preopencheck')->middleware('auth')->name('caisseManager.preopencheck');
+		Route::get('/open/{caisse_id}', 'CaisseManagerController@open')->middleware('auth')->name('caisseManager.open');
 
 	});
 

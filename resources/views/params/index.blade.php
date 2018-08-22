@@ -103,6 +103,29 @@
                                                                 </div>
                                                             </div>
                                                         @endif
+
+                                                        @if($data['name'] == 'caisses')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">Devise Appliquée</h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <select name="devise" id="" class="form-control">
+                                                                            <option value="">Choix de la devise</option>
+
+                                                                            <option value="XAF" <?= isset($values[$data['name']]) && isset($values[$data['name']]['devise']) && $values[$data['name']]['devise'] == 'XAF'  ? 'selected' : '' ?>>Franc CFA</option>
+
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+
+
+
                                                         @if($data['name'] != 'parametrages')
                                                             <div class="well well-sm">
                                                                 <h3 style="margin: 0;">N° de séquence</h3>

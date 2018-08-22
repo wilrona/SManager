@@ -44,6 +44,9 @@ class CreateEcritureCaisseTable extends Migration
 
 		    $table->integer('last')->default(0);
 
+		    $table->integer('user_id')->nullable($value = true)->unsigned();
+		    $table->foreign('user_id')->references('id')->on('users');
+
 		    $table->timestamps();
 	    });
 
@@ -55,7 +58,7 @@ class CreateEcritureCaisseTable extends Migration
 	        $table->string('devise');
 
 	        $table->float('montant');
-	        $table->float('montant_remb');
+	        $table->float('montant_remb')->default(0);
 
 	        $table->string('libelle');
 
@@ -82,8 +85,8 @@ class CreateEcritureCaisseTable extends Migration
      */
     public function down()
     {
+	    Schema::dropIfExists('ecriture_caisse');
+	    Schema::dropIfExists('sessions');
         Schema::dropIfExists('transfert_fond');
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('ecriture_caisse');
     }
 }

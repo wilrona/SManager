@@ -143,10 +143,10 @@
 									<a href="<?= route('caisseManager.index') ?>">
 										<div class="item-content">
 											<div class="item-media">
-												<div class="lettericon" data-text="Caisse" data-size="sm" data-char-count="2"></div>
+												<div class="lettericon" data-text="Mes Caisses" data-size="sm" data-char-count="2"></div>
 											</div>
 											<div class="item-inner">
-												<span class="title"> Caisse </span>
+												<span class="title"> Mes Caisses </span>
 											</div>
 										</div>
 									</a>

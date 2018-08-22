@@ -140,9 +140,28 @@ class ParamController extends Controller
 			endif;
 		endif;
 
+		if($module == 'caisses'):
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'devise']
+				]
+			)->first();
+
+			if($coderef):
+				$coderef->value = $data['devise'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'devise';
+				$saved['value'] = $data['devise'];
+				$this->modelRepository->store($saved);
+			endif;
+		endif;
+
 		if($module == 'point_de_vente'):
 
-			var_dump($data['pos_center']);
 
 			$coderef = $this->modelRepository->getWhere()->where(
 				[
@@ -182,9 +201,6 @@ class ParamController extends Controller
 				endif;
 			endif;
 		endif;
-
-
-
 
 		return response()->json(['success'=> 'Vos modifications ont été pris en compte !']);
 	}
