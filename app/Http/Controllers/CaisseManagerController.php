@@ -100,6 +100,19 @@ class CaisseManagerController extends Controller
 			return redirect()->route('caisseManager.index')->withWarning('Caisse ouverte par un autre utilisateur.');
 		endif;
 
+		if(!$this->devise):
+
+			if($caisse->etat == 1):
+
+				$caisse->etat = 0;
+				$caisse->save();
+
+			endif;
+
+			return redirect()->route('caisseManager.index')->withWarning('Le parametrage de la devise a été Modifié. Aucune devise défini');
+
+		endif;
+
 		if(!$exist_session->count()):
 
 			$session = array();
@@ -124,8 +137,12 @@ class CaisseManagerController extends Controller
 
 		endif;
 
-		$caisse->etat = 1;
-		$caisse->save();
+		if($caisse->etat == 0):
+
+			$caisse->etat = 1;
+			$caisse->save();
+
+		endif;
 
 		return view('caisseManager.manager', compact(''));
 	}

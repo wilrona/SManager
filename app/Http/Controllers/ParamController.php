@@ -158,6 +158,44 @@ class ParamController extends Controller
 				$saved['value'] = $data['devise'];
 				$this->modelRepository->store($saved);
 			endif;
+
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'coderefTF']
+				]
+			)->first();
+
+			if($coderef):
+				$coderef->value = $data['coderefTF'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'coderefTF';
+				$saved['value'] = $data['coderefTF'];
+				$this->modelRepository->store($saved);
+			endif;
+
+			// Enregistrement du code de reférence
+
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'increfTF']
+				]
+			)->first();
+
+			if($coderef):
+				$coderef->value = $data['increfTF'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'increfTF';
+				$saved['value'] = $data['increfTF'];
+				$this->modelRepository->store($saved);
+			endif;
 		endif;
 
 		if($module == 'point_de_vente'):

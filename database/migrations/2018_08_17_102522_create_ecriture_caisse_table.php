@@ -27,7 +27,7 @@ class CreateEcritureCaisseTable extends Migration
 		    $table->text('motif')->nullable($value = true);
 		    $table->text('motif_annulation')->nullable($value = true);
 
-		    $table->integer('statut')->default(0);
+		    $table->integer('statut')->default(0);  // 0 non recu; 1 recu;
 		    $table->string('code_transfert');
 
 		    $table->timestamps();

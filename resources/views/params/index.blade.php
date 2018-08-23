@@ -123,6 +123,26 @@
                                                             </div>
                                                         @endif
 
+                                                        @if($data['name'] == 'caisses')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">N° de séquence des transfert de fond (Envoi/Reception)</h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="text-bold"> Code reference : </label>
+                                                                        <input type="text" class="form-control" name="coderefTF" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['coderefTF']) ? $values[$data['name']]['coderefTF'] : '' ?>">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label class="text-bold"> Incrémentation : </label>
+                                                                        <input type="number" class="form-control" name="increfTF" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['increfTF']) ? $values[$data['name']]['increfTF'] : 1 ?>" min="1">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
 
 
 
@@ -146,6 +166,8 @@
                                                                 </div>
                                                             </div>
                                                         @endif
+
+
 
 
 
