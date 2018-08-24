@@ -45,8 +45,6 @@ class CaisseController extends Controller
      */
     public function create()
     {
-
-
 	    // Initialisation de la reference
 
 	    $count = $this->modelRepository->getWhere()->count();

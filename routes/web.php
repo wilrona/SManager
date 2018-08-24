@@ -303,6 +303,10 @@ Route::group([], function() {
 		Route::post('/preopen/check/{caisse_id}', 'CaisseManagerController@preopencheck')->middleware('auth')->name('caisseManager.preopencheck');
 		Route::get('/open/{caisse_id}', 'CaisseManagerController@open')->middleware('auth')->name('caisseManager.open');
 
+
+		Route::get('/create/transfert_fond/{caisse_id}', 'CaisseManagerController@createTransfertFond')->middleware('auth')->name('caisseManager.createTransfertFond');
+		Route::post('/create/transfert_fond/check/{caisse_id}', 'CaisseManagerController@createTransfertFondCheck')->middleware('auth')->name('caisseManager.createTransfertFondCheck');
+
 	});
 
 

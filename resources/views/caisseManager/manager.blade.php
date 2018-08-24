@@ -33,12 +33,12 @@
                             <div class="inbox">
                                 <div class="email-options perfect-scrollbar ps-container ps-theme-default" data-ps-id="7b9d5958-3c09-4662-e8ec-65eb1956edd1">
                                     <div class="padding-15">
-                                        <button class="btn btn-primary btn-block margin-bottom-30">
+                                        <a href="" class="btn btn-primary btn-block margin-bottom-30">
                                             Creer une commande
-                                        </button>
-                                        <button class="btn btn-primary btn-block margin-bottom-30">
+                                        </a>
+                                        <a href="{{ route('caisseManager.createTransfertFond', $caisse->id) }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal" data-backdrop="static">
                                             Creer un transfert de fond
-                                        </button>
+                                        </a>
 
                                         <p class="email-options-title no-margin">
                                             NAVIGATION
@@ -62,7 +62,13 @@
                                             Cloturer la caisse
                                         </a>
                                     </div>
-                                    <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 3px;"><div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; right: 3px;"><div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 0px;"></div></div></div>
+                                    <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 3px;">
+                                        <div class="ps-scrollbar-x" tabindex="0" style="left: 0px; width: 0px;"></div>
+                                    </div>
+                                    <div class="ps-scrollbar-y-rail" style="top: 0px; right: 3px;">
+                                        <div class="ps-scrollbar-y" tabindex="0" style="top: 0px; height: 0px;"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-10">
@@ -115,6 +121,17 @@
                                     </div>
 
                                     <div class="panel panel-white">
+
+                                        <style>
+                                            .dataTables_filter{
+                                                display: none !important;
+                                            }
+
+                                            .inbox{
+                                                height: auto !important;
+                                            }
+                                        </style>
+
                                         <div class="panel-heading border-light">
                                             <h4 class="panel-title">Liste des commandes en attente d'encaissement</h4>
                                         </div>
