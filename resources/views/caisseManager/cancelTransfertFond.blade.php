@@ -16,36 +16,25 @@
 
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h4 class="modal-title" id="myModalLabel">Creer un transfert de fond</h4>
+    <h4 class="modal-title" id="myModalLabel">Annulation du transfert de fond</h4>
 </div>
 
 {!! Form::open(['id'=> 'submitFormulaire']) !!}
 <div class="modal-body">
 
-    <div class="form-group {!! $errors->has('caisse_receive_id') ? 'has-error' : '' !!}" id="caisse_receive_id">
-        <label for="exampleInputEmail1" class="text-bold"> Caisse de reception : </label>
-        {!! Form::select('caisse_receive_id', $caisse_sender, null, ['class' => 'form-control', 'placeholder' => 'Selectionnez une caisse...']) !!}
-        <span class="help-block hidden caisse_receive_id">
-            <i class="ti-alert text-primary"></i>
-            <span class="text-danger">
-
-            </span>
-        </span>
+    <div class="form-group">
+        <label for="exampleInputEmail1" class="text-bold"> Reference du transfert : </label>
+        {!! Form::text('reference', $data->reference, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
     </div>
-    <div class="form-group {!! $errors->has('montant') ? 'has-error' : '' !!}" id="montant">
-        <label for="exampleInputEmail1" class="text-bold"> Montant à transferer : </label>
-        {!! Form::number('montant', null, ['class' => 'form-control', 'placeholder' => 'Montant à transferer ...']) !!}
-        <span class="help-block hidden montant">
-            <i class="ti-alert text-primary"></i>
-            <span class="text-danger">
 
-            </span>
-        </span>
+    <div class="form-group">
+        <label for="exampleInputEmail1" class="text-bold"> Transfert à : </label>
+        {!! Form::text('caisse', $data->caisse_receive()->first()->name, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
     </div>
 
     <div class="form-group {!! $errors->has('motif') ? 'has-error' : '' !!}" id="motif">
-        <label for="exampleInputEmail1" class="text-bold"> Motif du transfert : </label>
-        {!! Form::textarea('motif', null, ['class' => 'form-control', 'placeholder' => 'Motif du transfert ...']) !!}
+        <label for="exampleInputEmail1" class="text-bold"> Motif de l'annulation du transfert : </label>
+        {!! Form::textarea('motif', null, ['class' => 'form-control', 'placeholder' => 'Motif de l\'annulation du transfert ...']) !!}
         <span class="help-block hidden motif">
             <i class="ti-alert text-primary"></i>
             <span class="text-danger">
@@ -72,7 +61,7 @@
         e.preventDefault();
 
         $.ajax({
-            url: "{{ route('caisseManager.createTransfertFondCheck', $caisse->id) }}",
+            url: "{{ route('caisseManager.cancelTransfertFondPost', $data->id) }}",
             data: $('#submitFormulaire').serialize(),
             type: 'POST',
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
@@ -85,25 +74,9 @@
                     $('.'+data['field']).removeClass('hidden').find('span').text(data['error_field'])
                 }
 
-                if(data['error'].length > 0){
-                    toastr["error"](data['error'], "Montant insuffisant");
-                    $('.'+data['field']).removeClass('hidden').find('span').text(data['error'])
-                }
-
                 if(data['success'].length > 0){
                     toastr["success"](data['success'], "Enregistrement");
                     $('.modal-header .close').trigger('click');
-                    swal({
-                        title: "Enregistrement réussi",
-                        text: data['success'],
-                        type: "success",
-                        showCancelButton: false,
-                        confirmButtonColor: "#58748B",
-                        confirmButtonText: "Suivant",
-                        closeOnConfirm: false
-                    }, function() {
-                        swal("Votre code de transfert est   "+data['code'], "Code du transfert!", "success");
-                    });
                 }
             },
             error: function (request, status, error) {

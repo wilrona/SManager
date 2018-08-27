@@ -26,6 +26,7 @@
 		<link rel="stylesheet" href="{{URL::asset('bower_components/ladda/dist/ladda-themeless.min.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/slick.js/slick/slick.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/slick.js/slick/slick-theme.css')}}">
+		<link rel="stylesheet" href="{{URL::asset('bower_components/sweetalert/dist/sweetalert.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/toastr/toastr.min.css')}}">
 		<!-- end: MAIN CSS -->
 		<!-- start: CSS REQUIRED FOR THIS PAGE ONLY -->
@@ -406,6 +407,7 @@
 	 	<script src="{{URL::asset('bower_components/DataTables/media/js/jquery.dataTables.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/DataTables/media/js/dataTables.bootstrap.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.js')}}"></script>
+	 	<script src="{{URL::asset('bower_components/sweetalert/dist/sweetalert.min.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/toastr/toastr.min.js')}}"></script>
 		<!-- end: MAIN JAVASCRIPTS -->
 		<!-- start: JAVASCRIPTS REQUIRED FOR THIS PAGE ONLY >

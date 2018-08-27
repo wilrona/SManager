@@ -66,11 +66,15 @@ class CaisseManagerController extends Controller
 
 	public function preopen($caisse_id){
 
+		$current_user = Auth::user();
+
+		$open_session = $this->sessionRepository->getWhere()->where([['user_id', '=', $current_user->id], ['last', '=', 1]])->first();
+
 		$data = $this->modelRepository->getById($caisse_id);
 
 		$devise = $this->devise;
 
-		return view('caisseManager.preopen', compact('data', 'devise'));
+		return view('caisseManager.preopen', compact('data', 'devise', 'open_session'));
 
 	}
 
@@ -100,11 +104,15 @@ class CaisseManagerController extends Controller
 
 		$current_user = Auth::user();
 
+		$user_id = $current_user->id;
+
 		$caisse = $this->modelRepository->getById($caisse_id);
 
 		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse->id], ['last', '=', 1]]);
 
-		if($caisse->etat == 1 && $exist_session->count() && $exist_session->first()->user_id != $current_user->id):
+
+
+		if($caisse->etat == 1 && $exist_session->count() && $exist_session->first()->user_id != $user_id):
 			return redirect()->route('caisseManager.index')->withWarning('Caisse ouverte par un autre utilisateur.');
 		endif;
 
@@ -127,7 +135,7 @@ class CaisseManagerController extends Controller
 			$session['montant_ouverture'] = $caisse->montantEnCours;
 			$session['last'] = 1;
 			$session['caisse_id'] = $caisse->id;
-			$session['user_id'] = $current_user->id;
+			$session['user_id'] = $user_id;
 
 			$save_session = $this->sessionRepository->store($session);
 
@@ -139,7 +147,7 @@ class CaisseManagerController extends Controller
 			$ecriture['montant'] = $caisse->montantEnCours;
 			$ecriture['session_id'] = $save_session->id;
 			$ecriture['caisse_id'] = $caisse->id;
-			$ecriture['user_id'] = $current_user->id;
+			$ecriture['user_id'] = $user_id;
 
 			$this->ecritureCaisseRepository->store($ecriture);
 
@@ -152,7 +160,51 @@ class CaisseManagerController extends Controller
 
 		endif;
 
-		return view('caisseManager.manager', compact('caisse'));
+		$montant_caisse = 0;
+		$montant_encaisse = 0;
+
+		if($exist_session->count()):
+
+			$exist_sess = $exist_session->first();
+
+			foreach ($exist_sess->EcritureCaisse()->get() as $item):
+				$montant_caisse += $item->montant;
+			endforeach;
+
+			foreach ($exist_sess->EcritureCaisse()->where('type_ecriture', '=', 3)->get() as $item):
+				$montant_encaisse += $item->montant;
+			endforeach;
+
+		endif;
+
+		$exist_receiveFond = $this->transfertFondRepository->getWhere()->where([['caisse_receive_id', '=', $caisse_id], ['statut', '=', 0]])->count();
+
+		return view('caisseManager.manager', compact('caisse', 'montant_caisse', 'exist_session', 'montant_encaisse', 'exist_receiveFond'));
+	}
+
+	public function openReload($caisse_id){
+
+		$caisse = $this->modelRepository->getById($caisse_id);
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse->id], ['last', '=', 1]]);
+
+		$montant_caisse = 0;
+		$montant_encaisse = 0;
+
+		if($exist_session->count()):
+
+			$exist_ses = $exist_session->first();
+
+			foreach ($exist_ses->EcritureCaisse()->get() as $item):
+				$montant_caisse += $item->montant;
+			endforeach;
+
+			foreach ($exist_ses->EcritureCaisse()->where('type_ecriture', '=', 3)->get() as $item):
+				$montant_encaisse += $item->montant;
+			endforeach;
+		endif;
+
+		return view('caisseManager.managerReload', compact('caisse', 'montant_caisse', 'exist_session', 'montant_encaisse'));
 	}
 
 
@@ -187,27 +239,31 @@ class CaisseManagerController extends Controller
 			'success' => '',
 			'error' => '',
 			'error_field' => '',
-			'field' => ''
+			'field' => '',
+			'code' => ''
 		);
+
+		$error = false;
 
 		if(!$datas['caisse_receive_id']):
 			$response['error_field'] = "Selectionnez une caisse";
 			$response['field'] = 'caisse_receive_id';
-
+			$error = true;
 		else:
 			if(empty($datas['montant'])):
 				$response['error_field'] = "Veuillez saisir un montant pour à transferer";
 				$response['field'] = 'montant';
-
+				$error = true;
 			else:
 				if($datas['montant'] == 0):
 					$response['error_field'] = "Le montant doit etre supérieure à 0";
 					$response['field'] = 'montant';
-
+					$error = true;
 				else:
 					if(!$datas['motif']):
 						$response['error_field'] = "Le motif est obligatoire";
 						$response['field'] = 'motif';
+						$error = true;
 					endif;
 				endif;
 			endif;
@@ -223,7 +279,7 @@ class CaisseManagerController extends Controller
 			$montant += $item->montant;
 		endforeach;
 
-		if($datas['montant']):
+		if($datas['montant'] && !$error):
 
 			$reste = $montant - $datas['montant'];
 
@@ -258,7 +314,7 @@ class CaisseManagerController extends Controller
 
 				$transfert = array();
 				$transfert['reference'] = $reference;
-				$transfert['caisse_sender_id'] = $caisse_id->id;
+				$transfert['caisse_sender_id'] = $caisse->id;
 				$transfert['caisse_receive_id'] = $caisse_receive->id;
 				$transfert['montant'] = $datas['montant'];
 				$transfert['motif'] = $datas['motif'];
@@ -268,7 +324,7 @@ class CaisseManagerController extends Controller
 
 				$ecriture = array();
 				$ecriture['libelle'] = 'Transfert de fond';
-				$ecriture['type_ecriture'] = 2;
+				$ecriture['type_ecriture'] = 4;
 				$ecriture['type_paiement'] = 'cash';
 				$ecriture['devise'] = $this->devise->value;
 				$ecriture['montant'] = ($datas['montant'] * -1);
@@ -280,12 +336,216 @@ class CaisseManagerController extends Controller
 				$this->ecritureCaisseRepository->store($ecriture);
 
 				$response['success'] = "Transfert de fond enregistré";
+				$response['code'] = $codeTranfert;
 			endif;
 
 		endif;
 
 
 		return response()->json($response);
+	}
+
+	public function indexTransfertFond($caisse_id){
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+
+		$datas = $this->ecritureCaisseRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['session_id', '=', $exist_session->id], ['type_ecriture', '=', 4]])->get();
+
+		return view('caisseManager.indexTransfertFond', compact('datas'));
+	}
+
+	public function cancelTransfertFond(Request $request, $transfertFond_id){
+
+		$data = $this->transfertFondRepository->getById($transfertFond_id);
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $data->caisse_sender_id], ['last', '=', 1]])->first();
+
+		$current_user = Auth::user();
+
+		if($request->isMethod('POST')):
+
+			$datas = $request->all();
+
+			$response = array(
+				'success' => '',
+				'error' => '',
+				'error_field' => '',
+				'field' => '',
+			);
+
+			if(!$datas['motif']):
+
+				$response['error_field'] = "Le motif d'annulation est obligatoire";
+				$response['field'] = 'motif';
+
+			else:
+
+				$data->motif_annulation = $datas['motif'];
+				$data->statut = 2;
+				$data->save();
+
+				$ecriture = array();
+				$ecriture['libelle'] = 'Annulation Transfert de fond';
+				$ecriture['type_ecriture'] = 2;
+				$ecriture['type_paiement'] = 'cash';
+				$ecriture['devise'] = $this->devise->value;
+				$ecriture['montant'] = ($data->montant * 1);
+				$ecriture['session_id'] = $exist_session->id;
+				$ecriture['caisse_id'] = $data->caisse_sender_id;
+				$ecriture['user_id'] = $current_user->id;
+				$ecriture['transfert_fond_id'] = $data->id;
+
+				$this->ecritureCaisseRepository->store($ecriture);
+
+				$response['success'] = "Enregistrement des modifications";
+
+			endif;
+
+			return response()->json($response);
+
+		endif;
+
+		return view('caisseManager.cancelTransfertFond', compact('data'));
+
+	}
+
+	public function close($caisse_id){
+
+		$current_user = Auth::user();
+
+		$user_id = $current_user->id;
+
+		$caisse = $this->modelRepository->getById($caisse_id);
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse->id], ['last', '=', 1]])->first();
+
+		$montant_caisse = 0;
+
+		foreach ($exist_session->EcritureCaisse()->get() as $item):
+			$montant_caisse += $item->montant;
+		endforeach;
+
+		$ecriture = array();
+		$ecriture['libelle'] = 'Fermeture de la caisse';
+		$ecriture['type_ecriture'] = 0;
+		$ecriture['type_paiement'] = 'cash';
+		$ecriture['devise'] = $this->devise->value;
+		$ecriture['montant'] = $montant_caisse;
+		$ecriture['session_id'] = $exist_session->id;
+		$ecriture['caisse_id'] = $caisse->id;
+		$ecriture['user_id'] = $user_id;
+
+		$this->ecritureCaisseRepository->store($ecriture);
+
+		$exist_session->montant_fermeture = $montant_caisse;
+		$exist_session->last = 0;
+		$exist_session->save();
+
+		$caisse->etat = 0;
+		$caisse->montantEnCours = $montant_caisse;
+		$caisse->save();
+
+		return redirect()->route('caisseManager.index')->withOk('Cloture de votre caisse avec succès.');
+
+	}
+
+
+	public function receiveTransfertFond($caisse_id){
+
+		$datas = $this->transfertFondRepository->getWhere()->where([['caisse_receive_id', '=', $caisse_id], ['statut', '=', 0]])->get();
+
+		return view('caisseManager.receiveTransfertFond', compact('datas'));
+	}
+
+	public function receivedTransfertFond(Request $request, $transfert_id){
+
+		$transfert = $this->transfertFondRepository->getById($transfert_id);
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $transfert->caisse_receive_id], ['last', '=', 1]])->first();
+
+		$current_user = Auth::user();
+
+		if($request->isMethod('POST')):
+
+			$datas = $request->all();
+
+			$response = array(
+				'success' => '',
+				'error' => '',
+				'error_field' => '',
+				'field' => '',
+				'count' => ''
+			);
+
+			$error = false;
+
+			if(empty($datas['montant'])):
+				$response['error_field'] = "Veuillez saisir le montant du transfert";
+				$response['field'] = 'montant';
+				$error = true;
+			else:
+				if(!$datas['code']):
+					$response['error_field'] = "Le code est obligatoire";
+					$response['field'] = 'code';
+					$error = true;
+				endif;
+			endif;
+
+			if($datas['montant'] && !$error && $datas['code']):
+
+				if($transfert->montant == $datas['montant'] && strcmp($transfert->code_transfert, strtolower($datas['code']))):
+
+					$response['success'] = "Enregistrement des mofications réussi";
+
+					$ecriture = array();
+					$ecriture['libelle'] = 'Reception Transfert de fond';
+					$ecriture['type_ecriture'] = 2;
+					$ecriture['type_paiement'] = 'cash';
+					$ecriture['devise'] = $this->devise->value;
+					$ecriture['montant'] = ($transfert->montant * 1);
+					$ecriture['session_id'] = $exist_session->id;
+					$ecriture['caisse_id'] = $transfert->caisse_receive_id;
+					$ecriture['user_id'] = $current_user->id;
+					$ecriture['transfert_fond_id'] = $transfert->id;
+
+					$this->ecritureCaisseRepository->store($ecriture);
+
+					$transfert->statut = 1;
+					$transfert->save();
+
+					$response['count'] = $this->transfertFondRepository->getWhere()->where([['caisse_receive_id', '=', $transfert->caisse_receive_id], ['statut', '=', 0]])->get();
+
+				else:
+
+					if(!strcmp($transfert->code_transfert, strtolower($datas['code']))):
+						$response['error_field'] = "Le code est incorrect. Veuillez saisir le code exact ou contactez l'émeteur du transfert de fond.";
+						$response['field'] = 'code';
+					else:
+						if($transfert->montant != $datas['montant']):
+							$response['error_field'] = "Le montant est incorrect. Veuillez saisir le montant exact.";
+							$response['field'] = 'montant';
+						endif;
+					endif;
+
+				endif;
+
+			endif;
+
+
+			return response()->json($response);
+
+		endif;
+
+		return view('caisseManager.receivedTransfertFond', compact('transfert'));
+	}
+
+	public function storyTransfertFond($caisse_id){
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+
+		$datas = $this->ecritureCaisseRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['caisse_id', '=', $caisse_id]])->get();
+
+		return view('caisseManager.storyTransfertFond', compact('datas'));
 	}
 
 

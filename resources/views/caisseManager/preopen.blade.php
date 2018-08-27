@@ -59,6 +59,18 @@
 </div>
 
 <script src="{{URL::asset('assets/js/app.js')}}"></script>
+
+@if($open_session)
+    <script>
+        $('.modal-header .close').trigger('click');
+        swal({
+            title: "Ooooops!!!!",
+            text: "Vous ne pouvez pas ouvrir plus de deux sessions de caisse.",
+            type: "warning",
+            confirmButtonColor: "#007AFF"
+        });
+    </script>
+@endif
 <script>
     jQuery(document).ready(function() {
         FormElements.init();

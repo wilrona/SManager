@@ -11,7 +11,7 @@ class Session extends Model
 	protected $table = 'sessions';
 
 
-	protected $fillable = ['caisse_id', 'montant_ouverture', 'montant_fermeture', 'last'];
+	protected $fillable = ['caisse_id', 'montant_ouverture', 'montant_fermeture', 'last', 'user_id'];
 
 	public function caisse(){
 		return $this->belongsTo('App\Caisse', 'caisse_id', 'id');

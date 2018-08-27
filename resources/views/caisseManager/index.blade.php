@@ -23,6 +23,9 @@
 		<!-- end: BREADCRUMB -->
 
         <div class="container-fluid container-fullw padding-bottom-10">
+                            @if(session()->has('ok'))
+                                <div class="alert alert-success alert-dismissible">{!! session('ok') !!}</div>
+                            @endif
 							<div class="row">
 								<div class="col-md-12">
 
@@ -90,7 +93,7 @@
                                                     <tbody>
 
                                                     @foreach ($datas as $data)
-                                                        <tr>
+                                                        <tr  @if($data->etat) class="success" @endif>
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>{{ $data->name }}</td>
                                                             <td>

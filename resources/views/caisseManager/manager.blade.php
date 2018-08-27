@@ -33,6 +33,12 @@
                             <div class="inbox">
                                 <div class="email-options perfect-scrollbar ps-container ps-theme-default" data-ps-id="7b9d5958-3c09-4662-e8ec-65eb1956edd1">
                                     <div class="padding-15">
+                                        <div class="panel panel-white">
+                                            <div class="panel-heading border-light">
+                                                <h3 class="text-center">Caisse ouverte</h3>
+                                                <h4 class="panel-title text-center">{{ $caisse->name }}</h4>
+                                            </div>
+                                        </div>
                                         <a href="" class="btn btn-primary btn-block margin-bottom-30">
                                             Creer une commande
                                         </a>
@@ -45,20 +51,20 @@
                                         </p>
                                         <ul class="main-options padding-15">
                                             <li>
-                                                <a href="#"> <span class="title"><i class="ti-shopping-cart"></i> Caisse Manager </span> </a>
+                                                <a href="{{ route('caisseManager.openReload', $caisse->id) }}" id="CaisseManager"> <span class="title"><i class="ti-shopping-cart"></i> Caisse Manager </span> </a>
                                             </li>
                                             <li>
-                                                <a href="#"> <span class="title"><i class="ti-credit-card"></i> Reception de fond</span>   <span class="badge pull-right">1</span> </a>
+                                                <a href="{{ route('caisseManager.receiveTransfertFond', $caisse->id) }}" id="ReceiveFond"> <span class="title"><i class="ti-credit-card"></i> Reception de fond</span>  @if($exist_receiveFond) <span class="badge pull-right " id="badge_receiveFond">{{ $exist_receiveFond }}</span> @endif </a>
                                             </li>
                                             <li>
-                                                <a href="#"> <span class="title"><i class="ti-folder"></i> Tranfert de fond </span>  </a>
+                                                <a href="{{ route('caisseManager.indexTransfertFond', $caisse->id) }}" id="TransfertFond"> <span class="title"><i class="ti-folder"></i> Tranfert de fond </span>  </a>
                                             </li>
                                             <li>
-                                                <a href="#"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
+                                                <a href="{{ route('caisseManager.storyTransfertFond', $caisse->id) }}" id="StoryTransfertFond"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
                                             </li>
                                         </ul>
 
-                                        <a href="" class="btn btn-danger btn-block margin-bottom-30">
+                                        <a href="{{ route('caisseManager.close', $caisse->id) }}" class="btn btn-danger btn-block margin-bottom-30">
                                             Cloturer la caisse
                                         </a>
                                     </div>
@@ -73,6 +79,21 @@
                         </div>
                         <div class="col-md-10">
                             <div class="col-md-12">
+
+                                <style>
+                                    .dataTables_filter{
+                                        display: none !important;
+                                    }
+
+                                    .inbox{
+                                        height: auto !important;
+                                    }
+
+                                    .inbox .email-options{
+                                        border: none;
+                                        width: 230px !important;
+                                    }
+                                </style>
 
                                 <div class="panel-fond"></div>
 
@@ -91,7 +112,7 @@
                                                     <div class="panel-body">
                                                         <h3 class="text-center">Encaissement effectué</h3>
                                                         <p class="text-center h2">
-                                                            200 000 000 XAF
+                                                            {{ number_format($montant_encaisse, 0, '.', ' ') }} XAF
                                                         </p>
                                                     </div>
                                                 </div>
@@ -101,7 +122,7 @@
                                                     <div class="panel-body">
                                                         <h3 class="text-center">Fond de caisse</h3>
                                                         <p class="text-center h2">
-                                                            200 000 000 XAF
+                                                            {{ number_format($exist_session->first()->montant_ouverture, 0, '.', ' ')  }} XAF
                                                         </p>
                                                     </div>
                                                 </div>
@@ -111,7 +132,7 @@
                                                     <div class="panel-body">
                                                         <h3 class="text-center">Montant en caisse</h3>
                                                         <p class="text-center h2">
-                                                            200 000 000 XAF
+                                                            {{ number_format($montant_caisse, 0, '.', ' ') }} XAF
                                                         </p>
                                                     </div>
                                                 </div>
@@ -121,16 +142,6 @@
                                     </div>
 
                                     <div class="panel panel-white">
-
-                                        <style>
-                                            .dataTables_filter{
-                                                display: none !important;
-                                            }
-
-                                            .inbox{
-                                                height: auto !important;
-                                            }
-                                        </style>
 
                                         <div class="panel-heading border-light">
                                             <h4 class="panel-title">Liste des commandes en attente d'encaissement</h4>
@@ -170,5 +181,67 @@
 
 @section('footer')
     @parent
-    
+
+
+    <script>
+
+        $('#CaisseManager').on('click', function (e) {
+            e.preventDefault();
+
+            var $url = $(this).attr('href');
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+                    $('.caisseManager').html(data);
+                    $('.panel-fond').html('');
+                }
+            });
+
+
+        })
+
+        $('#TransfertFond').on('click', function (e) {
+            e.preventDefault();
+            var $url = $(this).attr('href');
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+                    $('.caisseManager').html('');
+                    $('.panel-fond').html(data);
+                }
+            });
+        })
+
+        $('#ReceiveFond').on('click', function (e) {
+            e.preventDefault();
+            var $url = $(this).attr('href');
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+                    $('.caisseManager').html('');
+                    $('.panel-fond').html(data);
+                }
+            });
+        })
+
+        $('#StoryTransfertFond').on('click', function (e) {
+            e.preventDefault();
+            var $url = $(this).attr('href');
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+                    $('.caisseManager').html('');
+                    $('.panel-fond').html(data);
+                }
+            });
+        })
+    </script>
 @stop

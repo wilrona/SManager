@@ -302,10 +302,26 @@ Route::group([], function() {
 		Route::get('/preopen/{caisse_id}', 'CaisseManagerController@preopen')->middleware('auth')->name('caisseManager.preopen');
 		Route::post('/preopen/check/{caisse_id}', 'CaisseManagerController@preopencheck')->middleware('auth')->name('caisseManager.preopencheck');
 		Route::get('/open/{caisse_id}', 'CaisseManagerController@open')->middleware('auth')->name('caisseManager.open');
+		Route::get('/openReload/{caisse_id}', 'CaisseManagerController@openReload')->middleware('auth')->name('caisseManager.openReload');
+		Route::get('/close/{caisse_id}', 'CaisseManagerController@close')->middleware('auth')->name('caisseManager.close');
 
 
 		Route::get('/create/transfert_fond/{caisse_id}', 'CaisseManagerController@createTransfertFond')->middleware('auth')->name('caisseManager.createTransfertFond');
 		Route::post('/create/transfert_fond/check/{caisse_id}', 'CaisseManagerController@createTransfertFondCheck')->middleware('auth')->name('caisseManager.createTransfertFondCheck');
+
+		Route::get('/index/transfert_fond/{caisse_id}', 'CaisseManagerController@indexTransfertFond')->middleware('auth')->name('caisseManager.indexTransfertFond');
+
+		Route::get('/cancel/transfert_fond/{caisse_id}', 'CaisseManagerController@cancelTransfertFond')->middleware('auth')->name('caisseManager.cancelTransfertFond');
+		Route::post('/cancel/transfert_fond/check/{caisse_id}', 'CaisseManagerController@cancelTransfertFond')->middleware('auth')->name('caisseManager.cancelTransfertFondPost');
+
+		Route::get('/receive/transfert_fond/{caisse_id}', 'CaisseManagerController@receiveTransfertFond')->middleware('auth')->name('caisseManager.receiveTransfertFond');
+
+		Route::get('/received/transfert_fond/{caisse_id}', 'CaisseManagerController@receivedTransfertFond')->middleware('auth')->name('caisseManager.receivedTransfertFond');
+		Route::post('/received/transfert_fond/ckeck/{caisse_id}', 'CaisseManagerController@receivedTransfertFond')->middleware('auth')->name('caisseManager.receivedTransfertFondPost');
+
+		Route::get('/story/transfert_fond/{caisse_id}', 'CaisseManagerController@storyTransfertFond')->middleware('auth')->name('caisseManager.storyTransfertFond');
+
+
 
 	});
 
