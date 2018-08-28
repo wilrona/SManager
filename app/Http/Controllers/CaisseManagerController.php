@@ -662,5 +662,13 @@ class CaisseManagerController extends Controller
 		return view('caisseManager.storyTransfertFond', compact('datas'));
 	}
 
+	public function rapportSession($caisse_id){
+
+
+		$datas = $this->sessionRepository->getWhere()->where('caisse_id', '=', $caisse_id)->get();
+
+		return view('caisseManager.rapportSession', compact('datas'));
+	}
+
 
 }
