@@ -5,7 +5,7 @@
         <h4 class="panel-title">Historique des transactions</h4>
     </div>
     <div class="panel-body">
-        <table class="table  sample_3">
+        <table class="table  sample_5">
             <thead>
             <tr>
                 <th class="col-xs-1">#</th>
@@ -13,6 +13,7 @@
                 <th>Montant</th>
                 <th>Paiement</th>
                 <th>Type transaction</th>
+                <th>Date/heure</th>
             </tr>
             </thead>
             <tbody>
@@ -41,6 +42,9 @@
                             @if($data->type_ecriture == 4)
                                 Sortie de fond
                             @endif
+                    </td>
+                    <td>
+                        {{ $data->created_at->format('d-m-Y H:i') }}
                     </td>
                 </tr>
             @endforeach

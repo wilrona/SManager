@@ -304,6 +304,8 @@ Route::group([], function() {
 		Route::get('/open/{caisse_id}', 'CaisseManagerController@open')->middleware('auth')->name('caisseManager.open');
 		Route::get('/openReload/{caisse_id}', 'CaisseManagerController@openReload')->middleware('auth')->name('caisseManager.openReload');
 		Route::get('/close/{caisse_id}', 'CaisseManagerController@close')->middleware('auth')->name('caisseManager.close');
+		Route::get('/checkClose/{caisse_id}', 'CaisseManagerController@checkClose')->middleware('auth')->name('caisseManager.checkClose');
+		Route::get('/transfertFondClose/{caisse_id}', 'CaisseManagerController@transfertFondClose')->middleware('auth')->name('caisseManager.transfertFondClose');
 
 
 		Route::get('/create/transfert_fond/{caisse_id}', 'CaisseManagerController@createTransfertFond')->middleware('auth')->name('caisseManager.createTransfertFond');

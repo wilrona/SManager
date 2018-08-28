@@ -40,6 +40,7 @@
                                                         <th class="col-xs-1">#</th>
                                                         <th>Caisse</th>
                                                         <th class="col-xs-1"></th>
+                                                        <th class="col-xs-1"></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -49,24 +50,23 @@
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>{{ $data->name }}</td>
                                                             <td>
+                                                                <a href="" class="btn btn-primary"><i class="fa fa-bar-chart"></i> Rapport</a>
+                                                            </td>
+                                                            <td>
 
-                                                                <div class="btn-group">
-                                                                    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="true"> <i class="fa fa-bars"></i> </a>
-                                                                    <ul role="menu" class="dropdown-menu dropdown-light pull-right">
-                                                                        <li>
-                                                                            <a href=""><i class="fa fa-bar-chart"></i> Rapport</a>
-                                                                        </li>
-                                                                        @if($data->etat == 0)
-                                                                            <li>
-                                                                                <a href="{{ route('caisseManager.preopen', $data->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"> <i class="fa fa-toggle-off"></i> Ouverture</a>
-                                                                            </li>
-                                                                        @else
-                                                                            <li>
-                                                                                <a href="{{ route('caisseManager.open', $data->id) }}"> <i class="fa fa-toggle-on"></i> Manager la caisse</a>
-                                                                            </li>
-                                                                        @endif
-                                                                    </ul>
-                                                                </div>
+
+                                                                @if($data->pivot->principal)
+                                                                    @if($data->etat == 0)
+                                                                        <a href="{{ route('caisseManager.preopen', $data->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static" class="btn btn-primary"> <i class="fa fa-toggle-off"></i> Ouverture</a>
+
+                                                                    @else
+
+                                                                        <a href="{{ route('caisseManager.open', $data->id) }}" class="btn btn-primary"> <i class="fa fa-toggle-on"></i> Manager la caisse</a>
+
+                                                                    @endif
+                                                                @endif
+
+
 
                                                             </td>
                                                         </tr>
@@ -88,6 +88,7 @@
                                                         <th class="col-xs-1">#</th>
                                                         <th>Caisse</th>
                                                         <th class="col-xs-1"></th>
+                                                        <th class="col-xs-1"></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -97,26 +98,23 @@
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>{{ $data->name }}</td>
                                                             <td>
+                                                                <a href="" class="btn btn-primary"><i class="fa fa-bar-chart"></i> Rapport</a>
+                                                            </td>
+                                                            <td>
 
-                                                                <div class="btn-group">
-                                                                    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="true"> <i class="fa fa-bars"></i> </a>
-                                                                    <ul role="menu" class="dropdown-menu dropdown-light pull-right">
-                                                                        <li>
-                                                                            <a href=""><i class="fa fa-bar-chart"></i> Rapport</a>
-                                                                        </li>
-                                                                        @if($data->pivot->principal)
-                                                                            @if($data->etat == 0)
-                                                                                <li>
-                                                                                    <a href="{{ route('caisseManager.preopen', $data->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static"> <i class="fa fa-toggle-off"></i> Ouverture</a>
-                                                                                </li>
-                                                                            @else
-                                                                                <li>
-                                                                                    <a href="{{ route('caisseManager.open', $data->id) }}"> <i class="fa fa-toggle-on"></i> Manager la caisse</a>
-                                                                                </li>
-                                                                            @endif
-                                                                        @endif
-                                                                    </ul>
-                                                                </div>
+
+                                                                @if($data->pivot->principal)
+                                                                    @if($data->etat == 0)
+                                                                            <a href="{{ route('caisseManager.preopen', $data->id) }}" data-toggle="modal" data-target="#myModal" data-backdrop="static" class="btn btn-primary"> <i class="fa fa-toggle-off"></i> Ouverture</a>
+
+                                                                    @else
+
+                                                                            <a href="{{ route('caisseManager.open', $data->id) }}" class="btn btn-primary"> <i class="fa fa-toggle-on"></i> Manager la caisse</a>
+
+                                                                    @endif
+                                                                @endif
+
+
 
                                                             </td>
                                                         </tr>

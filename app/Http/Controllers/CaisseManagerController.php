@@ -222,8 +222,7 @@ class CaisseManagerController extends Controller
 				$caisse_sender[$item->id] = $item->name;
 			endforeach;
 		else:
-			$principal_caisse = $pos_principal->Caisses()->where('principal', '=', 1)->first();
-			$caisse_sender[$principal_caisse->id] = $principal_caisse->name;
+			$caisse_sender[$caisse_principal->id] = $caisse_principal->name;
 		endif;
 
 		return view('caisseManager.CreateTransfertFond', compact('caisse_sender', 'caisse'));
@@ -445,8 +444,123 @@ class CaisseManagerController extends Controller
 		$caisse->montantEnCours = $montant_caisse;
 		$caisse->save();
 
-		return redirect()->route('caisseManager.index')->withOk('Cloture de votre caisse avec succès.');
+		$response = array(
+			'code' => ''
+		);
 
+		return response()->json($response);
+
+	}
+
+	public function checkClose(Request $request, $caisse_id){
+
+		$current_user = Auth::user();
+
+		$datas = $request->all();
+
+		$caisse_principal = $current_user->Caisses()->where('principal', '=', 1)->first();
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+
+		$response = array(
+			'success' => '',
+			'error' => '',
+			'principal' => 0,
+			'code' => ''
+		);
+
+		if($caisse_principal->id == $caisse_id):
+			$response['principal'] = 1;
+		endif;
+
+		$montant_caisse = 0;
+
+		foreach ($exist_session->EcritureCaisse()->get() as $item):
+			$montant_caisse += $item->montant;
+		endforeach;
+
+		$codeTranfert = $this->custom->randomPassword(6, 1, 'upper_case,numbers');
+
+		$response['code'] = $codeTranfert;
+
+		if($montant_caisse == intval($datas['montant'])):
+			$response['success'] = 'Montant correct.';
+		else:
+			$response['error'] = 'Montant incorrect.';
+		endif;
+
+		return response()->json($response);
+
+	}
+
+	public function transfertFondClose(Request $request, $caisse_id){
+
+		$datas = $request->all();
+
+		$response = array(
+			'code' => ''
+		);
+
+		$current_user = Auth::user();
+
+		$caisse = $this->modelRepository->getById($caisse_id);
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse->id], ['last', '=', 1]])->first();
+
+		$montant = 0;
+
+		foreach ($exist_session->EcritureCaisse()->get() as $item):
+			$montant += $item->montant;
+		endforeach;
+
+		// Creer le transfert de fond. Reference et code
+
+		$count = $this->modelRepository->getWhere()->count();
+		$coderef = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'caisses'],
+				['type_config', '=', 'coderefTF']
+			]
+		)->first();
+		$incref = $this->parametreRepository->getWhere()->where(
+			[
+				['module', '=', 'caisses'],
+				['type_config', '=', 'increfTF']
+			]
+		)->first();
+
+		$count += $incref ? intval($incref->value) : 0;
+		$reference = $this->custom->setReference($coderef, $count, 4);
+
+		$codeTranfert = $datas['code'];
+
+		$pos_principal = $caisse->PointDeVente()->first();
+		$caisse_principal = $pos_principal->Caisses()->where('principal', '=', 1)->first();
+
+		$transfert = array();
+		$transfert['reference'] = $reference;
+		$transfert['caisse_sender_id'] = $caisse->id;
+		$transfert['caisse_receive_id'] = $caisse_principal->id;
+		$transfert['montant'] = $montant;
+		$transfert['motif'] = 'Trasnfert de fond pour fermeture de session de la caisse';
+		$transfert['code_transfert'] = $codeTranfert;
+
+		$transfert_fond_id = $this->transfertFondRepository->store($transfert);
+
+		$ecriture = array();
+		$ecriture['libelle'] = 'Transfert de fond';
+		$ecriture['type_ecriture'] = 4;
+		$ecriture['type_paiement'] = 'cash';
+		$ecriture['devise'] = $this->devise->value;
+		$ecriture['montant'] = ($montant * -1);
+		$ecriture['session_id'] = $exist_session->id;
+		$ecriture['caisse_id'] = $caisse->id;
+		$ecriture['user_id'] = $current_user->id;
+		$ecriture['transfert_fond_id'] = $transfert_fond_id->id;
+
+		$this->ecritureCaisseRepository->store($ecriture);
+
+		return response()->json($response);
 	}
 
 
@@ -543,7 +657,7 @@ class CaisseManagerController extends Controller
 
 		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
 
-		$datas = $this->ecritureCaisseRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['caisse_id', '=', $caisse_id]])->get();
+		$datas = $this->ecritureCaisseRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['caisse_id', '=', $caisse_id]])->orderBy('created_at', 'desc')->get();
 
 		return view('caisseManager.storyTransfertFond', compact('datas'));
 	}

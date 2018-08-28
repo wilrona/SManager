@@ -64,7 +64,7 @@
                                             </li>
                                         </ul>
 
-                                        <a href="{{ route('caisseManager.close', $caisse->id) }}" class="btn btn-danger btn-block margin-bottom-30">
+                                        <a href="#" class="btn btn-danger btn-block margin-bottom-30" id="clotureCaisse">
                                             Cloturer la caisse
                                         </a>
                                     </div>
@@ -243,5 +243,128 @@
                 }
             });
         })
+
+        $('#clotureCaisse').on('click', function(e){
+            e.preventDefault();
+            swal({
+                title: "Cloture de la session",
+                text: 'Vous etes sur le point de cloturer votre session. \n Etes-vous sur de le faire ?',
+                type: "warning",
+                showCancelButton: true,
+                cancelButtonText: 'Annuler',
+                confirmButtonColor: "#58748B",
+                confirmButtonText: "Confirmer",
+                closeOnConfirm: false
+            }, function() {
+                swal({
+                    title: "Montant à la fermeture de la session",
+                    text: 'Saisir le montant exact que vous avez constatez à la fermeture de la session',
+                    type: "input",
+                    inputType : "number",
+                    inputValue : 0,
+                    confirmButtonColor: "#58748B",
+                    confirmButtonText: "Valider",
+                    closeOnConfirm: false,
+                    showCancelButton: true,
+                    cancelButtonText: 'Annuler',
+                    inputPlaceholder: "Inserer le montant"
+                }, function(inputValue){
+
+                    if (inputValue === false) return false;
+
+                    if (inputValue === "" || parseInt(inputValue) < 0) {
+                        swal.showInputError("Saisir un montant valide");
+                        return false
+                    }else{
+                        var $url = "{{ route('caisseManager.checkClose', $caisse->id) }}";
+                        $.ajax({
+                            url: $url,
+                            type: 'get',
+                            data: { montant : inputValue },
+                            success: function(data) {
+
+                                if(data['error'].length > 0){
+                                    swal.showInputError(data['error']);
+                                }
+
+                                if(data['success'].length > 0){
+                                    if(data['principal'] === 0){
+                                        confirmationRedirection()
+                                    }else{
+                                        swal({
+                                            title: data['success'],
+                                            text: 'Ce montant va être transferé à la caisse centrale de votre point de vente',
+                                            type: "success",
+                                            confirmButtonColor: "#58748B",
+                                            confirmButtonText: "Valider la cloture",
+                                            closeOnConfirm: false,
+                                            showCancelButton: true,
+                                            cancelButtonText: 'Annuler'
+                                        }, function () {
+                                            AjaxTransfertFond(data['code']);
+                                        });
+
+                                    }
+                                }
+
+                            }
+                        });
+                    }
+
+                })
+
+
+            });
+        });
+
+        function confirmationRedirection(){
+
+            var $url = "{{ route('caisseManager.close', $caisse->id) }}";
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+
+                    swal({
+                        title: "Cloture terminée avec success",
+                        text: 'La cloture de votre session a été réussi avec succès',
+                        type: "success",
+                        showCancelButton: false,
+                        showconfirmButton: false
+                    });
+
+                    setTimeout(function () {
+                        window.location.href = "{{ route('caisseManager.index') }}";
+                    }, 2000); //will call the function after 2 secs.
+
+                }
+            });
+
+        }
+
+        function AjaxTransfertFond(code){
+            swal({
+                title: "Votre code de transfert est: \n "+code,
+                text: "Code du transfert !",
+                type: "success",
+                showCancelButton: false,
+                showconfirmButton: true,
+                confirmButtonColor: "#58748B",
+                confirmButtonText: "Terminer la cloture"
+            }, function () {
+                var $url = "{{ route('caisseManager.transfertFondClose', $caisse->id) }}";
+                $.ajax({
+                    url: $url,
+                    type: 'get',
+                    data : { code : code},
+                    success: function (data) {
+                        confirmationRedirection();
+                    }
+                });
+
+            });
+
+        }
     </script>
 @stop
