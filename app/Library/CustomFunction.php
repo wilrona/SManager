@@ -21,6 +21,13 @@ class CustomFunction {
         
     }
 
+	public function dateToMySQL($date){
+		$tabDate = explode('/' , $date);
+		$date  = $tabDate[2].'-'.$tabDate[1].'-'.$tabDate[0];
+		$date = date( 'Y-m-d H:i:s', strtotime($date) );
+		return $date;
+	}
+
     //si le parent est 0, on stocke la valeur nulle
     public function transformtonull($value) {
 	if($value=="0"){

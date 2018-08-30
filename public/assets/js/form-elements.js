@@ -121,7 +121,7 @@ var FormElements = function() {"use strict";
             weekStart: 1,
             todayBtn: "linked",
             autoclose: true,
-            orientation: "top auto",
+            orientation: "auto",
             todayHighlight: true,
             language: "fr"
 		}).on('changeDate', function (date) {
@@ -154,7 +154,7 @@ var FormElements = function() {"use strict";
             weekStart: 1,
             todayBtn: "linked",
             autoclose: true,
-            orientation: "top auto",
+            orientation: " auto",
             todayHighlight: true,
             language: "fr"
 		}).on('changeDate', function (date) {

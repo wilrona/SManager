@@ -372,6 +372,19 @@
 			 </div>
 		 </div>
 
+		 <div class="modal fade modal-aside horizontal right" id="myModal-hr" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+			 <div class="modal-dialog modal-md">
+				 <div class="modal-content ">
+					 <div >
+						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
+							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
+							 <h3 class="margin-top-35">Chargement ....</h3>
+						 </div>
+					 </div>
+				 </div>
+			 </div>
+		 </div>
+
 	 </div>
 			
 			
@@ -451,6 +464,16 @@
             });
 
             $('#myModal-lg').on('hide.bs.modal', function(e) {
+                $(this).removeData('bs.modal');
+                $('.modal-content').html('<div class="height-200" >\n' +
+                    '                                <div style="margin: 0 auto; text-align: center;">\n' +
+                    '                                    <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
+                    '                                </div>\n' +
+                    '                            </div>');
+
+            });
+
+            $('#myModal-hr').on('hide.bs.modal', function(e) {
                 $(this).removeData('bs.modal');
                 $('.modal-content').html('<div class="height-200" >\n' +
                     '                                <div style="margin: 0 auto; text-align: center;">\n' +

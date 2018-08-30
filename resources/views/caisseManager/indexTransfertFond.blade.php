@@ -42,7 +42,7 @@
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="true"> <i class="fa fa-bars"></i> </a>
                             <ul role="menu" class="dropdown-menu dropdown-light pull-right">
                                 <li>
-                                    <a href="" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"> Consultation</a>
+                                    <a href="{{ route('caisseManager.detailEcritureEtTransfert', ['ecriture_id' => $transfert->id, 'caisse_id' => $caisse_id]) }}" data-toggle="modal" data-target="#myModal-hr" data-backdrop="static">Consultation</a>
                                 </li>
                                 @if($transfert->etat == 0)
                                 <li>

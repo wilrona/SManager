@@ -31,17 +31,17 @@
                             Ouverture session
                         @endif
 
-                            @if($data->type_ecriture == 2)
-                                Approvisionnement
-                            @endif
+                        @if($data->type_ecriture == 2)
+                            Approvisionnement
+                        @endif
 
-                            @if($data->type_ecriture == 3)
-                                Encaissement
-                            @endif
+                        @if($data->type_ecriture == 3)
+                            Encaissement
+                        @endif
 
-                            @if($data->type_ecriture == 4)
-                                Sortie de fond
-                            @endif
+                        @if($data->type_ecriture == 4)
+                            Sortie de fond
+                        @endif
                     </td>
                     <td>
                         {{ $data->created_at->format('d-m-Y H:i') }}

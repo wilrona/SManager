@@ -50,7 +50,7 @@
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>{{ $data->name }}</td>
                                                             <td>
-                                                                <a href="" class="btn btn-primary"><i class="fa fa-bar-chart"></i> Rapport</a>
+                                                                <a href="{{ route('caisseManager.rapportSession', $data->id) }}" class="btn btn-primary"><i class="fa fa-bar-chart"></i> Rapport</a>
                                                             </td>
                                                             <td>
 
@@ -98,7 +98,7 @@
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>{{ $data->name }}</td>
                                                             <td>
-                                                                <a href="" class="btn btn-primary"><i class="fa fa-bar-chart"></i> Rapport</a>
+                                                                <a href="{{ route('caisseManager.rapportSession', $data->id) }}" class="btn btn-primary"><i class="fa fa-bar-chart"></i> Rapport</a>
                                                             </td>
                                                             <td>
 

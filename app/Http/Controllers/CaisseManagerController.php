@@ -11,6 +11,7 @@ use App\Repositories\ParametreRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\TransfertFondRepository;
 use App\Repositories\UserRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -350,7 +351,7 @@ class CaisseManagerController extends Controller
 
 		$datas = $this->ecritureCaisseRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['session_id', '=', $exist_session->id], ['type_ecriture', '=', 4]])->get();
 
-		return view('caisseManager.indexTransfertFond', compact('datas'));
+		return view('caisseManager.indexTransfertFond', compact('datas', 'caisse_id'));
 	}
 
 	public function cancelTransfertFond(Request $request, $transfertFond_id){
@@ -653,21 +654,80 @@ class CaisseManagerController extends Controller
 		return view('caisseManager.receivedTransfertFond', compact('transfert'));
 	}
 
-	public function storyTransfertFond($caisse_id){
+	public function storyTransfertFond(Request $request, $caisse_id){
 
-		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+		$request = $request->all();
 
-		$datas = $this->ecritureCaisseRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['caisse_id', '=', $caisse_id]])->orderBy('created_at', 'desc')->get();
+		if(isset($request['type'])):
 
-		return view('caisseManager.storyTransfertFond', compact('datas'));
+			$date_start = $this->custom->dateToMySQL($request['date_start']);
+			$date_end = $this->custom->dateToMySQL($request['date_end']);
+			if(isset($request['session'])):
+				$session = $this->sessionRepository->getById($request['session']);
+				$datas = $session->EcritureCaisse()->orderBy('created_at', 'desc')->get();
+			else:
+				if($date_end == $date_start):
+					$datas = $this->ecritureCaisseRepository->getWhere()->where('caisse_id', '=', $caisse_id)->whereDate('created_at', $date_start)->orderBy('created_at', 'desc')->get();
+				else:
+					$datas = $this->ecritureCaisseRepository->getWhere()->where('caisse_id', '=', $caisse_id)->whereBetween('created_at', array(
+						$date_start, date('Y-m-d 00:00:00', strtotime($date_end. ' + 1 days'))
+					))->orderBy('created_at', 'desc')->get();
+				endif;
+			endif;
+
+			return view('caisseManager.storyTransfertFondList', compact('datas', 'caisse_id', 'request', 'session'));
+
+		else:
+
+			$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+
+			$datas = $this->ecritureCaisseRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['caisse_id', '=', $caisse_id]])->orderBy('created_at', 'desc')->get();
+
+			return view('caisseManager.storyTransfertFond', compact('datas', 'caisse_id'));
+		endif;
+
+
 	}
 
-	public function rapportSession($caisse_id){
+	public function rapportSession(Request $request, $caisse_id){
 
+		$date_now = Carbon::now();
 
-		$datas = $this->sessionRepository->getWhere()->where('caisse_id', '=', $caisse_id)->get();
+		$caisse = $this->modelRepository->getById($caisse_id);
 
-		return view('caisseManager.rapportSession', compact('datas'));
+		$request = $request->all();
+
+		if(isset($request['type'])):
+			$date_start = $this->custom->dateToMySQL($request['date_start']);
+			$date_end = $this->custom->dateToMySQL($request['date_end']);
+
+			if($date_end == $date_start):
+				$datas = $this->sessionRepository->getWhere()->where('caisse_id', '=', $caisse_id)->whereDate('created_at', $date_start)->orderBy('created_at', 'desc')->get();
+			else:
+				$datas = $this->sessionRepository->getWhere()->where('caisse_id', '=', $caisse_id)->whereBetween('created_at', array(
+					$date_start, date('Y-m-d 00:00:00', strtotime($date_end. ' + 1 days'))
+				))->orderBy('created_at', 'desc')->get();
+			endif;
+
+			return view('caisseManager.rapportSessionList', compact('datas'));
+
+		else:
+			$datas = $this->sessionRepository->getWhere()->where('caisse_id', '=', $caisse_id)->whereDate('created_at', Carbon::today()->toDateString())->orderBy('created_at', 'desc')->get();
+
+			return view('caisseManager.rapportSession', compact('datas', 'caisse', 'date_now'));
+
+		endif;
+	}
+
+	public function detailEcritureEtTransfert(Request $request, $ecriture_id, $caisse_id){
+
+		if(isset($request['type'])):
+			$data = $this->transfertFondRepository->getById($ecriture_id);
+		else:
+			$data = $this->ecritureCaisseRepository->getById($ecriture_id);
+		endif;
+
+		return view('caisseManager.detailEcritureEtTransfert', compact('data', 'request', 'caisse_id'));
 	}
 
 
