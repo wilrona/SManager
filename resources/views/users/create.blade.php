@@ -185,6 +185,7 @@
                             </div>
                             <div class="panel-group accordion" id="accordion">
                                 @foreach($allRoles as $roles)
+                                    @if(!in_array($roles->name, $no_role))
                                     <div class="panel panel-white">
                                         <div class="panel-heading">
                                             <h5 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#{{ $roles->name }}">  {{ $roles->display_name }} </a></h5>
@@ -208,6 +209,7 @@
                                             </div>
                                         @endif
                                     </div>
+                                    @endif
                                 @endforeach
                             </div>
                         </div>

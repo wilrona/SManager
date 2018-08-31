@@ -222,6 +222,19 @@ class CaisseManagerController extends Controller
 			foreach ($pos_principal->Caisses()->where('principal', '=', 0)->get() as $item):
 				$caisse_sender[$item->id] = $item->name;
 			endforeach;
+
+			// listes des caisses principales des autres point de vente
+
+			$all_caisse = $this->modelRepository->getWhere()->whereHas('PointDeVente', function ($q){
+				$q->where('principal', '=', 1);
+			})->get();
+
+			foreach ($all_caisse as $item):
+				if($item->id != $caisse_id):
+					$caisse_sender[$item->id] = $item->name.' ('.$item->PointDeVente()->first()->name.')';
+				endif;
+			endforeach;
+
 		else:
 			$caisse_sender[$caisse_principal->id] = $caisse_principal->name;
 		endif;

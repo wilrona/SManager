@@ -26,6 +26,7 @@ class UserController extends Controller
 	protected $caisseRepository;
 
 	protected $custom;
+	protected $module;
 
 	public function __construct(RoleRepository $rolesRepository, UserRepository $modelRepository,
 		ProfileRepository $profilesRepository, PointDeVenteRepository $point_de_vente_repository,
@@ -39,6 +40,9 @@ class UserController extends Controller
 		$this->caisseRepository = $caisse_repository;
 
 		$this->custom = new CustomFunction();
+
+		$module = new Roles();
+		$this->module = $module->listRoles();
 	}
 
 	public function runSeedRole(){
@@ -130,7 +134,15 @@ class UserController extends Controller
 		$count += $incref ? intval($incref->value) : 0;
 		$reference = $this->custom->setReference($coderef, $count, 4);
 
-		return view('users.create', compact('datas', 'allRoles', 'profile', 'sexe', 'pos', 'reference'));
+		$no_role = array();
+
+		foreach ($this->module as $module):
+			if(!$module['role']):
+				array_push($no_role, $module['name']);
+			endif;
+		endforeach;
+
+		return view('users.create', compact('datas', 'allRoles', 'profile', 'sexe', 'pos', 'reference', 'no_role'));
 	}
 
 
@@ -203,7 +215,15 @@ class UserController extends Controller
 			$pos[$item->id] = $item->name;
 		endforeach;
 
-		return view('users.show', compact('data', 'allRoles', 'profile', 'sexe', 'roles_profile', 'pos', 'caisses'));
+		$no_role = array();
+
+		foreach ($this->module as $module):
+            if(!$module['role']):
+                array_push($no_role, $module['name']);
+            endif;
+        endforeach;
+
+		return view('users.show', compact('data', 'allRoles', 'profile', 'sexe', 'roles_profile', 'pos', 'caisses', 'no_role'));
 	}
 
 	public function edit($id)
@@ -248,7 +268,15 @@ class UserController extends Controller
 			array_push($caisses, $save);
 		endforeach;
 
-		return view('users.edit', compact('allRoles', 'sexe', 'profile', 'data', 'roles_profile', 'pos', 'caisses'));
+		$no_role = array();
+
+		foreach ($this->module as $module):
+			if(!$module['role']):
+				array_push($no_role, $module['name']);
+			endif;
+		endforeach;
+
+		return view('users.edit', compact('allRoles', 'sexe', 'profile', 'data', 'roles_profile', 'pos', 'caisses', 'no_role'));
 	}
 
 	public function update(UserRequest $request, $id){

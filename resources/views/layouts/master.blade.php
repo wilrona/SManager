@@ -144,10 +144,10 @@
 									<a href="<?= route('caisseManager.index') ?>">
 										<div class="item-content">
 											<div class="item-media">
-												<div class="lettericon" data-text="Mes Caisses" data-size="sm" data-char-count="2"></div>
+												<div class="lettericon" data-text="CA" data-size="sm" data-char-count="2"></div>
 											</div>
 											<div class="item-inner">
-												<span class="title"> Mes Caisses </span>
+												<span class="title">Caisses </span>
 											</div>
 										</div>
 									</a>
@@ -157,32 +157,13 @@
 									<a href="<?= route('client.index') ?>">
 										<div class="item-content">
 											<div class="item-media">
-												<div class="lettericon" data-text="Client" data-size="sm" data-char-count="2"></div>
+												<div class="lettericon" data-text="CL" data-size="sm" data-char-count="2"></div>
 											</div>
 											<div class="item-inner">
 												<span class="title"> Clients </span>
 											</div>
 										</div>
 									</a>
-								</li>
-								<li class="{{ Menu::active('demandes') }} ">
-									<a href="javascript:void(0)">
-										<div class="item-content">
-											<div class="item-media">
-												<div class="lettericon" data-text="Demande Stock" data-size="sm" data-char-count="2"></div>
-											</div>
-											<div class="item-inner">
-												<span class="title"> Demande Stock </span><i class="icon-arrow"></i>
-											</div>
-										</div> </a>
-									<ul class="sub-menu">
-										<li>
-											<a href="{{ route('dmd.index') }}"> <span class="title">Demande Envoyée </span> </a>
-										</li>
-										<li>
-											<a href="{{ route('receive.index') }}"> <span class="title">Demande Reçue </span> </a>
-										</li>
-									</ul>
 								</li>
 								<li class="{{ Menu::active('stockages') }} ">
 									<a href="javascript:void(0)">
@@ -196,16 +177,29 @@
 										</div> </a>
 									<ul class="sub-menu">
 										<li>
-											<a href="{{ route('produit.index') }}"> <span class="title">Produits </span> </a>
+											<a href="#"> <span class="title">Magasins </span> </a>
 										</li>
-
+										<li>
+											<a href="{{ route('produit.index') }}"> <span class="title">Articles </span> </a>
+										</li>
 										<li>
 											<a href="{{ route('serie.index') }}"> <span class="title">N° Serie </span> </a>
 										</li>
+										<li>
+											<a href="#"> <span class="title">Ordre de transfert </span> </a>
+										</li>
 
+										<li>
+											<a href="{{ route('dmd.index') }}"> <span class="title">Ordre de transfert Envoyée </span> </a>
+										</li>
+										<li>
+											<a href="{{ route('receive.index') }}"> <span class="title">Ordre de transfert Reçue </span> </a>
+										</li>
 										<li>
 											<a href="{{ route('ecriture.index') }}"> <span class="title">Ecriture Stock </span> </a>
 										</li>
+
+
 
 									</ul>
 								</li>
@@ -229,6 +223,13 @@
 										</li>
 										<li>
 											<a href="{{ route('magasin.index') }}"> <span class="title">Magasins </span> </a>
+										</li>
+
+										<li>
+											<a href="{{ route('produit.index') }}"> <span class="title">Articles </span> </a>
+										</li>
+										<li>
+											<a href="{{ route('serie.index') }}"> <span class="title">N° Serie </span> </a>
 										</li>
 
 										<li>

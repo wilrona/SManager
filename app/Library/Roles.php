@@ -21,73 +21,92 @@ class Roles {
 				array('name'=> 'create_user', 'display_name' => 'Creation des utilisateurs', 'description' => '')
 			),
 			'active' => true,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'profiles', 'display_name' => 'Profiles', 'description' => 'Module de gestion des profiles',
 			'child' => array(),
 			'active' => false,
-			'config' => false
+			'config' => false,
+			'role' => true
 		),
 		array(
 			'name' => 'magasins', 'display_name' => 'Magasins', 'description' => 'Module de gestion des magasins',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'demandes', 'display_name' => 'Demande de stock', 'description' => 'Module de gestion des demandes de stock',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => false
 		),
 		array(
 			'name' => 'point_de_vente', 'display_name' => 'Points de vente', 'description' => 'Module de gestion des points de vente',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'produits', 'display_name' => 'Produits', 'description' => 'Module de gestion des produits',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
+		),
+		array(
+			'name' => 'series', 'display_name' => 'Numéro de série', 'description' => 'Module de gestion des numéros de serie',
+			'child' => array(),
+			'active' => false,
+			'config' => false,
+			'role' => true
 		),
 		array(
 			'name' => 'famillesP', 'display_name' => 'Familles de produit', 'description' => 'Module de gestion des familles de produit',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'famillesC', 'display_name' => 'Familles de client', 'description' => 'Module de gestion des clients',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'unites', 'display_name' => 'Unités', 'description' => 'Module de gestion des unités de produit',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'caisses', 'display_name' => 'Caisses', 'description' => 'Module de gestion des caisses',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'clients', 'display_name' => 'Clients', 'description' => 'Module de gestion des clients',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		),
 		array(
 			'name' => 'parametrages', 'display_name' => 'Paramètres Généraux', 'description' => 'Module de gestion des paramètres généraux',
 			'child' => array(),
 			'active' => false,
-			'config' => true
+			'config' => true,
+			'role' => true
 		)
 	);
 
