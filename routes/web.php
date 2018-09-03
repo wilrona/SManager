@@ -90,6 +90,11 @@ Route::group([], function() {
 		Route::get('/add/caisse/check', 'UserController@checkCaisse')->middleware('auth')->name('user.checkCaisse');
 		Route::get('/list/caisse/{id}', 'UserController@listCaisse')->middleware('auth')->name('user.listingCaisse');
 		Route::post('/valide/caisse/{id}', 'UserController@validCaisse')->middleware('auth')->name('user.valideCaisse');
+
+		Route::get('/add/magasin/{pos_id}/{user_id}', 'UserController@addMagasin')->middleware('auth')->name('user.addMagasin');
+		Route::get('/add/magasin/check', 'UserController@checkMagasin')->middleware('auth')->name('user.checkMagasin');
+		Route::get('/list/magasin/{id}', 'UserController@listMagasin')->middleware('auth')->name('user.listingMagasin');
+		Route::post('/valide/magasin/{id}', 'UserController@validMagasin')->middleware('auth')->name('user.valideMagasin');
 	});
 
 	Route::prefix('/settings/magasin')->group(function () {
@@ -193,7 +198,7 @@ Route::group([], function() {
 
 	});
 
-	Route::prefix('/stockages/produit')->group(function () {
+	Route::prefix('/settings/produit')->group(function () {
 
 		Route::get('/', 'ProduitController@index')->middleware('auth')->name('produit.index');
 		Route::get('/create', 'ProduitController@create')->middleware('auth')->name('produit.create');
@@ -218,7 +223,32 @@ Route::group([], function() {
 
 	});
 
-	Route::prefix('/stockages/serie')->group(function () {
+//	Route::prefix('/settings/produit')->group(function () {
+//
+//		Route::get('/', 'ProduitController@index')->middleware('auth')->name('produit.index');
+//		Route::get('/create', 'ProduitController@create')->middleware('auth')->name('produit.create');
+//
+//		Route::get('/show/{id}', 'ProduitController@show')->middleware('auth')->name('produit.show');
+//		Route::get('/edit/{id}', 'ProduitController@edit')->middleware('auth')->name('produit.edit');
+//
+//		Route::post('/store', 'ProduitController@store')->middleware('auth')->name('produit.store');
+//		Route::post('/update/{id}', 'ProduitController@update')->middleware('auth')->name('produit.update');
+//
+//		Route::get('/activation/{id}', 'ProduitController@active')->middleware('auth')->name('produit.active');
+//
+//		Route::get('/add/bundle/{id}', 'ProduitController@addProduit')->middleware('auth')->name('produit.addBundle');
+//		Route::get('/remove/bundle/{key?}', 'ProduitController@removeProduit')->middleware('auth')->name('produit.removeBundle');
+//		Route::get('/list/bundle', 'ProduitController@listproduit')->middleware('auth')->name('produit.listing');
+//		Route::post('/valide/bundle/{id}', 'ProduitController@validProduit')->middleware('auth')->name('produit.valideBundle');
+//
+//		Route::get('/add/groupe_prix/{id}/{type}', 'ProduitController@addGroupePrix')->middleware('auth')->name('produit.addGroupePrix');
+//		Route::get('/remove/groupe_prix/{key?}', 'ProduitController@removeGroupePrix')->middleware('auth')->name('produit.removeGroupePrix');
+//		Route::get('/list/groupe_prix', 'ProduitController@listGroupePrix')->middleware('auth')->name('produit.listingGroupePrix');
+//		Route::post('/valide/groupe_prix/{id}', 'ProduitController@validGroupePrix')->middleware('auth')->name('produit.valideGroupePrix');
+//
+//	});
+
+	Route::prefix('/settings/serie')->group(function () {
 
 		Route::get('/', 'SerieController@index')->middleware('auth')->name('serie.index');
 		Route::get('/lots', 'SerieController@indexLot')->middleware('auth')->name('lot.index');
@@ -230,6 +260,19 @@ Route::group([], function() {
 		Route::post('/store', 'SerieController@store')->middleware('auth')->name('serie.store');
 
 	});
+
+//	Route::prefix('/settings/serie')->group(function () {
+//
+//		Route::get('/', 'SerieController@index')->middleware('auth')->name('serie.index');
+//		Route::get('/lots', 'SerieController@indexLot')->middleware('auth')->name('lot.index');
+//		Route::get('/show/{id}', 'SerieController@show')->middleware('auth')->name('serie.show');
+//		Route::get('/lots/show/{id}', 'SerieController@showLot')->middleware('auth')->name('lot.show');
+//		Route::get('/importe', 'SerieController@preview')->middleware('auth')->name('serie.import');
+//		Route::post('/importation', 'SerieController@import')->middleware('auth')->name('serie.importation');
+//		Route::get('/validation', 'SerieController@validation')->middleware('auth')->name('serie.validation');
+//		Route::post('/store', 'SerieController@store')->middleware('auth')->name('serie.store');
+//
+//	});
 
 	Route::prefix('/stockages/ecriture/stock')->group(function () {
 

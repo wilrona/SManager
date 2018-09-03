@@ -309,10 +309,18 @@ class PointDeVenteController extends Controller
         if($data['action'] == 'add'):
             $response['success'] = 'Le magasin est ajouté au point de vente avec succès.';
         else:
-            if($mag->DemandesTransfert()->where('statut_doc', '!=', 2)->count() ||  $mag->ApproTransfert()->where('statut_doc', '!=', 2)->count()):
-                $response['error'] = 'Le magasin a des transferts de stock non cloturé et des demandes de stock en cours.';
+            if($mag->etat == 0):
+                if($mag->DemandesTransfert()->where('statut_doc', '!=', 2)->count() ||  $mag->ApproTransfert()->where('statut_doc', '!=', 2)->count()):
+                    $response['error'] = 'Le magasin a des transferts de stock non cloturé et des demandes de stock en cours.';
+                else:
+                    if($mag->users()->count()):
+                        $response['error'] = 'Des utilisateurs de votre point de vente sont encore affecté à ce magasin.';
+                    else:
+                        $response['success'] = 'Le magasin est retiré au point de vente avec succès.';
+                    endif;
+                endif;
             else:
-	            $response['success'] = 'Le magasin est retiré au point de vente avec succès.';
+	            $response['error'] = 'Impossible d\'enregistrer les changement. Le magasin est ouvert par un utulisateur.';
             endif;
 
         endif;

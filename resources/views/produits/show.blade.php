@@ -1,4 +1,4 @@
-@extends('layouts.master')
+            @extends('layouts.master')
 
 @section('title', 'Welcome YooMee POS')
 
@@ -241,7 +241,6 @@
 
                 </div>
                 <div class="col-md-4">
-	                @if($pos_user)
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
                             <h4 class="panel-title">Stock</h4>
@@ -258,10 +257,10 @@
                                 </thead>
                                 <tbody>
 
-                                @foreach($pos_user->Magasins()->get() as $key => $value)
+                                @foreach($mag as $item)
                                     <tr class="">
-                                        <td><?= $value->name ?></td>
-                                        <td><?= $value->Stock()->where([['produit_id', '=', $data->id],['type', '=', 0]])->count(); ?></td>
+                                        <td><?= $item->name ?></td>
+                                        <td><?= $item->Stock()->where([['produit_id', '=', $data->id],['type', '=', 0]])->count(); ?></td>
                                         <td>
                                             <a href="" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
@@ -272,7 +271,6 @@
                             </table>
                         </div>
                     </div>
-                    @endif
                 </div>
             </div>
         </div>

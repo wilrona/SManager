@@ -18,6 +18,7 @@ class CreateMagasinsTable extends Migration
 	        $table->string('reference')->unique();
 	        $table->string('name');
 	        $table->integer('transite')->default(0);
+	        $table->integer('etat')->default(0);
 	        $table->integer('pos_id')->nullable($value = true)->unsigned();
 	        $table->foreign('pos_id')->references('id')->on('point_de_vente');
             $table->timestamps();

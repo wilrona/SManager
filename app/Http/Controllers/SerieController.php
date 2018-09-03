@@ -37,15 +37,20 @@ class SerieController extends Controller
 
 	public function index(){
 
-		$currentUser= Auth::user();
-		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+//		$currentUser= Auth::user();
+//		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+//
+//		$mags = array();
+//		if($pos_user):
+//			foreach ($pos_user->Magasins()->get() as $mag):
+//				array_push($mags, $mag->id);
+//			endforeach;
+//		endif;
 
 		$mags = array();
-		if($pos_user):
-			foreach ($pos_user->Magasins()->get() as $mag):
-				array_push($mags, $mag->id);
-			endforeach;
-		endif;
+		foreach ($this->magasinRepository->getWhere()->where('transite', '=', 0)->get() as $mag):
+			array_push($mags, $mag->id);
+		endforeach;
 
 		$datas = $this->modelRepository->getWhere()->where('importe', '=', 1)->whereHas('Magasins', function ($q) use ($mags){
 			$q->whereIn('id', $mags);

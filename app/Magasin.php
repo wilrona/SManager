@@ -38,4 +38,8 @@ class Magasin extends Model
 	public function EcritureStock(){
 		return $this->hasMany( 'App\EcritureStock', 'magasin_id', 'id');
 	}
+
+	public function Users(){
+		return $this->belongsToMany('App\User', 'user_magasin', 'magasin_id', 'user_id')->withPivot('principal');
+	}
 }

@@ -10,6 +10,7 @@ use App\Library\CustomFunction;
 use App\Repositories\ClientRepository;
 use App\Repositories\FamilleRepository;
 use App\Repositories\GroupePrixRepository;
+use App\Repositories\MagasinRepository;
 use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
@@ -27,6 +28,7 @@ class ProduitController extends Controller
 	protected $groupeRepository;
 	protected $parametreRepository;
 	protected $pointdeventeRepository;
+	protected $magasinRepository;
 
 	protected $bundle;
 	protected $type_prix;
@@ -35,7 +37,7 @@ class ProduitController extends Controller
 
 	public function __construct(ProduitRepository $produitRepository, FamilleRepository $familleRepository,
         UniteRepository  $uniteRepository, ClientRepository $client_repository, GroupePrixRepository $groupe_prix_repository,
-        ParametreRepository $parametre_repository, PointDeVenteRepository $point_de_vente_repository
+        ParametreRepository $parametre_repository, PointDeVenteRepository $point_de_vente_repository, MagasinRepository $magasin_repository
     )
 	{
 		$this->modelRepository = $produitRepository;
@@ -45,6 +47,7 @@ class ProduitController extends Controller
         $this->groupeRepository = $groupe_prix_repository;
         $this->parametreRepository = $parametre_repository;
         $this->pointdeventeRepository = $point_de_vente_repository;
+        $this->magasinRepository = $magasin_repository;
 
 		$this->bundle = array(
 			'0' => 'Produit unique',
@@ -134,10 +137,14 @@ class ProduitController extends Controller
 			$unites[$item->id] = $item->name;
 		}
 
-		$currentUser = Auth::user();
-		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+//		$currentUser = Auth::user();
+//		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
 
-		return view('produits.show',  compact('data', 'select_bundle', 'familles', 'unites', 'pos_user'));
+		// Tous les numéros de series des magasins de façon global
+
+        $mag = $this->magasinRepository->getWhere()->where('transite', '=', 0)->get();
+
+		return view('produits.show',  compact('data', 'select_bundle', 'familles', 'unites', 'pos_user', 'mag'));
 	}
 
 	public function store(ProduitRequest $request){

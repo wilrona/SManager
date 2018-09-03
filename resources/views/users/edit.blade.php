@@ -192,6 +192,56 @@
                         </div>
                     </div>
 
+
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Magasin de l'utilisateur</h4>
+                            <ul class="panel-heading-tabs border-light">
+                                <li>
+                                    <div class="pull-right">
+                                        <a href="@if($data->pos_id){{ route('user.addMagasin', ['pos_id' => $data->pos_id, 'user_id' => $data->id]) }}@endif" class="btn btn-green btn-sm" style="margin-top: 9px;" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-plus"></i> Affecter des magasins</a>
+                                    </div>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div class="panel-body" id="loading_mag">
+                            <table class="table ">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Magasin</th>
+                                    <th class="col-xs-2">Principale</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+				                <?php
+				                if($magasins):
+
+
+				                foreach($magasins as $key => $value):
+				                ?>
+                                <tr>
+                                    <td><?= $key + 1?></td>
+                                    <td><?= $value['mag_name'] ?></td>
+                                    <td><?php if($value['mag_principal']): ?> oui <?php else: ?> non <?php endif; ?></td>
+                                </tr>
+				                <?php
+				                endforeach;
+				                else:
+				                ?>
+                                <tr>
+                                    <td colspan="3">
+                                        <h4 class="text-center" style="margin: 0;">Aucune magasin enregistré</h4>
+                                    </td>
+                                </tr>
+				                <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
                             <h4 class="panel-title">Information de Connexion</h4>

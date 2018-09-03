@@ -26,12 +26,10 @@ class Caisse extends Model
 
 	public function TransfertFondSender(){
 			return $this->hasMany('App\TransfertFond', 'caisse_sender_id', 'id');
-
 	}
 
 	public function TransfertFondReceive(){
 		return $this->hasMany('App\TransfertFond', 'caisse_receive_id', 'id');
-
 	}
 
 	public function EcritureCaisse(){

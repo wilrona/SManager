@@ -62,5 +62,9 @@ class User extends Authenticatable
 		return $this->hasMany('App\EcritureCaisse', 'user_id', 'id');
 	}
 
+	public function Magasins(){
+		return $this->belongsToMany('App\Magasin', 'user_magasin', 'user_id', 'magasin_id')->withPivot('principal');
+	}
+
 
 }

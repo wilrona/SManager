@@ -37,4 +37,12 @@ class EcritureStock extends Model
 		return $this->belongsToMany('App\Serie', 'ecriture_stock_serie', 'ecriture_stock_id', 'serie_id');
 	}
 
+	public function Commande(){
+		return $this->belongsTo('App\Commande', 'commande_id', 'id');
+	}
+
+	public function Session(){
+		return $this->belongsTo('App\Session', 'session_id', 'id');
+	}
+
 }

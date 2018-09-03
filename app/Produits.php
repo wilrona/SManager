@@ -41,6 +41,10 @@ class Produits extends Model
 		return $this->hasMany( 'App\EcritureStock', 'produit_id', 'id');
 	}
 
+	public function Commandes(){
+		return $this->belongsToMany('App\Commande', 'commande_ligne', 'produit_id', 'commande_id')->withPivot('qte', 'prix', 'devise');
+	}
+
 
 
 
