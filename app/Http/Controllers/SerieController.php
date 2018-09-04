@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SerieFileRequest;
 use App\Http\Requests\SerieRequest;
+use App\Repositories\EcritureStockRepository;
 use App\Repositories\MagasinRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
@@ -22,20 +23,23 @@ class SerieController extends Controller
 	protected $pointdeventeRepository;
 	protected $magasinRepository;
 
+	protected $ecritureStockRepository;
+
 	protected $nbrPerPage = 4;
 
 
 	public function __construct(SerieRepository $modelRepository, ProduitRepository $produitRepository,
-		PointDeVenteRepository $pointdeventeRepository, MagasinRepository $magasin_repository)
+		PointDeVenteRepository $pointdeventeRepository, MagasinRepository $magasin_repository, EcritureStockRepository $ecriture_stock_repository)
 	{
 		$this->modelRepository = $modelRepository;
 		$this->produitRepository = $produitRepository;
 		$this->pointdeventeRepository = $pointdeventeRepository;
 		$this->magasinRepository = $magasin_repository;
+		$this->ecritureStockRepository = $ecriture_stock_repository;
 	}
 
 
-	public function index(){
+	public function index($single = null){
 
 //		$currentUser= Auth::user();
 //		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
@@ -48,15 +52,27 @@ class SerieController extends Controller
 //		endif;
 
 		$mags = array();
-		foreach ($this->magasinRepository->getWhere()->where('transite', '=', 0)->get() as $mag):
-			array_push($mags, $mag->id);
-		endforeach;
+
+		if($single):
+			$currentUser = Auth::user();
+
+			foreach ($currentUser->Magasins()->get() as $mag):
+				array_push($mags, $mag->id);
+			endforeach;
+
+		else:
+
+			foreach ($this->magasinRepository->getWhere()->where('transite', '=', 0)->get() as $mag):
+				array_push($mags, $mag->id);
+			endforeach;
+
+		endif;
 
 		$datas = $this->modelRepository->getWhere()->where('importe', '=', 1)->whereHas('Magasins', function ($q) use ($mags){
 			$q->whereIn('id', $mags);
 		})->has('magasins', '=', 1)->get();
 
-		return view('series.index', compact('datas', 'mags'));
+		return view('series.index', compact('datas', 'mags', 'single'));
 	}
 
 	public function preview(){
@@ -83,7 +99,7 @@ class SerieController extends Controller
 		return view('series.create', compact('datas', 'produit', 'select', 'magasin'));
 	}
 
-	public function show($id){
+	public function show($id, $single = null){
 
 		$data = $this->modelRepository->getById($id);
 
@@ -94,10 +110,10 @@ class SerieController extends Controller
 			$select[$type->id] = $type->name;
 		endforeach;
 
-		return view('series.show',  compact('data', 'select'));
+		return view('series.show',  compact('data', 'select', 'single'));
 	}
 
-	public function showLot($id){
+	public function showLot($id, $single = null){
 
 		$data = $this->modelRepository->getById($id);
 
@@ -118,7 +134,7 @@ class SerieController extends Controller
 			endforeach;
 		endif;
 
-		return view('series.showLot',  compact('data', 'select', 'mags'));
+		return view('series.showLot',  compact('data', 'select', 'mags', 'single'));
 	}
 
 	public function import(SerieFileRequest $request){
@@ -146,6 +162,7 @@ class SerieController extends Controller
 						$check_serie = $this->modelRepository->getWhere()->where('reference','=', $data['reference'])->first();
 
 						if(!$check_serie):
+
 							if($data['lot_id']):
 
 								$check_lot = $this->modelRepository->getWhere()->where('reference', '=', $data['lot_id'])->first();
@@ -159,13 +176,14 @@ class SerieController extends Controller
 									$check_lot = $this->modelRepository->store($data_lot);
 
 									$data['lot_id'] = $check_lot->id;
+
+									$lot = $this->modelRepository->getById($check_lot->id);
+									$magasin = $this->magasinRepository->getById($request->magasin_id);
+									$lot->Magasins()->save($magasin);
 								else:
 									$data['lot_id'] = $check_lot->id;
 								endif;
 
-								$lot = $this->modelRepository->getById($check_lot->id);
-								$magasin = $this->magasinRepository->getById($request->magasin_id);
-								$lot->Magasins()->save($magasin);
 							endif;
 
 							$serie = $this->modelRepository->store($data);
@@ -199,9 +217,77 @@ class SerieController extends Controller
 
 		$datas = $this->modelRepository->getWhere()->where('importe', '!=', 1)->get();
 
+		$currentUser= Auth::user();
+
+		$item_produit = array();
+
 		foreach ($datas as $data):
+
 			$data->importe = 1;
 			$data->save();
+
+			$magasin = $data->stock()->first();
+
+			if($data->type == 0):
+
+				$key_maga = array_search($magasin->id, array_column($item_produit, 'magasin'));
+
+				if(!is_integer($key_maga)):
+
+					$item['magasin'] = $magasin->id;
+					$item['produit'] = [];
+
+					$item_nd = array();
+					$item_nd['prod'] = $data->produit_id;
+					$item_nd['qte'] = 1;
+
+					array_push($item['produit'], $item_nd);
+					array_push($item_produit, $item);
+
+				else:
+
+					$key_prod = array_search($data->produit_id, array_column($item_produit[$key_maga]['produit'], 'prod'));
+
+					if(!is_integer($key_prod)):
+						$item_nd = array();
+						$item_nd['prod'] = $data->produit_id;
+						$item_nd['qte'] = 1;
+
+						array_push($item_produit[$key_maga]['produit'], $item_nd);
+					else:
+						$item_produit[$key_maga]['produit'][$key_prod]['qte'] += 1;
+					endif;
+
+				endif;
+
+			endif;
+
+		endforeach;
+
+		foreach ($item_produit as $item):
+
+			$mag = $item['magasin'];
+
+			foreach ($item['produit'] as $iem_2):
+
+				$ecriture_stock = array();
+				$ecriture_stock['type_ecriture'] = 0;
+				$ecriture_stock['quantite'] = (1 * $iem_2['qte']);
+				$ecriture_stock['produit_id'] = $iem_2['prod'];
+
+				$ecriture_stock['user_id'] = $currentUser->id;
+				$ecriture_stock['magasin_id'] = $mag;
+
+				$dmdeur = $this->ecritureStockRepository->store($ecriture_stock);
+
+				foreach ($datas as $serie_child):
+					if($serie_child->type == 0 && $serie_child->stock()->where('magasin_id', '=', $mag)->count() && $serie_child->produit_id == $iem_2['prod']):
+						$serie_child->EcriureStocks()->save($dmdeur);
+					endif;
+				endforeach;
+
+			endforeach;
+
 		endforeach;
 
 		return redirect()->route('serie.import')->withOk("Les numéros de serie ont été validés.");

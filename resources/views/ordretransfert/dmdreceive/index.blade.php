@@ -30,7 +30,7 @@
                 <div class="col-md-12">
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
-                            <h3 class="panel-title">Demande de stock Reçue</h3>
+                            <h3 class="panel-title">Expédition de produits</h3>
                         </div>
                         <div class="panel-body">
                             <table class="table  sample_5">

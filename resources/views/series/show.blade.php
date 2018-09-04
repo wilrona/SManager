@@ -38,7 +38,11 @@
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
-                                        <a href="{{ route('serie.index') }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
+                                        @if($single)
+                                            <a href="{{ route('serie.indexUser', $single) }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
+                                        @else
+                                            <a href="{{ route('serie.index', $single) }}" class="btn btn-default btn-sm bnt-o" style="margin-top: 9px;"> Retour </a>
+                                        @endif
                                     </div>
                                 </li>
 
@@ -65,6 +69,56 @@
                                 {!! Form::text('magasin_id', $data->Lot()->first()->reference, ['class' => 'form-control', 'disabled' => '']) !!}
                             </div>
                             @endif
+                        </div>
+                    </div>
+
+                    <div class="panel panel-white">
+                        <div class="panel-heading border-light">
+                            <h4 class="panel-title">Mouvement de la serie</h4>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table  sample_3">
+                                <thead>
+                                <tr>
+                                    <th class="col-xs-1">#</th>
+                                    <th>Ecriture</th>
+                                    <th>Transfert</th>
+                                    <th>Magasin</th>
+                                    <th>Date</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($data->EcriureStocks()->get() as $item)
+                                    <tr>
+                                        <td>{{ $loop->index + 1 }}</td>
+                                        <td>
+                                            @if($item->ordre_transfert_id || $item->transfert_id)
+                                                @if($item->type_ecriture == 1)
+                                                    Expédition
+                                                @else
+                                                    Reception
+                                                @endif
+                                            @else
+                                                @if($item->commande_id)
+                                                    @if($item->type_ecriture == 1)
+                                                        Sortie de stock
+                                                    @else
+                                                        Retour en stock
+                                                    @endif
+                                                @else
+                                                    Importation
+                                                @endif
+                                            @endif
+                                        </td>
+                                        <td>@if($item->transfert_id) {{ $item->Transfert()->first()->reference }} @else Indéfinie @endif</td>
+                                        <td>{{ $item->Magasin()->first()->reference }}</td>
+                                        <td>{{ $item->created_at->format('d-m-Y') }}</td>
+                                    </tr>
+                                @endforeach
+
+                                </tbody>
+                            </table>
+
                         </div>
                     </div>
 

@@ -17,7 +17,7 @@
         @else
             Reception
         @endif
-        - Transfert <b>{{ $data->Transfert()->first()->reference }}</b>
+        @if($data->transfert_id) - Transfert <b>{{ $data->Transfert()->first()->reference }} @endif</b>
     </h4>
     <h5 style="margin-top: 0;">{{ $data->created_at->format('d-m-Y') }}</h5>
 </div>

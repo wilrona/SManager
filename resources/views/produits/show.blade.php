@@ -35,6 +35,12 @@
                         <div class="panel-heading border-light">
                             <h4 class="panel-title">Information du produit</h4>
                             <ul class="panel-heading-tabs border-light">
+                                @if($single)
+                                    <li class="middle-center">
+                                        <a href="{{ route('produit.indexUser', $single) }}" class="btn btn-o btn-sm btn-default">Retour</a>
+                                    </li>
+                                @endif
+                                @if(!$single)
                                 <li class="middle-center">
                                     <a href="{{ route('produit.index') }}" class="btn btn-o btn-sm btn-default">Retour</a>
                                 </li>
@@ -58,6 +64,7 @@
                                         </div>
                                     </div>
                                 </li>
+                                @endif
                                 <li>
                                     @if($data->active)
                                         <a data-original-title="Actvité" data-toggle="tooltip" data-placement="top" class="btn btn-transparent btn-sm" href="#"><i class="fa fa-circle text-success"></i></a>
@@ -243,7 +250,7 @@
                 <div class="col-md-4">
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
-                            <h4 class="panel-title">Stock</h4>
+                            <h4 class="panel-title">Stocks</h4>
 
                         </div>
                         <div class="panel-body">
@@ -262,7 +269,7 @@
                                         <td><?= $item->name ?></td>
                                         <td><?= $item->Stock()->where([['produit_id', '=', $data->id],['type', '=', 0]])->count(); ?></td>
                                         <td>
-                                            <a href="" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
+                                            <a href="{{ route('produit.serieMagasin', $item->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach

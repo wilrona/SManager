@@ -31,6 +31,7 @@
                     @endif
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
+                            @if(!$single)
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
@@ -40,6 +41,7 @@
                                 </li>
 
                             </ul>
+                            @endif
                         </div>
                         <div class="panel-body">
                             <table class="table  sample_5">
@@ -56,7 +58,14 @@
                                     <tr>
                                         <td>{{ $loop->index + 1 }}</td>
                                         <td>{{ $data->name }}</td>
-                                        <td><a href="{{ route('produit.show', $data->id) }}"><i class="fa fa-eye"></i></a></td>
+                                        <td>
+                                            @if($single)
+                                                <a href="{{ route('produit.showUser', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>
+                                            @else
+                                                <a href="{{ route('produit.show', ['id' => $data->id]) }}"><i class="fa fa-eye"></i></a>
+                                            @endif
+
+                                        </td>
                                     </tr>
                                 @endforeach
 

@@ -63,11 +63,11 @@ class ProduitController extends Controller
 	}
 
 
-	public function index(){
+	public function index($single = null){
 
 		$datas = $this->modelRepository->getWhere()->get();
 
-		return view('produits.index', compact('datas', 'links'));
+		return view('produits.index', compact('datas', 'links', 'single'));
 	}
 
 	public function create(){
@@ -112,7 +112,7 @@ class ProduitController extends Controller
 		return view('produits.create', compact( 'select_bundle', 'familles', 'unites', 'reference'));
 	}
 
-	public function show(Request $request, $id){
+	public function show(Request $request, $id, $single = null){
 
 		$request->session()->forget('produit_id');
 		$request->session()->forget('produit');
@@ -137,14 +137,23 @@ class ProduitController extends Controller
 			$unites[$item->id] = $item->name;
 		}
 
-//		$currentUser = Auth::user();
-//		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+		if($single):
 
+		$currentUser = Auth::user();
+		$pos_user = $this->pointdeventeRepository->getWhere()->where('id', '=', $currentUser->pos_id)->first();
+
+		// Controler si l'utilisateur est responsable de point de vente
+
+		$mag = $currentUser->Magasins()->get();
+
+        else:
 		// Tous les numéros de series des magasins de façon global
 
         $mag = $this->magasinRepository->getWhere()->where('transite', '=', 0)->get();
 
-		return view('produits.show',  compact('data', 'select_bundle', 'familles', 'unites', 'pos_user', 'mag'));
+		endif;
+
+		return view('produits.show',  compact('data', 'select_bundle', 'familles', 'unites', 'pos_user', 'mag', 'single'));
 	}
 
 	public function store(ProduitRequest $request){
@@ -706,4 +715,11 @@ class ProduitController extends Controller
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
 
 	}
+
+	public function serieMagasin($magasin_id){
+
+		$data = $this->magasinRepository->getById($magasin_id);
+
+		return view('produits.serie', compact('data'));
+    }
 }

@@ -60,15 +60,29 @@
                                                         <tr>
                                                             <td>{{ $loop->index + 1 }}</td>
                                                             <td>
-                                                                @if($data->type_ecriture == 1)
-                                                                    Expédition
+                                                                @if($data->ordre_transfert_id || $data->transfert_id)
+                                                                    @if($data->type_ecriture == 1)
+                                                                        Expédition
+                                                                    @else
+                                                                        Reception
+                                                                    @endif
                                                                 @else
-                                                                    Reception
+
+                                                                    @if($data->commande_id)
+                                                                        @if($data->type_ecriture == 1)
+                                                                            Sortie de stock
+                                                                        @else
+                                                                            Retour en stock
+                                                                        @endif
+                                                                    @else
+                                                                        Importation
+                                                                    @endif
+
                                                                 @endif
                                                             </td>
                                                             <td>{{ $data->quantite }}</td>
                                                             <td>{{ $data->Produit()->first()->name }}</td>
-                                                            <td>{{ $data->Transfert()->first()->reference }}</td>
+                                                            <td>@if($data->transfert_id) {{ $data->Transfert()->first()->reference }} @else Indéfinie @endif</td>
                                                             <td>{{ $data->Magasin()->first()->reference }}</td>
                                                             <td>{{ $data->created_at->format('d-m-Y') }}</td>
                                                             <td><a href="{{ route('ecriture.serie', $data->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-eye"></i></a></td>

@@ -180,26 +180,21 @@
 											<a href="#"> <span class="title">Magasins </span> </a>
 										</li>
 										<li>
-											<a href="{{ route('produit.index') }}"> <span class="title">Articles </span> </a>
+											<a href="{{ route('produit.indexUser', true) }}"> <span class="title">Articles </span> </a>
 										</li>
 										<li>
-											<a href="{{ route('serie.index') }}"> <span class="title">N° Serie </span> </a>
+											<a href="{{ route('serie.indexUser', true) }}"> <span class="title">N° Serie </span> </a>
 										</li>
 										<li>
-											<a href="#"> <span class="title">Ordre de transfert </span> </a>
+											<a href="{{ route('dmd.index') }}"> <span class="title">Reception/Demande </span> </a>
+										</li>
+										<li>
+											<a href="{{ route('receive.index') }}"> <span class="title"> Expédition </span> </a>
 										</li>
 
-										<li>
-											<a href="{{ route('dmd.index') }}"> <span class="title">Ordre de transfert Envoyée </span> </a>
-										</li>
-										<li>
-											<a href="{{ route('receive.index') }}"> <span class="title">Ordre de transfert Reçue </span> </a>
-										</li>
 										<li>
 											<a href="{{ route('ecriture.index') }}"> <span class="title">Ecriture Stock </span> </a>
 										</li>
-
-
 
 									</ul>
 								</li>

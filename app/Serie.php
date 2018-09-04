@@ -39,4 +39,8 @@ class Serie extends Model
 	public function EcriureStocks(){
 		return $this->belongsToMany('App\EcritureStock', 'ecriture_stock_serie', 'serie_id', 'ecriture_stock_id');
 	}
+
+	public function Stock(){
+		return $this->belongsToMany('App\Magasin', 'stock_serie')->withPivot('mouvement');
+	}
 }

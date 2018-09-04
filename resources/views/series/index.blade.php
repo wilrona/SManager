@@ -32,6 +32,7 @@
                     @endif
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
+                            @if(!$single)
                             <ul class="panel-heading-tabs border-light">
                                 <li>
                                     <div class="pull-right">
@@ -41,6 +42,7 @@
                                 </li>
 
                             </ul>
+                            @endif
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
@@ -87,8 +89,8 @@
                                                 </td>
                                                 <td>@if($data->type == 1) Lot @else Série @endif</td>
                                                 <td>
-                                                    @if($data->type == 0)<a href="{{ route('serie.show', [$data->id]) }}"><i class="fa fa-eye"></i></a>@endif
-                                                    @if($data->type == 1)<a href="{{ route('lot.show', [$data->id]) }}"><i class="fa fa-eye"></i></a>@endif
+                                                    @if($data->type == 0)<a href="{{ route('serie.show', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>@endif
+                                                    @if($data->type == 1)<a href="{{ route('lot.show', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>@endif
                                                 </td>
                                             </tr>
 

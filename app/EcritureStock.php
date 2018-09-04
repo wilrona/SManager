@@ -11,7 +11,7 @@ class EcritureStock extends Model
 	protected $table = 'ecriture_stock';
 
 
-	protected $fillable = ['type_ecriture', 'quantite','produit_id', 'ordre_transfert_id', 'transfert_id' , 'user_id', 'magasin_id'];
+	protected $fillable = ['type_ecriture', 'quantite','produit_id', 'ordre_transfert_id', 'transfert_id' , 'user_id', 'magasin_id', 'commande_id', 'session_id'];
 
 	public function Transfert(){
 		return $this->belongsTo('App\Transfert', 'transfert_id', 'id');
