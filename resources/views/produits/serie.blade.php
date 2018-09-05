@@ -31,7 +31,7 @@
         <tbody>
 
         <?php
-        $series = $data->Stock()->has('magasins', '=', 1)->get();
+        $series = $data->Stock()->has('magasins', '=', 1)->where('produit_id', '=', $produit_id)->get();
         $id = $data->id;
         ?>
         @foreach($series as $serie)

@@ -89,8 +89,9 @@
                                                 </td>
                                                 <td>@if($data->type == 1) Lot @else Série @endif</td>
                                                 <td>
-                                                    @if($data->type == 0)<a href="{{ route('serie.show', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>@endif
-                                                    @if($data->type == 1)<a href="{{ route('lot.show', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>@endif
+
+                                                    @if($data->type == 0)<a href="{{ route('serie.showUser', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>@endif
+                                                    @if($data->type == 1)<a href="{{ route('lot.showUser', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>@endif
                                                 </td>
                                             </tr>
 

@@ -230,7 +230,7 @@ Route::group([], function() {
 
 		Route::get('/show/{id}/{single?}', 'ProduitController@show')->middleware('auth')->name('produit.showUser');
 
-		Route::get('/serie/show/{magasin_id}', 'ProduitController@serieMagasin')->middleware('auth')->name('produit.serieMagasin');
+		Route::get('/serie/show/{magasin_id}/{produit_id}', 'ProduitController@serieMagasin')->middleware('auth')->name('produit.serieMagasin');
 
 	});
 
@@ -351,7 +351,9 @@ Route::group([], function() {
 
 		Route::get('/rapport/detail/{ecriture_id}/{caisse_id}', 'CaisseManagerController@detailEcritureEtTransfert')->middleware('auth')->name('caisseManager.detailEcritureEtTransfert');
 
+		// Route pour la commande de produit
 
+		Route::get('/commande', 'CommandeManagerController@index')->middleware('auth')->name('commande.index');
 
 	});
 

@@ -69,9 +69,10 @@
             <thead>
             <tr>
                 <th class="no-sort">#</th>
-                <th class="col-xs-5">No Serie</th>
-                <th class="col-xs-5">No Lot</th>
-                <th class="no-sort col-xs-2">Type</th>
+                <th class="col-xs-4">No Serie</th>
+                <th class="col-xs-3">No Lot</th>
+                <th class="col-xs-3">Produit</th>
+                <th class="no-sort col-xs-3">Type</th>
             </tr>
             </thead>
             <tbody>
@@ -92,6 +93,9 @@
                         @else
                             {{ $data->lot_id ? $data->Lot()->first()->reference : '' }}
                         @endif
+                    </td>
+                    <td>
+                        {{ $data->Produit()->first()->name }}
                     </td>
                     <td>@if($data->type == 1) Lot @else Série @endif</td>
                 </tr>
@@ -119,7 +123,7 @@
 
     oTable_5.api().columns().every( function () {
         var column = this;
-        if(column.index() === 3){
+        if(column.index() === 4){
             var name = null;
             name = 'Type';
 

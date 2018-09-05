@@ -269,7 +269,7 @@
                                         <td><?= $item->name ?></td>
                                         <td><?= $item->Stock()->where([['produit_id', '=', $data->id],['type', '=', 0]])->count(); ?></td>
                                         <td>
-                                            <a href="{{ route('produit.serieMagasin', $item->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
+                                            <a href="{{ route('produit.serieMagasin', ['magasin_id' => $item->id, 'produit_id' => $data->id]) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
                                 @endforeach

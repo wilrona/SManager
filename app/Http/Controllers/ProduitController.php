@@ -716,10 +716,10 @@ class ProduitController extends Controller
 
 	}
 
-	public function serieMagasin($magasin_id){
+	public function serieMagasin($magasin_id, $produit_id){
 
 		$data = $this->magasinRepository->getById($magasin_id);
 
-		return view('produits.serie', compact('data'));
+		return view('produits.serie', compact('data', 'produit_id'));
     }
 }

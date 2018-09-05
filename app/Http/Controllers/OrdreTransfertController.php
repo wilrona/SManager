@@ -71,10 +71,10 @@ class OrdreTransfertController extends Controller
 
 	    $mags = array();
 	    foreach ($currentUser->Magasins()->get() as $mag):
-		    array_push($mags, $mag->id);
+            array_push($mags, $mag->id);
 	    endforeach;
 
-	    $datas = $this->modelRepository->getWhere()->whereIn('pos_dmd_id', $mags)->orderBy('created_at', 'desc')->get();
+	    $datas = $this->modelRepository->getWhere()->where('pos_dmd_id', $currentUser->pos_id)->whereIn('mag_dmd_id', $mags)->orderBy('created_at', 'desc')->get();
 
 	    return view('ordretransfert.dmdsend.index', compact('datas'));
     }
@@ -1243,14 +1243,10 @@ class OrdreTransfertController extends Controller
 		//
 		$currentUser= Auth::user();
 
-		$mags = array();
-		foreach ($currentUser->Magasins()->get() as $mag):
-			array_push($mags, $mag->id);
-		endforeach;
-
-		$datas = $this->modelRepository->getWhere()->where(
-			'statut_doc', '!=', 0
-		)->whereIn('pos_appro_id', $mags)->orderBy('created_at', 'desc')->get();
+		$datas = $this->modelRepository->getWhere()->where([
+			['pos_appro_id', '=', $currentUser->pos_id],
+			['statut_doc', '!=', 0]
+		])->orderBy('created_at', 'desc')->get();
 
 		return view('ordretransfert.dmdreceive.index', compact('datas'));
 	}
@@ -1325,7 +1321,7 @@ class OrdreTransfertController extends Controller
 		$my_mag = array();
 
 		$currentMag = $this->posRepository->getById($currentUser->pos_id);
-		foreach ($currentUser->Magasins()->get() as $item):
+		foreach ($currentMag->Magasins()->get() as $item):
 			$my_mag[$item->id] = $item->name;
 		endforeach;
 

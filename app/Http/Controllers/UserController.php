@@ -185,7 +185,7 @@ class UserController extends Controller
 
 		// Pensez à renvoyer un mail à l'utilisateur pour recevoir son mot de passe
 
-		return redirect()->route('user.edit', $data-id)->withOk('Le compte utilisateur a été crée');
+		return redirect()->route('user.edit', $data->id)->withOk('Le compte utilisateur a été crée');
 
 	}
 

@@ -60,6 +60,7 @@
                                         <td>{{ $data->name }}</td>
                                         <td>
                                             @if($single)
+
                                                 <a href="{{ route('produit.showUser', ['id' => $data->id, 'single' => true]) }}"><i class="fa fa-eye"></i></a>
                                             @else
                                                 <a href="{{ route('produit.show', ['id' => $data->id]) }}"><i class="fa fa-eye"></i></a>

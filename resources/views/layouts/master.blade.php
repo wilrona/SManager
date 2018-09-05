@@ -177,7 +177,7 @@
 										</div> </a>
 									<ul class="sub-menu">
 										<li>
-											<a href="#"> <span class="title">Magasins </span> </a>
+											<a href=""> <span class="title">Magasins </span> </a>
 										</li>
 										<li>
 											<a href="{{ route('produit.indexUser', true) }}"> <span class="title">Articles </span> </a>
@@ -346,6 +346,10 @@
 		 <div class="modal centered-modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
 			 <div class="modal-dialog">
 				 <div class="modal-content">
+					 <div class="modal-header">
+						 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						 <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>
+					 </div>
 					 <div >
 						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
 							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
@@ -358,6 +362,10 @@
 		 <div class="modal centered-modal" id="myModal-lg" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
 			 <div class="modal-dialog modal-lg">
 				 <div class="modal-content ">
+					 <div class="modal-header">
+						 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						 <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>
+					 </div>
 					 <div >
 						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
 							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
@@ -371,7 +379,28 @@
 		 <div class="modal fade modal-aside horizontal right" id="myModal-hr" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
 			 <div class="modal-dialog modal-md">
 				 <div class="modal-content ">
+					 <div class="modal-header">
+						 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						 <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>
+					 </div>
 					 <div >
+						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
+							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
+							 <h3 class="margin-top-35">Chargement ....</h3>
+						 </div>
+					 </div>
+				 </div>
+			 </div>
+		 </div>
+
+		 <div class="modal fade modal-aside vertical top" id="myModal-vt" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+			 <div class="modal-dialog modal-sm">
+				 <div class="modal-content ">
+					 <div class="modal-header">
+						 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						 <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>
+					 </div>
+					 <div style="height: calc(100vh);">
 						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
 							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
 							 <h3 class="margin-top-35">Chargement ....</h3>
@@ -451,7 +480,10 @@
 
             $('#myModal').on('hide.bs.modal', function(e) {
                 $(this).removeData('bs.modal');
-                $('.modal-content').html('<div class="height-200" >\n' +
+                $('.modal-content').html('<div class="modal-header">\n' +
+                    '    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n' +
+                    '    <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>\n' +
+                    '</div>' +'<div class="height-200" >\n' +
                     '                                <div style="margin: 0 auto; text-align: center;">\n' +
                     '                                    <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
                     '                                </div>\n' +
@@ -461,7 +493,10 @@
 
             $('#myModal-lg').on('hide.bs.modal', function(e) {
                 $(this).removeData('bs.modal');
-                $('.modal-content').html('<div class="height-200" >\n' +
+                $('.modal-content').html('<div class="modal-header">\n' +
+                    '    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n' +
+                    '    <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>\n' +
+                    '</div>' +'<div class="height-200" >\n' +
                     '                                <div style="margin: 0 auto; text-align: center;">\n' +
                     '                                    <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
                     '                                </div>\n' +
@@ -471,11 +506,28 @@
 
             $('#myModal-hr').on('hide.bs.modal', function(e) {
                 $(this).removeData('bs.modal');
-                $('.modal-content').html('<div class="height-200" >\n' +
+                $('.modal-content').html('<div class="modal-header">\n' +
+                    '    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n' +
+                    '    <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>\n' +
+                    '</div>' +'<div class="height-200" >\n' +
                     '                                <div style="margin: 0 auto; text-align: center;">\n' +
                     '                                    <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
                     '                                </div>\n' +
                     '                            </div>');
+
+            });
+
+            $('#myModal-vt').on('hide.bs.modal', function(e) {
+                $(this).removeData('bs.modal');
+                $('.modal-content').html('<div class="modal-header">\n' +
+                    '    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n' +
+                    '    <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>\n' +
+                    '</div>' +
+					'<div style="height: calc(100vh);">\n' +
+                    '     <div style="margin: 0 auto; text-align: center;">\n' +
+                    '           <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
+                    '     </div>\n' +
+                    ' </div>');
 
             });
 

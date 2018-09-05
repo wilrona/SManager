@@ -33,13 +33,17 @@
                             <div class="inbox">
                                 <div class="email-options perfect-scrollbar ps-container ps-theme-default" data-ps-id="7b9d5958-3c09-4662-e8ec-65eb1956edd1">
                                     <div class="padding-15">
+
+                                        <a href="{{ route('caisseManager.index') }}" class="btn btn-default btn-block margin-bottom-30">
+                                            Retour aux caisses
+                                        </a>
                                         <div class="panel panel-white">
                                             <div class="panel-heading border-light">
                                                 <h3 class="text-center">Caisse ouverte</h3>
                                                 <h4 class="panel-title text-center">{{ $caisse->name }}</h4>
                                             </div>
                                         </div>
-                                        <a href="" class="btn btn-primary btn-block margin-bottom-30">
+                                        <a href="{{ route('commande.index') }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static">
                                             Creer une commande
                                         </a>
                                         <a href="{{ route('caisseManager.createTransfertFond', $caisse->id) }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal" data-backdrop="static">

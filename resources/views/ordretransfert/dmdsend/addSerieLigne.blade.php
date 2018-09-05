@@ -56,8 +56,8 @@
             <tr>
                 <th class="no-sort">#</th>
                 <th class="col-xs-4">No Serie</th>
-                <th class="col-xs-4">No Lot</th>
-                <th class="col-xs-4">Ref. Reception</th>
+                <th class="col-xs-3">No Lot</th>
+                <th class="col-xs-3">Ref. Reception</th>
                 <th class="no-sort col-xs-4">Type</th>
             </tr>
             </thead>
