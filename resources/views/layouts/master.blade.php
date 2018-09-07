@@ -32,16 +32,21 @@
 		<!-- start: CSS REQUIRED FOR THIS PAGE ONLY -->
 		<!-- end: CSS REQUIRED FOR THIS PAGE ONLY -->
 		<!-- start: Packet CSS -->
-		<link rel="stylesheet" href="{{URL::asset('assets/css/styles.css')}}">
-		<link rel="stylesheet" href="{{URL::asset('assets/css/plugins.css')}}">
-		<link rel="stylesheet" href="{{URL::asset('assets/css/themes/lyt1-theme-1.css')}}">
+
+
 		<link rel="stylesheet" href="{{URL::asset('bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/DataTables/media/css/dataTables.bootstrap.min.css')}}">
 		<link rel="stylesheet" href="{{URL::asset('bower_components/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.css')}}">
+		<link rel="stylesheet" href="{{URL::asset('bower_components/select2/dist/css/select2.min.css')}}">
+		<link rel="stylesheet" href="{{URL::asset('bower_components/select2/dist/css/select2.bootstrap.min.css')}}">
 
 
 		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 		<!-- end: Packet CSS -->
+
+		<link rel="stylesheet" href="{{URL::asset('assets/css/styles.css')}}">
+		<link rel="stylesheet" href="{{URL::asset('assets/css/plugins.css')}}">
+		<link rel="stylesheet" href="{{URL::asset('assets/css/themes/lyt1-theme-1.css')}}">
 
 		<link rel="stylesheet" href="{{URL::asset('assets/css/app.css')}}">
 
@@ -359,7 +364,7 @@
 				 </div>
 			 </div>
 		 </div>
-		 <div class="modal centered-modal" id="myModal-lg" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+		 <div class="modal centered-modal" id="myModal-lg" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
 			 <div class="modal-dialog modal-lg">
 				 <div class="modal-content ">
 					 <div class="modal-header">
@@ -376,7 +381,7 @@
 			 </div>
 		 </div>
 
-		 <div class="modal fade modal-aside horizontal right" id="myModal-hr" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+		 <div class="modal fade modal-aside horizontal right" id="myModal-hr" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
 			 <div class="modal-dialog modal-md">
 				 <div class="modal-content ">
 					 <div class="modal-header">
@@ -393,7 +398,7 @@
 			 </div>
 		 </div>
 
-		 <div class="modal fade modal-aside vertical top" id="myModal-vt" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+		 <div class="modal fade modal-aside vertical top" id="myModal-vt" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
 			 <div class="modal-dialog modal-sm">
 				 <div class="modal-content ">
 					 <div class="modal-header">
