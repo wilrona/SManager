@@ -41,9 +41,33 @@
         overflow: scroll;
     }
 
-    .select2-container.select2-container--default.select2-container--open  {
+    .select2-container{
+        width: 100% !important;
+    }
+
+    .select2-container .select2-selection--single{
+        height: 46px;
+        padding: 10px 16px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+        height: 100%;
+    }
+
+    .select2-container.select2-container--default.select2-container--open{
         z-index: 15000;
     }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow{
+        height: 100%;
+    }
+
+    .select2-search--dropdown .select2-search__field{
+        height: 36px;
+    }
+
     /*.panier-commande{*/
         /*max-height: calc(100vh - 573px);*/
         /*position: absolute;*/
@@ -179,7 +203,8 @@
 
                         <div class="row">
                             <div class="col-md-9">
-                                <select class="js-example-basic form-control">
+                                <select class="js-example-basic form-control input-lg">
+                                    <option value=""></option>
                                     <optgroup label="Alaskan/Hawaiian Time Zone">
                                         <option value="AK">Alaska</option>
                                         <option value="HI">Hawaii</option>
@@ -218,35 +243,13 @@
                                         <option value="TN">Tennessee</option>
                                         <option value="WI">Wisconsin</option>
                                     </optgroup>
-                                    <optgroup label="Eastern Time Zone">
-                                        <option value="CT">Connecticut</option>
-                                        <option value="DE">Delaware</option>
-                                        <option value="FL">Florida</option>
-                                        <option value="GA">Georgia</option>
-                                        <option value="IN">Indiana</option>
-                                        <option value="ME">Maine</option>
-                                        <option value="MD">Maryland</option>
-                                        <option value="MA">Massachusetts</option>
-                                        <option value="MI">Michigan</option>
-                                        <option value="NH">New Hampshire</option>
-                                        <option value="NJ">New Jersey</option>
-                                        <option value="NY">New York</option>
-                                        <option value="NC">North Carolina</option>
-                                        <option value="OH">Ohio</option>
-                                        <option value="PA">Pennsylvania</option>
-                                        <option value="RI">Rhode Island</option>
-                                        <option value="SC">South Carolina</option>
-                                        <option value="VT">Vermont</option>
-                                        <option value="VA">Virginia</option>
-                                        <option value="WV">West Virginia</option>
-                                    </optgroup>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <button class="btn btn-primary btn-block btn-lg">
+                                <a  href="" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
                                     <i class="fa fa-plus"></i>
                                     Ajouter un client
-                                </button>
+                                </a>
                             </div>
                         </div>
 
@@ -302,6 +305,10 @@
         TableData.init();
         FormElements.init();
 
-        $(".js-example-basic").select2();
+        $(".js-example-basic").select2({
+            dropdownParent: $("#myModal-vt"),
+            placeholder: "Selection du client",
+            allowClear: true
+        });
     });
 </script>
