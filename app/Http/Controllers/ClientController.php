@@ -31,11 +31,28 @@ class ClientController extends Controller
 	}
 
 
-	public function index(){
+	public function index(Request $request, $ajax = false){
 
-		$datas = $this->modelRepository->getWhere()->get();
+		if($ajax == true):
+			$q = $request->get('q');
+			$datas = $this->modelRepository->getWhere()->where('display_name', 'LIKE', '%' . $q . '%')->orWhere('reference', 'LIKE', '%' . $q . '%')->orWhere('email', 'LIKE', '%' . $q . '%')->get();
 
-		return view('clients.index', compact('datas'));
+
+			$response = [];
+
+			foreach ($datas as $data):
+				$res = [];
+				$res['id'] = $data->id;
+				$res['text'] = $data->display_name;
+				array_push($response, $res);
+			endforeach;
+
+			return response()->json($response);
+
+		else:
+			$datas = $this->modelRepository->getWhere()->get();
+			return view('clients.index', compact('datas'));
+		endif;
 	}
 
 	public function create(){

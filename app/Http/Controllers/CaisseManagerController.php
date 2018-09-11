@@ -53,7 +53,6 @@ class CaisseManagerController extends Controller
 
 	public function index(){
 
-
 		$current_user = Auth::user();
 
 		$pos = $current_user->PointDeVente()->first();
@@ -101,7 +100,7 @@ class CaisseManagerController extends Controller
 
 	}
 
-	public function open($caisse_id){
+	public function open(Request $request, $caisse_id){
 
 		$current_user = Auth::user();
 

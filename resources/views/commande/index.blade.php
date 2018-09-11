@@ -56,8 +56,8 @@
         height: 100%;
     }
 
-    .select2-container.select2-container--default.select2-container--open{
-        z-index: 15000;
+    .select2-container.select2-container--default.select2-container--open, .select2-container--bootstrap.select2-container--open{
+        z-index: 10000;
     }
 
     .select2-container--default .select2-selection--single .select2-selection__arrow{
@@ -142,7 +142,7 @@
 
                         <div class="col-md-12 no-padding" style="border-top: 1px solid #eeeeee">
                             <div class="padding-15" style="width: 100%">
-                                <h3 class="text-center"><strong>Aucun produit dans le panier</strong></h3>
+                                <h3 class="text-center" style="margin: 0;"><strong>Aucun produit dans le panier</strong></h3>
                             </div>
                         </div>
 
@@ -203,50 +203,12 @@
 
                         <div class="row">
                             <div class="col-md-9">
-                                <select class="js-example-basic form-control input-lg">
+                                <select class="js-example-basic form-control input-lg" id="select_client_id">
                                     <option value=""></option>
-                                    <optgroup label="Alaskan/Hawaiian Time Zone">
-                                        <option value="AK">Alaska</option>
-                                        <option value="HI">Hawaii</option>
-                                    </optgroup>
-                                    <optgroup label="Pacific Time Zone">
-                                        <option value="CA">California</option>
-                                        <option value="NV">Nevada</option>
-                                        <option value="OR">Oregon</option>
-                                        <option value="WA">Washington</option>
-                                    </optgroup>
-                                    <optgroup label="Mountain Time Zone">
-                                        <option value="AZ">Arizona</option>
-                                        <option value="CO">Colorado</option>
-                                        <option value="ID">Idaho</option>
-                                        <option value="MT">Montana</option>
-                                        <option value="NE">Nebraska</option>
-                                        <option value="NM">New Mexico</option>
-                                        <option value="ND">North Dakota</option>
-                                        <option value="UT">Utah</option>
-                                        <option value="WY">Wyoming</option>
-                                    </optgroup>
-                                    <optgroup label="Central Time Zone">
-                                        <option value="AL">Alabama</option>
-                                        <option value="AR">Arkansas</option>
-                                        <option value="IL">Illinois</option>
-                                        <option value="IA">Iowa</option>
-                                        <option value="KS">Kansas</option>
-                                        <option value="KY">Kentucky</option>
-                                        <option value="LA">Louisiana</option>
-                                        <option value="MN">Minnesota</option>
-                                        <option value="MS">Mississippi</option>
-                                        <option value="MO">Missouri</option>
-                                        <option value="OK">Oklahoma</option>
-                                        <option value="SD">South Dakota</option>
-                                        <option value="TX">Texas</option>
-                                        <option value="TN">Tennessee</option>
-                                        <option value="WI">Wisconsin</option>
-                                    </optgroup>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <a  href="" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
+                                <a  href="{{ route('commande.formClient') }}" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static">
                                     <i class="fa fa-plus"></i>
                                     Ajouter un client
                                 </a>
@@ -261,28 +223,41 @@
                 <div class="panel panel-primary">
                     <div class="panel-body">
                         <div class="col-md-12">
-                            <input type="text" placeholder="Recherche produit" class="form-control input-lg">
+                            <input type="text" placeholder="Recherche produit" class="form-control input-lg" id="form-field-search">
                         </div>
                     </div>
                 </div>
                 <div class="panel panel-white">
                     <div class="panel-body">
 
-                        <table class="table sample_5">
+                        <table class="table sample_6">
                             <thead>
                             <tr>
-                                <th class="no-sort">#</th>
+                                <th class="no-sort col-xs-1">#</th>
                                 <th >Reference</th>
                                 <th >Produit</th>
-                                <th >Catégorie</th>
+                                <th class="col-xs-2">Catégorie</th>
                                 <th >Prix</th>
                                 <th class="no-sort col-xs-1"></th>
                             </tr>
                             </thead>
                             <tbody>
 
-
-
+                            @foreach($produit_list as $produit)
+                                <tr>
+                                    <td>{{ $loop->index + 1 }}</td>
+                                    <td>{{ $produit->reference }}</td>
+                                    <td>{{ $produit->name }}</td>
+                                    <td>{{ $produit->Famille()->first()->name }}</td>
+                                    <td>{{ $produit->prix }}</td>
+                                    <td>
+                                        <a  href="{{ route('commande.panier', $produit->id) }}" class="btn btn-danger btn-block btn-sm">
+                                            <i class="fa fa-cart-plus"></i>
+                                            Panier
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
 
                             </tbody>
                         </table>
@@ -306,9 +281,47 @@
         FormElements.init();
 
         $(".js-example-basic").select2({
-            dropdownParent: $("#myModal-vt"),
+//            dropdownParent: $("#myModal-vt"),
             placeholder: "Selection du client",
-            allowClear: true
+            allowClear: true,
+            theme: "bootstrap",
+            language: "fr",
+            ajax: {
+                url: '{{ route('client.index', ['ajax' => true]) }}',
+                dataType: 'json',
+                processResults: function(data, page) {
+                    return { results: data };
+                },
+                // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+            }
+        });
+
+        $('#form-field-search').on('keyup', function(){
+            oTable_6.fnFilter($(this).val());
         });
     });
+
+    oTable_6.api().columns().every( function () {
+        var column = this;
+        if(column.index() === 3){
+            var name = null;
+            name = 'Catégorie';
+
+            var select = $('<select class="form-control" style="width: 100%"><option value="">'+name+'</option></select>')
+                .appendTo( $(column.header()).empty() )
+                .on( 'change', function () {
+                    var val = $.fn.dataTable.util.escapeRegex(
+                        $(this).val()
+                    );
+
+                    column.search( val ? '^'+val+'$' : '', true, false ).draw();
+                } );
+
+            column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+            } );
+        }
+
+    } );
+
 </script>

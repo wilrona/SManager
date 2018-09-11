@@ -166,7 +166,7 @@ Route::group([], function() {
 
 	Route::prefix('/clients')->group(function () {
 
-		Route::get('/', 'ClientController@index')->middleware('auth')->name('client.index');
+		Route::get('/index/{ajax?}', 'ClientController@index')->middleware('auth')->name('client.index');
 		Route::get('/create', 'ClientController@create')->middleware('auth')->name('client.create');
 
 		Route::get('/show/{id}', 'ClientController@show')->middleware('auth')->name('client.show');
@@ -354,6 +354,10 @@ Route::group([], function() {
 		// Route pour la commande de produit
 
 		Route::get('/commande', 'CommandeManagerController@index')->middleware('auth')->name('commande.index');
+		Route::get('/commande/panier/{produit_id}', 'CommandeManagerController@panier')->middleware('auth')->name('commande.panier');
+
+		Route::get('/commande/creer/client', 'CommandeManagerController@formClient')->middleware('auth')->name('commande.formClient');
+		Route::post('/commande/creer/client/submit', 'CommandeManagerController@formClientPost')->middleware('auth')->name('commande.formClientPost');
 
 	});
 

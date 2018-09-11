@@ -347,7 +347,7 @@
 			</footer>
 			<!-- end: FOOTER -->
 
-		 <div class="modal fade modal-aside vertical top" id="myModal-vt" tabindex="-1" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
+		 <div class="modal fade modal-aside vertical top" id="myModal-vt" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
 			 <div class="modal-dialog modal-sm">
 				 <div class="modal-content ">
 					 <div class="modal-header">
@@ -442,6 +442,7 @@
 	 	<script src="{{URL::asset('bower_components/bootstrap-touchspin/dist/jquery.bootstrap-touchspin.min.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/autosize/dist/autosize.min.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/select2/dist/js/select2.min.js')}}"></script>
+	 <script src="{{URL::asset('bower_components/select2/dist/js/i18n/fr.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.fr.min.js')}}"></script>
 	 	<script src="{{URL::asset('bower_components/bootstrap-timepicker/js/bootstrap-timepicker.js')}}"></script>

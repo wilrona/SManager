@@ -31,7 +31,8 @@ class ClientRequest extends FormRequest
 			    'dateNais' => 'required',
 			    'email' => 'required|unique:clients,email,'.$request->id,
 			    'ville' => 'required',
-			    'famille_id' => 'required'
+			    'famille_id' => 'required',
+			    'phone' => 'required',
 
 		    ];
 	    else:
@@ -40,7 +41,8 @@ class ClientRequest extends FormRequest
 			    'dateNais' => 'required',
 			    'email' => 'required|unique:clients',
 			    'ville' => 'required',
-			    'famille_id' => 'required'
+			    'famille_id' => 'required',
+			    'phone' => 'required',
 		    ];
 	    endif;
 
@@ -57,7 +59,9 @@ class ClientRequest extends FormRequest
 
     public function messages() {
 	    return [
-			'dateNais.required' => 'Le champ date de naissance est obligatoire'
+			'dateNais.required' => 'Le champ date de naissance est obligatoire',
+			'famille_id.required' => 'Le champ de la famille de client est obligatoire',
+			'phone.required' => 'Le champ téléphone principal est obligatoire',
 
 	    ];
     }
