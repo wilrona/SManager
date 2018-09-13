@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\EcritureCaisse;
 use App\Http\Requests\CaisseOpenRequest;
+use App\Http\Requests\ClientRequest;
 use App\Library\CustomFunction;
 use App\Repositories\CaisseRepository;
+use App\Repositories\ClientRepository;
 use App\Repositories\EcritureCaisseRepository;
+use App\Repositories\FamilleRepository;
 use App\Repositories\ParametreRepository;
+use App\Repositories\ProduitRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\TransfertFondRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
+use Darryldecode\Cart\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,13 +30,18 @@ class CaisseManagerController extends Controller
 	protected $ecritureCaisseRepository;
 	protected $parametreRepository;
 	protected $transfertFondRepository;
+	protected $produitRepository;
+	protected $clientRepository;
+	protected $familleRepository;
 
 	protected $devise;
 	protected $current_user;
 	protected $custom;
 
 	public function __construct(CaisseRepository $caisse_repository, UserRepository $user_repository, TransfertFondRepository $transfert_fond_repository,
-		SessionRepository $session_repository, EcritureCaisseRepository $ecriture_caisse_repository, ParametreRepository $parametre_repository) {
+		SessionRepository $session_repository, EcritureCaisseRepository $ecriture_caisse_repository, ParametreRepository $parametre_repository,
+		ProduitRepository $produit_repository, ClientRepository $client_repository, FamilleRepository $famille_repository
+	) {
 
 		$this->modelRepository = $caisse_repository;
 		$this->userRepository = $user_repository;
@@ -39,6 +49,8 @@ class CaisseManagerController extends Controller
 		$this->ecritureCaisseRepository = $ecriture_caisse_repository;
 		$this->parametreRepository = $parametre_repository;
 		$this->transfertFondRepository = $transfert_fond_repository;
+		$this->produitRepository = $produit_repository;
+		$this->clientRepository = $client_repository;
 
 		$this->devise = $this->parametreRepository->getWhere()->where(
 			[
@@ -741,6 +753,5 @@ class CaisseManagerController extends Controller
 
 		return view('caisseManager.detailEcritureEtTransfert', compact('data', 'request', 'caisse_id'));
 	}
-
 
 }

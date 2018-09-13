@@ -113,7 +113,7 @@
                     </div>
                 </div>
                 <div class="panel panel-white panier-commande">
-                    <div class="panel-body no-padding">
+                    <div class="panel-body no-padding" id="panierContent">
 
 
                         {{--<div class="col-md-12 no-padding partition-light-primary">--}}
@@ -157,13 +157,13 @@
                     <div class="padding-15">
                         <ul class="list-unstyled amounts text-small" style="margin: 0;">
                             <li class="text-extra-large">
-                                <strong>Sub-Total:</strong> 0 XAF
+                                <strong>Sub-Total:</strong> <span id="Subtotal">0</span> XAF
                             </li>
                             <li class="text-extra-large">
-                                <strong>TVA:</strong> 0%
+                                <strong>TVA (<span id="tauxTax">0%</span>):</strong>  <span id="Tax">0</span> XAF
                             </li>
                             <li class="text-extra-large margin-top-15">
-                                <h1 class="text-white" style="margin: 0;"><strong>Total:</strong> 0 XAF</h1>
+                                <h1 class="text-white" style="margin: 0;"><strong>Total:</strong> <span id="Total">0</span> XAF</h1>
                             </li>
                         </ul>
                     </div>
@@ -249,9 +249,9 @@
                                     <td>{{ $produit->reference }}</td>
                                     <td>{{ $produit->name }}</td>
                                     <td>{{ $produit->Famille()->first()->name }}</td>
-                                    <td>{{ $produit->prix }}</td>
+                                    <td>{{ number_format($produit->prix, 0, '.', ' ') }}</td>
                                     <td>
-                                        <a  href="{{ route('commande.panier', $produit->id) }}" class="btn btn-danger btn-block btn-sm">
+                                        <a  href="{{ route('commande.panier', $produit->id) }}" class="btn btn-danger btn-block btn-sm panier">
                                             <i class="fa fa-cart-plus"></i>
                                             Panier
                                         </a>
@@ -299,6 +299,71 @@
         $('#form-field-search').on('keyup', function(){
             oTable_6.fnFilter($(this).val());
         });
+
+        $('.panier').on('click', function (e) {
+            e.preventDefault();
+            var $url = $(this).attr('href');
+            $.ajax({
+                url: $url,
+                type: 'GET',
+                success: function(data) {
+                    if(data['success'].length > 0){
+                        toastr["success"](data['success'], "Succès");
+                        $('#Subtotal').text(data['subtotal']);
+                        $('#tauxTax').text(data['tauxTax']);
+                        $('#Tax').text(data['tax']);
+                        $('#Total').text(data['total']);
+
+
+                        $.ajax({
+                            url: "{{ route('commande.listpanier') }}",
+                            type: 'GET',
+                            success: function(data) {
+                                $('#panierContent').html(data)
+                            }
+                        });
+
+                    }
+
+                    if(data['error'].length > 0){
+                        toastr["error"](data['error'], "Erreur");
+                    }
+                }
+            });
+        })
+
+        $('body').on('click', '.closed-panier', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "{{ route('commande.DeleteItemPanier') }}",
+                type: 'GET',
+                data: { id: $(this).data('close')},
+                success: function(data) {
+                    if(data['success'].length > 0){
+                        toastr["success"](data['success'], "Succès");
+                        $('#Subtotal').text(data['subtotal']);
+                        $('#tauxTax').text(data['tauxTax']);
+                        $('#Tax').text(data['tax']);
+                        $('#Total').text(data['total']);
+
+
+                        $.ajax({
+                            url: "{{ route('commande.listpanier') }}",
+                            type: 'GET',
+                            success: function(data) {
+                                $('#panierContent').html(data)
+                            }
+                        });
+
+                    }
+
+                    if(data['error'].length > 0){
+                        toastr["error"](data['error'], "Erreur");
+                    }
+                }
+            });
+        })
     });
 
     oTable_6.api().columns().every( function () {

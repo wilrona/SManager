@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\EcritureStock;
 use App\Http\Requests\DemandeReceiveRequest;
 use App\Http\Requests\DemandeSendRequest;
 use App\Http\Requests\TransfertProduitRequest;
@@ -618,7 +617,6 @@ class OrdreTransfertController extends Controller
 		endif;
 
 		$request->session()->put('transfert_serie', $serie_id);
-
 
 		return response()->json($response);
 

@@ -176,11 +176,13 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+	    \App\Providers\CartListProvider::class,
 
 	    Zizaco\Entrust\EntrustServiceProvider::class,
 	    Collective\Html\HtmlServiceProvider::class,
 	    Barryvdh\Debugbar\ServiceProvider::class,
-	    Maatwebsite\Excel\ExcelServiceProvider::class
+	    Maatwebsite\Excel\ExcelServiceProvider::class,
+	    Darryldecode\Cart\CartServiceProvider::class
 
     ],
 
@@ -234,7 +236,8 @@ return [
         'Form'  => Collective\Html\FormFacade::class,
         'Html'  => Collective\Html\HtmlFacade::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Cart' => Darryldecode\Cart\Facades\CartFacade::class
 
     ],
 
