@@ -32,6 +32,13 @@ class Roles {
 			'role' => true
 		),
 		array(
+			'name' => 'commandes', 'display_name' => 'Commandes', 'description' => 'Module de gestion des commandes',
+			'child' => array(),
+			'active' => false,
+			'config' => true,
+			'role' => false
+		),
+		array(
 			'name' => 'magasins', 'display_name' => 'Magasins', 'description' => 'Module de gestion des magasins',
 			'child' => array(),
 			'active' => false,

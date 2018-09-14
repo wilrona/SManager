@@ -17,6 +17,7 @@ class CreateCommandeTable extends Migration
             $table->increments('id');
 	        $table->string('reference');
 	        $table->float('total');
+	        $table->float('subtotal');
 
 	        $table->integer('client_id')->unsigned();
 	        $table->foreign('client_id')->references('id')->on('clients');
@@ -35,7 +36,7 @@ class CreateCommandeTable extends Migration
 		    $table->integer('commande_id')->unsigned();
 		    $table->integer('qte')->default(1);
 		    $table->float('prix');
-		    $table->string('devise');
+		    $table->string('devise')->nullable($value = true);
 
 		    $table->foreign('produit_id')->references('id')->on('produits')
 		          ->onUpdate('cascade')->onDelete('cascade');

@@ -109,7 +109,7 @@ class CustomFunction {
 		if(is_object($prefix)){
 			$mot = $parent_prefix.''.$prefix->value.''.$fix;
 		}else{
-			$mot = $parent_prefix.'';
+			$mot = $parent_prefix.''.$fix;
 		}
 
 		return $mot;

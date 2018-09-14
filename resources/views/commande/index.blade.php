@@ -68,6 +68,10 @@
         height: 36px;
     }
 
+    .partition-light-primary h4{
+        color: #ffffff;
+    }
+
     /*.panier-commande{*/
         /*max-height: calc(100vh - 573px);*/
         /*position: absolute;*/
@@ -114,7 +118,6 @@
                 </div>
                 <div class="panel panel-white panier-commande">
                     <div class="panel-body no-padding" id="panierContent">
-
 
                         {{--<div class="col-md-12 no-padding partition-light-primary">--}}
                             {{--<div class="padding-15" style="width: 100%">--}}
@@ -174,18 +177,18 @@
                         <div class="panel-body">
 
                             <div class="col-md-10 col-md-offset-1">
-                                <div class="text-center"> <h5>Modifier la quantité du produit</h5><h6><strong>Aucun produit selectionné</strong></h6> </div>
+                                <div class="text-center"> <h5>Modifier la quantité du produit</h5><h6><strong id="item-name-update">Aucun produit selectionné</strong></h6> </div>
                                 <div class="input-group margin-bottom-10">
-                                    <span class="input-group-addon" style="cursor: pointer;"><i class="fa fa-plus"></i></span>
-                                    <input type="number" class="form-control text-center">
-                                    <span class="input-group-addon" style="cursor: pointer;"><i class="fa fa-minus"></i></span>
+                                    <span class="input-group-addon plus" style="cursor: pointer;"><i class="fa fa-plus"></i></span>
+                                    <input type="number" class="form-control text-center" id="item-qte-update" name="qte_name" value="1" min="1">
+                                    <span class="input-group-addon minus" style="cursor: pointer;"><i class="fa fa-minus"></i></span>
                                 </div>
 
-                                <button class="btn btn-primary btn-block">
+                                <button class="btn btn-primary btn-block" id="submit-update-qte" data-id="">
                                     Valider les modifications
                                 </button>
                                 <hr>
-                                <button class="btn btn-success btn-block">
+                                <button class="btn btn-success btn-block" id="submit-commande">
                                     Enregistrer la commande
                                 </button>
                             </div>
@@ -314,12 +317,33 @@
                         $('#Tax').text(data['tax']);
                         $('#Total').text(data['total']);
 
+                        $('#item-name-update').text('Aucun produit selectionné');
+                        $('#item-qte-update').val(1);
+                        $('#submit-update-qte').data('id', '');
+
+                        $('.item-panier.partition-light-primary').each(function () {
+                            $(this).removeClass('partition-light-primary');
+                        });
 
                         $.ajax({
                             url: "{{ route('commande.listpanier') }}",
                             type: 'GET',
-                            success: function(data) {
-                                $('#panierContent').html(data)
+                            data: { id: data['id'] },
+                            success: function(data2nd) {
+
+                                if(data['update'] === 0){
+                                    if(data['countItem'] === 1){
+                                        $('#panierContent').html('');
+                                    }
+                                    $('#panierContent').append(data2nd)
+                                }else{
+                                    $('.item-panier').each(function (index) {
+                                        if($(this).data('id') === data['id']){
+                                            $(this).replaceWith(data2nd);
+                                        }
+                                    })
+                                }
+
                             }
                         });
 
@@ -330,15 +354,18 @@
                     }
                 }
             });
-        })
+        });
 
         $('body').on('click', '.closed-panier', function (e) {
             e.preventDefault();
+            e.stopPropagation();
+
+            var $this = $(this);
 
             $.ajax({
                 url: "{{ route('commande.DeleteItemPanier') }}",
                 type: 'GET',
-                data: { id: $(this).data('close')},
+                data: { id: $(this).data('close'), request: 'remove'},
                 success: function(data) {
                     if(data['success'].length > 0){
                         toastr["success"](data['success'], "Succès");
@@ -347,15 +374,28 @@
                         $('#Tax').text(data['tax']);
                         $('#Total').text(data['total']);
 
+                        $('.item-panier.partition-light-primary').each(function () {
+                            $(this).removeClass('partition-light-primary');
+                        });
 
                         $.ajax({
                             url: "{{ route('commande.listpanier') }}",
                             type: 'GET',
-                            success: function(data) {
-                                $('#panierContent').html(data)
+                            data: { id: $this.data('close') },
+                            success: function(data2nd) {
+
+                                $('.item-panier').each(function (index) {
+                                    if($(this).data('id') === $this.data('close')){
+                                        $(this).replaceWith(data2nd);
+                                    }
+                                });
+
+                                $('#item-name-update').text('Aucun produit selectionné');
+                                $('#item-qte-update').val(1);
+                                $('#submit-update-qte').data('id', '');
+
                             }
                         });
-
                     }
 
                     if(data['error'].length > 0){
@@ -363,7 +403,216 @@
                     }
                 }
             });
-        })
+
+        }).on('click', '.item-panier', function (e) {
+            e.preventDefault();
+
+            if($(this).hasClass('partition-light-primary')){
+
+                $(this).removeClass('partition-light-primary');
+
+                $('#item-name-update').text('Aucun produit selectionné');
+                $('#item-qte-update').val(1);
+                $('#submit-update-qte').data('id', '');
+
+            }else{
+
+                $('.item-panier.partition-light-primary').each(function () {
+                    $(this).removeClass('partition-light-primary');
+                });
+
+                $(this).addClass('partition-light-primary');
+
+                $.ajax({
+                    url: "{{ route('commande.DeleteItemPanier') }}",
+                    type: 'GET',
+                    data: { id: $(this).data('id'), request: 'select'},
+                    success: function(data) {
+                        $('#item-name-update').text(data['name']);
+                        $('#item-qte-update').val(data['qte']);
+                        $('#submit-update-qte').data('id', data['id']);
+                    }
+                });
+
+            }
+        }).on('click', '#submit-update-qte', function (e) {
+            e.preventDefault();
+
+            var $this = $(this);
+
+            if($this.data('id') !== ''){
+
+                $.ajax({
+                    url: "{{ route('commande.DeleteItemPanier') }}",
+                    type: 'GET',
+                    data: { id: $this.data('id'), request: 'updateQte', quantite: $('#item-qte-update').val()},
+                    success: function(data) {
+
+                        $('#item-name-update').text('Aucun produit selectionné');
+                        $('#item-qte-update').val(1);
+                        $('#submit-update-qte').data('id', '');
+
+                        toastr["success"](data['success'], "Succès");
+                        $('#Subtotal').text(data['subtotal']);
+                        $('#tauxTax').text(data['tauxTax']);
+                        $('#Tax').text(data['tax']);
+                        $('#Total').text(data['total']);
+
+                        $.ajax({
+                            url: "{{ route('commande.listpanier') }}",
+                            type: 'GET',
+                            data: { id: data['id'] },
+                            success: function(data2nd) {
+
+                                $('.item-panier').each(function (index) {
+                                    if(parseInt($(this).data('id')) === parseInt(data['id'])){
+                                        $(this).replaceWith(data2nd);
+                                    }
+                                });
+
+                            }
+                        });
+                    }
+                });
+
+            }
+
+        });
+
+        $('.minus').on('click', function (e) {
+            e.preventDefault();
+
+            var $minus = $('#item-qte-update');
+            var $value = 1;
+
+            if($('#submit-update-qte').data('id') !== ''){
+                if($minus.val() > 1){
+                    $value = parseInt($minus.val());
+                    $value -= 1;
+                    $minus.val($value);
+                }
+            }
+
+        });
+
+        $('.plus').on('click', function (e) {
+            e.preventDefault();
+
+            var $minus = $('#item-qte-update');
+            var $value = 1;
+
+            if($('#submit-update-qte').data('id') !== ''){
+                $value = parseInt($minus.val());
+                $value += 1;
+                $minus.val($value);
+            }
+
+        });
+
+        $('#submit-commande').on('click', function (e) {
+            e.preventDefault();
+            var $client = $('#select_client_id').val();
+            var $count = 0;
+            var $update_qte = $('#submit-update-qte').data('id');
+
+            $('.item-panier').each(function (index) {
+                $count += 1;
+            });
+
+            var $error = false;
+
+            if($client.length === 0){
+
+                swal({
+                    title: "Selection du client",
+                    text: 'La sélection du client est obligatoire',
+                    type: "error",
+                    showconfirmButton: true,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: "#d43f3a"
+                });
+
+                $error = true;
+
+            }else{
+
+                if($count === 0){
+
+                    swal({
+                        title: "Panier vide",
+                        text: 'Aucun produit dans le panier de la commande',
+                        type: "error",
+                        showconfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: "#d43f3a"
+                    });
+
+                    $error = true;
+                }
+
+            }
+
+            if($error === false){
+                if($update_qte !== ''){
+                    swal({
+                        title: 'Modification en cours',
+                        text: 'Les modifications de quantité de produit en cours ne seront pas pris en compte.',
+                        type: "warning",
+                        confirmButtonColor: "#5cb85c",
+                        confirmButtonText: "Valider",
+                        closeOnConfirm: false,
+                        showCancelButton: true,
+                        cancelButtonText: 'Annuler'
+                    }, function () {
+                        saveCommande($client);
+                    });
+                }else{
+                    saveCommande($client);
+                }
+            }
+
+        });
+
+        function saveCommande(client){
+
+            $.ajax({
+                url: "{{ route('commande.save') }}",
+                type: 'GET',
+                data: { client_id: client},
+                success: function(data) {
+
+                    $('#item-name-update').text('Aucun produit selectionné');
+                    $('#item-qte-update').val(1);
+                    $('#submit-update-qte').data('id', '');
+
+                    $('#Subtotal').text(0);
+                    $('#tauxTax').text(0);
+                    $('#Tax').text(0);
+                    $('#Total').text(0);
+
+                    swal({
+                        title: data['codeCmd'],
+                        text: 'Code de la commande à remettre au client ou à noter',
+                        type: "success",
+                        showconfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: "#d43f3a"
+                    }, function () {
+                        $('.modal-header .close').trigger('click');
+                    });
+
+                    $.ajax({
+                        url: "{{ route('commande.listpanier') }}",
+                        type: 'GET',
+                        data: { id: null },
+                        success: function(data2nd) {
+                            $('#panierContent').html(data2nd);
+                        }
+                    });
+                }
+            });
+
+        }
     });
 
     oTable_6.api().columns().every( function () {

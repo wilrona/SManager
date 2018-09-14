@@ -81,7 +81,7 @@ class ClientController extends Controller
 				['type_config', '=', 'incref']
 			]
 		)->first();
-		$count += $incref ? intval($incref->value) : 0;
+		$count += $incref ? intval($incref->value) : 1;
 		$reference = $this->custom->setReference($coderef, $count, 4);
 
 		return view('clients.create', compact('familles', 'reference'));

@@ -347,7 +347,7 @@
 			</footer>
 			<!-- end: FOOTER -->
 
-		 <div class="modal fade modal-aside vertical top" id="myModal-vt" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
+		 <div class="modal fade modal-aside vertical top" id="myModal-vt" role="dialog" aria-labelledby="mService1">
 			 <div class="modal-dialog modal-sm">
 				 <div class="modal-content ">
 					 <div class="modal-header">
@@ -364,7 +364,7 @@
 			 </div>
 		 </div>
 
-		 <div class="modal centered-modal" id="myModal-lg" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
+		 <div class="modal centered-modal" id="myModal-lg" role="dialog" aria-labelledby="mService1" >
 			 <div class="modal-dialog modal-lg">
 				 <div class="modal-content ">
 					 <div class="modal-header">
@@ -381,7 +381,7 @@
 			 </div>
 		 </div>
 
-		 <div class="modal fade modal-aside horizontal right" id="myModal-hr" role="dialog" aria-labelledby="mService1" aria-hidden="false" >
+		 <div class="modal fade modal-aside horizontal right" id="myModal-hr" role="dialog" aria-labelledby="mService1">
 			 <div class="modal-dialog modal-md">
 				 <div class="modal-content ">
 					 <div class="modal-header">
@@ -398,7 +398,7 @@
 			 </div>
 		 </div>
 
-		 <div class="modal centered-modal" id="myModal" role="dialog" aria-labelledby="mService1" aria-hidden="true" >
+		 <div class="modal centered-modal" id="myModal" role="dialog" aria-labelledby="mService1">
 			 <div class="modal-dialog">
 				 <div class="modal-content">
 					 <div class="modal-header">

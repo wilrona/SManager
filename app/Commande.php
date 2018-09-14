@@ -10,7 +10,7 @@ class Commande extends Model
 
 	protected $table = 'commande';
 
-	protected $fillable = ['reference','total', 'client_id', 'etat', 'codeCmd', 'point_de_vente_id'];
+	protected $fillable = ['reference','total', 'subtotal', 'client_id', 'etat', 'codeCmd', 'point_de_vente_id'];
 
 	public function Client(){
 		return $this->belongsTo('App\Client', 'client_id', 'id');

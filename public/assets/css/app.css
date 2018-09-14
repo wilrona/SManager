@@ -58,3 +58,7 @@
 .modal.in{
     background-color:rgba(0,0,0, 0.5);
 }
+
+.sweet-overlay{
+    z-index: 9999 !important;
+}

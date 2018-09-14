@@ -57,7 +57,7 @@ class UniteController extends Controller
 			    ['type_config', '=', 'incref']
 		    ]
 	    )->first();
-	    $count += $incref ? intval($incref->value) : 0;
+	    $count += $incref ? intval($incref->value) : 1;
 	    $reference = $this->custom->setReference($coderef, $count, 4);
 
 

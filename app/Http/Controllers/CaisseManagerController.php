@@ -329,7 +329,7 @@ class CaisseManagerController extends Controller
 					]
 				)->first();
 
-				$count += $incref ? intval($incref->value) : 0;
+				$count += $incref ? intval($incref->value) : 1;
 				$reference = $this->custom->setReference($coderef, $count, 4);
 
 				$codeTranfert = $this->custom->randomPassword(6, 1, 'upper_case,numbers');
@@ -554,7 +554,7 @@ class CaisseManagerController extends Controller
 			]
 		)->first();
 
-		$count += $incref ? intval($incref->value) : 0;
+		$count += $incref ? intval($incref->value) : 1;
 		$reference = $this->custom->setReference($coderef, $count, 4);
 
 		$codeTranfert = $datas['code'];
