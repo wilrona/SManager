@@ -16,4 +16,8 @@ class Client extends Model
 		return $this->hasMany('App\GroupePrix', 'client_id', 'id');
 	}
 
+	public function Famille(){
+		return $this->belongsTo('App\Famille', 'famille_id', 'id');
+	}
+
 }

@@ -123,6 +123,32 @@
                                                             </div>
                                                         @endif
 
+                                                        @if($data['name'] == 'commandes')
+                                                            <div class="well well-sm">
+                                                                <h3 style="margin: 0;">Application de la TVA</h3>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <input type="number" step="any" min="0" class="form-control" placeholder="TVA en pourcentage (exemple 19,25%)" name="taxvalue" value="<?= isset($values[$data['name']]) && isset($values[$data['name']]['taxvalue']) ? $values[$data['name']]['taxvalue'] : 0 ?>">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <select name="tax_produit" id="" class="form-control">
+                                                                            <option value="">Application de la taxe sur les produits</option>
+
+                                                                            <option value="inclus" <?= isset($values[$data['name']]) && isset($values[$data['name']]['tax_produit']) && $values[$data['name']]['tax_produit'] == 'inclus'  ? 'selected' : '' ?>>TVA Inclus dans le prix produit</option>
+                                                                            <option value="exclus" <?= isset($values[$data['name']]) && isset($values[$data['name']]['tax_produit']) && $values[$data['name']]['tax_produit'] == 'exclus'  ? 'selected' : '' ?>>TVA Exclus dans le prix produit</option>
+
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        @endif
+
                                                         @if($data['name'] == 'caisses')
                                                             <div class="well well-sm">
                                                                 <h3 style="margin: 0;">N° de séquence des transfert de fond (Envoi/Reception)</h3>

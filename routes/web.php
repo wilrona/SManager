@@ -362,6 +362,9 @@ Route::group([], function() {
 		Route::get('/commande/creer/client', 'CommandeManagerController@formClient')->middleware('auth')->name('commande.formClient');
 		Route::post('/commande/creer/client/submit', 'CommandeManagerController@formClientPost')->middleware('auth')->name('commande.formClientPost');
 
+		Route::get('/commande/vente', 'CommandeManagerController@commandePos')->middleware('auth')->name('commande.commandePos');
+		Route::get('/commande/vente/detail/{id}', 'CommandeManagerController@commandePosDetail')->middleware('auth')->name('commande.commandePosDetail');
+
 	});
 
 

@@ -240,6 +240,46 @@ class ParamController extends Controller
 			endif;
 		endif;
 
+		if($module == 'commandes'):
+
+
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'tax_produit']
+				]
+			)->first();
+
+			if($coderef):
+				$coderef->value = $data['tax_produit'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'tax_produit';
+				$saved['value'] = $data['tax_produit'];
+				$this->modelRepository->store($saved);
+			endif;
+
+			$coderef = $this->modelRepository->getWhere()->where(
+				[
+					['module', '=', $module],
+					['type_config', '=', 'taxvalue']
+				]
+			)->first();
+
+			if($coderef):
+				$coderef->value = $data['taxvalue'];
+				$coderef->save();
+			else:
+				$saved = array();
+				$saved['module'] = $module;
+				$saved['type_config'] = 'taxvalue';
+				$saved['value'] = $data['taxvalue'];
+				$this->modelRepository->store($saved);
+			endif;
+		endif;
+
 		return response()->json(['success'=> 'Vos modifications ont été pris en compte !']);
 	}
 }

@@ -30,6 +30,8 @@ class CommandeManagerController extends Controller
 
 	protected $custom;
 	protected $cart;
+	protected $apply_tva;
+	protected $tva;
 
 	protected $tvCondition;
 
@@ -48,17 +50,61 @@ class CommandeManagerController extends Controller
 		$this->custom = new CustomFunction();
 		$this->cart = app('cartlist');
 
-		$this->tvCondition = new CartCondition(array(
-			'name' => 'TVA',
-			'type' => 'tax',
-			'target' => 'subtotal', // this condition will be applied to cart's subtotal when getSubTotal() is called.
-			'value' => '19.25%'
-		));
+		$tax_valeur = $parametre_repository->getWhere()->where(
+			[
+				['module', '=', 'commandes'],
+				['type_config', '=', 'taxvalue']
+			]
+		)->first();
+
+		$apply = $parametre_repository->getWhere()->where(
+			[
+				['module', '=', 'commandes'],
+				['type_config', '=', 'tax_produit']
+			]
+		)->first();
+
+		$this->apply_tva = $apply ? $apply->value : '';
+
+		$this->tva = ($tax_valeur && intval($tax_valeur->value) > 0) ? strval($tax_valeur->value) : '19.25';
+
+		if(!$apply):
+
+			$this->tvCondition = new CartCondition(array(
+				'name' => 'TVA',
+				'type' => 'tax',
+				'target' => 'subtotal', // this condition will be applied to cart's subtotal when getSubTotal() is called.
+				'value' => ($tax_valeur && intval($tax_valeur->value) > 0) ? strval($tax_valeur->value).'%' : '19.25%'
+			));
+
+        else:
+
+            if($apply->value == 'inclus'):
+
+	            $this->tvCondition = new CartCondition(array(
+		            'name' => 'TVA',
+		            'type' => 'tax',
+		            'value' => ($tax_valeur && intval($tax_valeur->value) > 0) ? '-'.strval($tax_valeur->value).'%' : '-19.25%'
+	            ));
+
+            else:
+
+                $this->tvCondition = new CartCondition(array(
+                    'name' => 'TVA',
+                    'type' => 'tax',
+                    'target' => 'subtotal', // this condition will be applied to cart's subtotal when getSubTotal() is called.
+                    'value' => ($tax_valeur && intval($tax_valeur->value) > 0) ? strval($tax_valeur->value).'%' : '19.25%'
+                ));
+
+		    endif;
+		endif;
+
 	}
 
 	public function index(){
 
 		$this->cart->clear();
+		$this->cart->clearCartConditions();
 
 		$produit_list = $this->produitRepository->getWhere()->get();
 
@@ -91,6 +137,9 @@ class CommandeManagerController extends Controller
 		if(!$this->cart->get($prod->id)):
 			$response['success'] = 'Le produit '.$prod->name.' a été ajouté';
 			$this->cart->add($prod->id, $prod->name, $prod->prix, 1);
+			if($this->apply_tva == 'inclus'):
+                $this->cart->addItemCondition($prod->id, $this->tvCondition);
+            endif;
 		else:
 			$response['success'] = 'La quantité du produit '.$prod->name.' a été mise à jour';
 		    $response['update'] = 1;
@@ -103,14 +152,44 @@ class CommandeManagerController extends Controller
 		$response['id'] = $prod->id;
 		$response['countItem'] = $this->cart->getContent()->count();
 
-		$response['subtotal'] = number_format($this->cart->getSubTotalWithoutConditions(), 0, '.', ' ');
 
-		$this->cart->condition($this->tvCondition);
-		$tva = $this->cart->getCondition('TVA');
-		$response['tauxTax'] = $tva->getValue();
-		$value = $tva->getCalculatedValue($this->cart->getSubTotalWithoutConditions());
-		$response['tax'] = number_format($value, 0, '.', ' ') ;
-		$response['total'] = number_format($this->cart->getTotal(), 0, '.', ' ');
+
+		if(!$this->apply_tva || $this->apply_tva != 'inclus'):
+
+			$response['subtotal'] = number_format($this->cart->getSubTotalWithoutConditions(), 0, '.', ' ');
+
+            $tva = $this->cart->getCondition('TVA');
+
+            if(!$tva):
+                $this->cart->condition($this->tvCondition);
+                $tva = $this->cart->getCondition('TVA');
+            endif;
+
+			$response['tauxTax'] = $tva->getValue();
+
+			$value = $tva->getCalculatedValue($this->cart->getSubTotalWithoutConditions());
+			$response['tax'] = number_format($value, 0, '.', ' ') ;
+
+			$response['total'] = number_format($this->cart->getTotal(), 0, '.', ' ');
+
+        else:
+
+	        $response['total'] = number_format($this->cart->getSubTotalWithoutConditions(), 0, '.', ' ');
+
+            $price_tax = 0;
+            $price = 0;
+            foreach ($this->cart->getContent() as $pro):
+                $price_tax += $pro->getPriceSum();
+	            $price += $pro->getPriceSumWithConditions();
+            endforeach;
+	        $response['tax'] = number_format(($price_tax - $price), 0, '.', ' ') ;
+
+	        $response['tauxTax'] = $this->tva.'%';
+
+	        $response['subtotal'] = number_format($this->cart->getTotal(), 0, '.', ' ');
+		endif;
+
+
 
 		return response()->json($response);
 
@@ -132,10 +211,10 @@ class CommandeManagerController extends Controller
                     </h4>
                     <p>
                         <h4 style="display: inline-block; float: right">
-                            <strong><?= number_format($panier->getPriceSum(), 0, '.', ' ') ?> XAF</strong>
+                            <strong><?= $panier->price == $panier->getPriceWithConditions() ? number_format($panier->getPriceSum(), 0, '.', ' ') : number_format($panier->getPriceSumWithConditions(), 0, '.', ' ') ?> XAF</strong>
                         </h4>
 
-                        Prix :  <span><?= number_format($panier->price, 0, '.', ' ') ?></span> x Quantite : <span><?= $panier->quantity ?></span>
+                        Prix :  <span><?= $panier->price == $panier->getPriceWithConditions() ? number_format($panier->price, 0, '.', ' ') : number_format($panier->getPriceWithConditions(), 0, '.', ' ') ?></span> x Quantite : <span><?= $panier->quantity ?></span>
                     </p>
                 </div>
             </div>
@@ -168,6 +247,10 @@ class CommandeManagerController extends Controller
 
             $this->cart->remove($data['id']);
 
+            if($this->apply_tva == 'inclus'):
+		        $this->cart->removeItemCondition($data['id'], 'TVA');
+	        endif;
+
             $response = array(
                 'success' => '',
                 'error' => '',
@@ -178,14 +261,40 @@ class CommandeManagerController extends Controller
                 'id' => $data['id']
             );
 
-            $response['subtotal'] = number_format($this->cart->getSubTotalWithoutConditions(), 0, '.', ' ');
+		    if(!$this->apply_tva || $this->apply_tva != 'inclus'):
 
-            $this->cart->condition($this->tvCondition);
-            $tva = $this->cart->getCondition('TVA');
-            $response['tauxTax'] = $tva->getValue();
-            $value = $tva->getCalculatedValue($this->cart->getSubTotalWithoutConditions());
-            $response['tax'] = number_format($value, 0, '.', ' ') ;
-            $response['total'] = number_format($this->cart->getTotal(), 0, '.', ' ');
+			    $response['subtotal'] = number_format($this->cart->getSubTotalWithoutConditions(), 0, '.', ' ');
+
+			    $tva = $this->cart->getCondition('TVA');
+
+			    if(!$tva):
+				    $this->cart->condition($this->tvCondition);
+				    $tva = $this->cart->getCondition('TVA');
+			    endif;
+
+			    $response['tauxTax'] = $tva->getValue();
+
+			    $value = $tva->getCalculatedValue($this->cart->getSubTotalWithoutConditions());
+			    $response['tax'] = number_format($value, 0, '.', ' ') ;
+
+			    $response['total'] = number_format($this->cart->getTotal(), 0, '.', ' ');
+
+		    else:
+
+			    $response['total'] = number_format($this->cart->getSubTotalWithoutConditions(), 0, '.', ' ');
+
+			    $price_tax = 0;
+			    $price = 0;
+			    foreach ($this->cart->getContent() as $pro):
+				    $price_tax += $pro->getPriceSum();
+				    $price += $pro->getPriceSumWithConditions();
+			    endforeach;
+			    $response['tax'] = number_format(($price_tax - $price), 0, '.', ' ') ;
+
+			    $response['tauxTax'] = $this->cart->getContent()->count() ? $this->tva.'%' : '0%';
+
+			    $response['subtotal'] = number_format($this->cart->getTotal(), 0, '.', ' ');
+		    endif;
 
             $response['success'] = 'Le produit a été supprimé du panier';
 
@@ -264,7 +373,7 @@ class CommandeManagerController extends Controller
 	    )->first();
 	    $count += $incref ? intval($incref->value) : 1;
 
-	    $currentUser= Auth::user();
+	    $currentUser = Auth::user();
 
 	    $POS = $this->posRepository->getById($currentUser->pos_id);
 
@@ -381,6 +490,24 @@ class CommandeManagerController extends Controller
 
 
 		return response()->json($response);
+
+	}
+
+	public function commandePos(){
+
+		$currentUser = Auth::user();
+
+		$datas = $this->modelRepository->getWhere()->where('point_de_vente_id', '=', $currentUser->pos_id)->orderBy('created_at', 'desc')->get();
+
+		return view('commande.commandePos', compact('datas'));
+
+    }
+
+	public function commandePosDetail($id){
+
+		$data = $this->modelRepository->getById($id);
+
+		return view('commande.commandePosDetail', compact('data'));
 
 	}
 

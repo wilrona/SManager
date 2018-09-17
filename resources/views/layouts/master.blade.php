@@ -145,17 +145,25 @@
 									</div> </a>
 								</li>
 
-								<li class="{{ Menu::active('caisse-manager') }}" >
-									<a href="<?= route('caisseManager.index') ?>">
+								<li class="{{ Menu::active('caisse-manager') }}">
+									<a href="javascript:void(0)">
 										<div class="item-content">
 											<div class="item-media">
-												<div class="lettericon" data-text="CA" data-size="sm" data-char-count="2"></div>
+												<div class="lettericon" data-text="Ventes" data-size="sm" data-char-count="2"></div>
 											</div>
 											<div class="item-inner">
-												<span class="title">Caisses </span>
+												<span class="title"> Ventes </span><i class="icon-arrow"></i>
 											</div>
-										</div>
-									</a>
+										</div> </a>
+									<ul class="sub-menu">
+										<li>
+											<a href="<?= route('caisseManager.index') ?>"> <span class="title">Caisses </span> </a>
+										</li>
+										<li>
+											<a href="{{ route('commande.commandePos') }}"> <span class="title">Commandes </span> </a>
+										</li>
+
+									</ul>
 								</li>
 
 								<li class="{{ Menu::active('clients') }}" >
@@ -398,6 +406,23 @@
 			 </div>
 		 </div>
 
+		 <div class="modal fade modal-aside horizontal right" id="myModal-hr-lg" role="dialog" aria-labelledby="mService1">
+			 <div class="modal-dialog modal-lg">
+				 <div class="modal-content ">
+					 <div class="modal-header">
+						 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						 <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>
+					 </div>
+					 <div >
+						 <div style="margin: 0 auto; text-align: center;" class="padding-40">
+							 <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>
+							 <h3 class="margin-top-35">Chargement ....</h3>
+						 </div>
+					 </div>
+				 </div>
+			 </div>
+		 </div>
+
 		 <div class="modal centered-modal" id="myModal" role="dialog" aria-labelledby="mService1">
 			 <div class="modal-dialog">
 				 <div class="modal-content">
@@ -513,6 +538,19 @@
             $('#myModal-hr').on('hide.bs.modal', function(e) {
                 $(this).removeData('bs.modal');
                 $('#myModal-hr .modal-content').html('<div class="modal-header">\n' +
+                    '    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n' +
+                    '    <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>\n' +
+                    '</div>' +'<div class="height-200" >\n' +
+                    '                                <div style="margin: 0 auto; text-align: center;">\n' +
+                    '                                    <i class="fa fa-spin fa-spinner" style="font-size: 160px; line-height: 160px"></i>\n' +
+                    '                                </div>\n' +
+                    '                            </div>');
+
+            });
+
+            $('#myModal-hr-lg').on('hide.bs.modal', function(e) {
+                $(this).removeData('bs.modal');
+                $('#myModal-hr-lg .modal-content').html('<div class="modal-header">\n' +
                     '    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\n' +
                     '    <h4 class="modal-title" id="myModalLabel">Chargement des données</h4>\n' +
                     '</div>' +'<div class="height-200" >\n' +
