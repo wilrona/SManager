@@ -35,16 +35,21 @@ class ClientController extends Controller
 
 		if($ajax == true):
 			$q = $request->get('q');
-			$datas = $this->modelRepository->getWhere()->where('display_name', 'LIKE', '%' . $q . '%')->orWhere('reference', 'LIKE', '%' . $q . '%')->orWhere('email', 'LIKE', '%' . $q . '%')->get();
+			$exclus = $request->get('exclus') ? array_map('intval', $request->get('exclus')) : [];
 
-
+			$datas = $this->modelRepository->getWhere()->where('display_name', 'LIKE', '%' . $q . '%')
+			                                           ->orWhere('reference', 'LIKE', '%' . $q . '%')
+			                                           ->orWhere('email', 'LIKE', '%' . $q . '%')
+			                                           ->get();
 			$response = [];
 
 			foreach ($datas as $data):
-				$res = [];
-				$res['id'] = $data->id;
-				$res['text'] = $data->display_name;
-				array_push($response, $res);
+				if(!in_array($data->id, $exclus)):
+					$res = [];
+					$res['id'] = $data->id;
+					$res['text'] = $data->display_name;
+					array_push($response, $res);
+				endif;
 			endforeach;
 
 			return response()->json($response);

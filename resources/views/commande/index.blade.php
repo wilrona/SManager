@@ -279,7 +279,7 @@
 
 <script src="{{URL::asset('assets/js/app.js')}}"></script>
 <script>
-    jQuery(document).ready(function() {
+jQuery(document).ready(function() {
         TableData.init();
         FormElements.init();
 
@@ -303,12 +303,69 @@
             oTable_6.fnFilter($(this).val());
         });
 
+        $('#select_client_id').on('change', function(){
+
+            var $value = $(this).val();
+
+            $.ajax({
+                url: "{{ route('commande.selectClient') }}",
+                type: 'GET',
+                data: { client_id: $value },
+                success: function(data) {
+
+                    if(data['countItem'] > 0){
+
+                        $('#Subtotal').text(data['subtotal']);
+                        $('#tauxTax').text(data['tauxTax']);
+                        $('#Tax').text(data['tax']);
+                        $('#Total').text(data['total']);
+
+                        $('#item-name-update').text('Aucun produit selectionné');
+                        $('#item-qte-update').val(1);
+                        $('#submit-update-qte').data('id', '');
+
+                        $('.item-panier.partition-light-primary').each(function () {
+                            $(this).removeClass('partition-light-primary');
+                        });
+
+                        $.each(data['itemContent'], function (index, value) {
+
+                            $.ajax({
+                                url: "{{ route('commande.listpanier') }}",
+                                type: 'GET',
+                                data: { id: value.id },
+                                success: function(data2nd) {
+
+                                    $('.item-panier').each(function (index) {
+                                        if($(this).data('id') === value.id){
+                                            $(this).replaceWith(data2nd);
+                                        }
+                                    })
+
+
+                                }
+                            });
+
+                        });
+
+
+
+                    }
+                }
+            });
+
+        });
+
         $('.panier').on('click', function (e) {
             e.preventDefault();
+
             var $url = $(this).attr('href');
+            var $client = $('#select_client_id').val();
+
             $.ajax({
                 url: $url,
                 type: 'GET',
+                data: { client_id: $client },
                 success: function(data) {
                     if(data['success'].length > 0){
                         toastr["success"](data['success'], "Succès");
@@ -445,7 +502,7 @@
                 $.ajax({
                     url: "{{ route('commande.DeleteItemPanier') }}",
                     type: 'GET',
-                    data: { id: $this.data('id'), request: 'updateQte', quantite: $('#item-qte-update').val()},
+                    data: { id: $this.data('id'), request: 'updateQte', quantite: $('#item-qte-update').val(), client_id: $('#select_client_id').val()},
                     success: function(data) {
 
                         $('#item-name-update').text('Aucun produit selectionné');
@@ -613,7 +670,7 @@
             });
 
         }
-    });
+
 
     oTable_6.api().columns().every( function () {
         var column = this;
@@ -637,5 +694,6 @@
         }
 
     } );
+});
 
 </script>

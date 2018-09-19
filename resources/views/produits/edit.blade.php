@@ -152,7 +152,7 @@
                             </ul>
                         </div>
                         <div class="panel-body" id="loading">
-                            <table class="table ">
+                            <table class="table table-stylish">
                                 <thead>
                                     <tr>
                                         <th class="col-xs-1">#</th>
@@ -209,7 +209,7 @@
                             </ul>
                         </div>
                         <div class="panel-body" id="loading_GroupPrix">
-                            <table class="table ">
+                            <table class="table table-stylish">
                                 <thead>
                                 <tr>
                                     <th class="col-xs-1">#</th>
@@ -293,6 +293,7 @@
                 url: "<?= route('produit.removeGroupePrix') ?>/"+$key,
                 type: 'GET',
                 success : function(data){
+
                     $.ajax({
                         url: "<?= route('produit.listingGroupePrix') ?>",
                         type: 'GET',

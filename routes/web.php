@@ -358,6 +358,7 @@ Route::group([], function() {
 		Route::get('/commande/list/panier/', 'CommandeManagerController@listPanier')->middleware('auth')->name('commande.listpanier');
 		Route::get('/commande/list/panier/delete', 'CommandeManagerController@DeleteItemPanier')->middleware('auth')->name('commande.DeleteItemPanier');
 		Route::get('/commande/list/panier/save', 'CommandeManagerController@saveCommande')->middleware('auth')->name('commande.save');
+		Route::get('/commande/list/panier/updateClient', 'CommandeManagerController@selectClient')->middleware('auth')->name('commande.selectClient');
 
 		Route::get('/commande/creer/client', 'CommandeManagerController@formClient')->middleware('auth')->name('commande.formClient');
 		Route::post('/commande/creer/client/submit', 'CommandeManagerController@formClientPost')->middleware('auth')->name('commande.formClientPost');

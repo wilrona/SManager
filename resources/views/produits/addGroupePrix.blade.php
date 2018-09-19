@@ -7,6 +7,34 @@
  */
 ?>
 
+<style>
+    .select2-container{
+        width: 100% !important;
+    }
+
+    .select2-container .select2-selection--single{
+        height: 36px;
+        padding: 10px 16px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+        height: 100%;
+    }
+
+    .select2-container.select2-container--default.select2-container--open, .select2-container--bootstrap.select2-container--open{
+        z-index: 10000;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow{
+        height: 100%;
+    }
+
+    .select2-search--dropdown .select2-search__field{
+        height: 36px;
+    }
+</style>
 
 
 <div class="modal-header">
@@ -19,7 +47,7 @@
     <div class="form-group {!! $errors->has('client_id') ? 'has-error' : '' !!} " id="client_id">
         <label for="exampleInputEmail1" class="text-bold"> Client : </label>
 
-        {!! Form::select('client_id', $client, null, ['class' => 'form-control', 'placeholder' => 'Selectionnez un client...']) !!}
+        {!! Form::select('client_id', [], null, ['class' => 'form-control js-example-basic', 'placeholder' => 'Selectionnez un client...']) !!}
 
 
         <span class="help-block hidden client_id">
@@ -104,7 +132,7 @@
         </div>
 
         <div class="form-group {!! $errors->has('date_fin') ? 'has-error' : '' !!}" id="date_fin">
-            <label for="exampleInputEmail1" class="text-bold"> Date de début: </label>
+            <label for="exampleInputEmail1" class="text-bold"> Date de fin: </label>
             {!! Form::date('date_fin',null, ['class' => 'form-control', 'placeholder' => 'Date de fin']) !!}
             <span class="help-block hidden date_fin">
                     <i class="ti-alert text-primary"></i>
@@ -120,9 +148,26 @@
     <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Fermer</button>
     <input type="button"  id="submits" class="btn btn-primary btn-sm" value="Valider"/>
 </div>
+<script src="{{URL::asset('assets/js/app.js')}}"></script>
 <script>
     jQuery(document).ready(function() {
         FormElements.init();
+    });
+
+    $(".js-example-basic").select2({
+//            dropdownParent: $("#myModal-vt"),
+        placeholder: "Selection du client",
+        allowClear: true,
+        theme: "bootstrap",
+        language: "fr",
+        ajax: {
+            url: '{{ route('client.index', ['ajax' => true, 'exclus' => $client]) }}',
+            dataType: 'json',
+            processResults: function(data, page) {
+                return { results: data };
+            },
+            // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+        }
     });
 
     $('#submits').on('click', function(e){

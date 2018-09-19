@@ -247,17 +247,17 @@ class ProduitController extends Controller
 
 
 		foreach ($data->GroupePrix()->get() as $items):
-			$save = array();
 
+			$save = array();
 
 			if($items->type_client == 0):
 				$save['produit_id']  = $items->client_id;
 			    $save['produit_name']  = $items->Client()->first()->display_name;
-				array_push($client_id, $items->client_id);
+				array_push($client_id, intval($items->client_id));
 			else:
 				$save['produit_id']  = $items->famille_id;
 				$save['produit_name']  = $items->Famille()->first()->name;
-				array_push($famille_id, $items->famille_id);
+				array_push($famille_id, intval($items->famille_id));
             endif;
 
 			$save['type_client'] = $items->type_client;
@@ -312,11 +312,10 @@ class ProduitController extends Controller
 
 		endif;
 
-		if($request->session()->has('groupe') && $request->session()->get('groupe')):
+		if($request->session()->has('groupe')):
             $groupes = $request->session()->get('groupe');
 
             if($groupes):
-
 
                 foreach ($groupes as $groupe):
 
@@ -368,10 +367,17 @@ class ProduitController extends Controller
 
             endif;
 
-			$request->session()->forget('client_id');
-			$request->session()->forget('famille_id');
-			$request->session()->forget('groupe');
+        else:
+
+	        foreach ($current->GroupePrix()->get() as $del):
+                $del->delete();
+            endforeach;
+
         endif;
+
+		$request->session()->forget('client_id');
+		$request->session()->forget('famille_id');
+		$request->session()->forget('groupe');
 
 		$this->modelRepository->update($id, $data);
 
@@ -438,9 +444,9 @@ class ProduitController extends Controller
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
 	}
 
-	public function listproduit(){
+	public function listproduit(Request $request){
 
-		$produits = session('produit');
+		$produits = $request->session()->get('produit');
 		?>
 		<table class="table table-stylish">
 			<thead>
@@ -518,34 +524,24 @@ class ProduitController extends Controller
 	    if($type == 0): // si c'est un formulaire de type Client
             $allClients = $this->clientRepository->getWhere()->get();
 
-            $client = array();
+            $client = $request->session()->get('client_id');
 
-            foreach ( $allClients as $item ) {
-
-	            if($request->session()->has('client_id')):
-//		            if(!in_array($item->id, $request->session()->get('client_id'))):
-			            $client[$item->id] = $item->display_name;
-//		            endif;
-	            else:
-		            $client[$item->id] = $item->display_name;
-	            endif;
-            }
         else:
 	        $allClients = $this->familleRepository->getWhere()->where('type', '=', '1')->get();
 
 	        $client = array();
 	        foreach ( $allClients as $item ) {
 		        if($request->session()->has('famille_id')):
-//			        if(!in_array($item->id, $request->session()->get('famille_id'))):
+			        if(!in_array($item->id, $request->session()->get('famille_id'))):
 				        $client[$item->id] = $item->name;
-//			        endif;
+			        endif;
 		        else:
 			        $client[$item->id] = $item->name;
 		        endif;
 	        }
         endif;
 
-	        $type_prix = $this->type_prix;
+        $type_prix = $this->type_prix;
 
 		return view('produits.addGroupePrix', compact('client', 'id', 'type', 'type_prix'));
 	}
@@ -605,9 +601,10 @@ class ProduitController extends Controller
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
 	}
 
-	public function listGroupePrix(){
+	public function listGroupePrix(Request $request){
 
-		$groupePrix = session('groupe');
+		$groupePrix = $request->session()->get('groupe');
+
 		?>
         <table class="table table-stylish">
             <thead>
@@ -665,11 +662,11 @@ class ProduitController extends Controller
 		<?php
 	}
 
-	public function removeGroupePrix($key = null, Request $request){
+	public function removeGroupePrix(Request $request, $key = null){
 
 
 		$produits = array();
-		$produit_id = array();
+		$client_id = array();
 		$famille_id = array();
 
 		if($request->session()->has('groupe')):
@@ -677,7 +674,7 @@ class ProduitController extends Controller
 		endif;
 
 		if($request->session()->has('client_id')):
-			$produit_id = $request->session()->get('client_id');
+			$client_id = $request->session()->get('client_id');
 		endif;
 
 		if($request->session()->has('famille_id')):
@@ -689,7 +686,7 @@ class ProduitController extends Controller
 		unset($produits[$key]);
 
 		if($current_prod['type_client'] == 0):
-		    unset($produit_id[$key]);
+		    unset($client_id[$key]);
 		else:
 		    unset($famille_id[$key]);
 		endif;
@@ -700,10 +697,10 @@ class ProduitController extends Controller
 			$request->session()->put('groupe', $produits);
 		}
 
-		if(!$produit_id){
+		if(!$client_id){
 			$request->session()->forget('client_id');
 		}else{
-			$request->session()->put('client_id', $produit_id);
+			$request->session()->put('client_id', $client_id);
 		}
 
 		if(!$famille_id){

@@ -18,6 +18,7 @@ class CreateCommandeTable extends Migration
 	        $table->string('reference');
 	        $table->float('total');
 	        $table->float('subtotal');
+	        $table->string('devise')->nullable($value = true);
 
 	        $table->integer('client_id')->unsigned();
 	        $table->foreign('client_id')->references('id')->on('clients');
