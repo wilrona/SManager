@@ -8,6 +8,7 @@ use App\Http\Requests\ClientRequest;
 use App\Library\CustomFunction;
 use App\Repositories\CaisseRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\CommandeRepository;
 use App\Repositories\EcritureCaisseRepository;
 use App\Repositories\FamilleRepository;
 use App\Repositories\ParametreRepository;
@@ -33,6 +34,7 @@ class CaisseManagerController extends Controller
 	protected $produitRepository;
 	protected $clientRepository;
 	protected $familleRepository;
+	protected $commandeRepository;
 
 	protected $devise;
 	protected $current_user;
@@ -40,7 +42,7 @@ class CaisseManagerController extends Controller
 
 	public function __construct(CaisseRepository $caisse_repository, UserRepository $user_repository, TransfertFondRepository $transfert_fond_repository,
 		SessionRepository $session_repository, EcritureCaisseRepository $ecriture_caisse_repository, ParametreRepository $parametre_repository,
-		ProduitRepository $produit_repository, ClientRepository $client_repository, FamilleRepository $famille_repository
+		ProduitRepository $produit_repository, ClientRepository $client_repository, FamilleRepository $famille_repository, CommandeRepository $commande_repository
 	) {
 
 		$this->modelRepository = $caisse_repository;
@@ -51,6 +53,7 @@ class CaisseManagerController extends Controller
 		$this->transfertFondRepository = $transfert_fond_repository;
 		$this->produitRepository = $produit_repository;
 		$this->clientRepository = $client_repository;
+		$this->commandeRepository = $commande_repository;
 
 		$this->devise = $this->parametreRepository->getWhere()->where(
 			[
@@ -754,4 +757,45 @@ class CaisseManagerController extends Controller
 		return view('caisseManager.detailEcritureEtTransfert', compact('data', 'request', 'caisse_id'));
 	}
 
+	public function searchCommande(Request $request){
+
+		$data = $request->all();
+
+		$response = array(
+			'data' => []
+		);
+
+		if($data['q']):
+
+			$commandes = $this->commandeRepository->getWhere()->where(
+				[
+					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%'],
+					['etat', '=', 0]
+				]
+			)->get();
+
+			foreach ($commandes as $commande):
+				$cmd = [];
+				$cmd['id'] = $commande->id;
+				$cmd['reference'] = $commande->reference;
+				$cmd['client'] = $commande->client()->first()->display_name;
+				$cmd['total'] = number_format($commande->total, 0, '.', ' '). ' '.$commande->devise;
+				$cmd['date'] = $commande->created_at->format('d-m-Y H:i');
+
+				array_push($response['data'], $cmd);
+			endforeach;
+
+		endif;
+
+		return response()->json($response);
+	}
+
+
+	public function encaissementCommande($id = null){
+
+		$data = $this->commandeRepository->getById($id);
+
+		return view('caisseManager.encaissementCommande', compact('data'));
+
+	}
 }

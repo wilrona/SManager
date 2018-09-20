@@ -351,6 +351,10 @@ Route::group([], function() {
 
 		Route::get('/rapport/detail/{ecriture_id}/{caisse_id}', 'CaisseManagerController@detailEcritureEtTransfert')->middleware('auth')->name('caisseManager.detailEcritureEtTransfert');
 
+		Route::get('/search/commande', 'CaisseManagerController@searchCommande')->middleware('auth')->name('caisseManager.searchCommande');
+
+		Route::get('/commande/encaissement/{id?}', 'CaisseManagerController@encaissementCommande')->middleware('auth')->name('commande.encaissementCommande');
+
 		// Route pour la commande de produit
 
 		Route::get('/commande', 'CommandeManagerController@index')->middleware('auth')->name('commande.index');

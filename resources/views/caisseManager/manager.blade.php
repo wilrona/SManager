@@ -109,7 +109,7 @@
                                         <div class="panel-body">
                                             <div class="form-group">
                                                 <label for="exampleInputEmail1"> Recherche commande à encaisser </label>
-                                                <input type="text" class="form-control" placeholder="Recherche">
+                                                <input type="text" class="form-control" placeholder="Recherche" id="search_commande" autocomplete="false">
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="panel panel-white" id="panel4">
@@ -152,12 +152,14 @@
                                         </div>
                                         <div class="panel-body">
 
-                                            <table class="table  sample_5">
+                                            <table class="table  sample_6">
                                                 <thead>
                                                 <tr>
-                                                    <th class="col-xs-1">#</th>
-                                                    <th>Caisse</th>
-                                                    <th class="col-xs-1"></th>
+                                                    <th class="col-xs-3">Reference</th>
+                                                    <th class="col-xs-3">Client</th>
+                                                    <th class="col-xs-3">Total</th>
+                                                    <th class="col-xs-3">Date</th>
+                                                    <th class="col-xs-1 no-sort"></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -188,6 +190,36 @@
 
 
     <script>
+
+        $('#search_commande').on('keyup', function(e){
+
+            e.preventDefault();
+
+            var $url = '{{ route('caisseManager.searchCommande') }}';
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                data: { q: $(this).val() },
+                success: function(data) {
+
+                    oTable_6.fnClearTable();
+
+                    $.each(data['data'], function (index, value) {
+
+                        oTable_6.fnAddData( [
+                            value['reference'],
+                            value['client'],
+                            value['total'],
+                            value['date'],
+                            '<a href="{{ route('commande.encaissementCommande') }}/'+value['id']+'" class="btn btn-primary" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static"><i class="fa fa-credit-card"></i></a>'
+                        ] );
+
+                    });
+
+                }
+            });
+        });
 
         $('#CaisseManager').on('click', function (e) {
             e.preventDefault();
@@ -232,7 +264,7 @@
                     $('.panel-fond').html(data);
                 }
             });
-        })
+        });
 
         $('#StoryTransfertFond').on('click', function (e) {
             e.preventDefault();

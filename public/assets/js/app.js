@@ -194,10 +194,10 @@ var oTable_6 = $('.sample_6').dataTable({
         }
     },
     "aaSorting" : [[0, 'asc']],
-    "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "Tous"], // change per page values here
+    "lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "Tous"], // change per page values here
     ],
     // set the initial value
-    "iDisplayLength" : 25,
+    "iDisplayLength" : 15,
 
     "destroy": true,
     "searching": true
@@ -226,4 +226,11 @@ $('.number_max').on('keydown keyup', function(e){
         e.preventDefault();
     }
 });
+
+$('input[type="number"]').on("keydown", function(e) {
+    // prevent: "e", "=", ",", "-", "."
+    if ([69, 187, 188, 189, 190].includes(e.keyCode)) {
+        e.preventDefault();
+    }
+})
 

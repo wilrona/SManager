@@ -105,11 +105,20 @@ class CustomFunction {
 
 	public function setReference($prefix = '', $count = 1, $lenght = 7, $parent_prefix = ''){
 
-		$fix = str_pad($count, $lenght, 0, STR_PAD_LEFT);
+		$countlen = strlen($count);
+
+		if($countlen <= $lenght):
+			$fix = str_pad($count, $lenght, 0, STR_PAD_LEFT);
+		else:
+			$fix = str_pad($count, $countlen, 0, STR_PAD_LEFT);
+		endif;
+
+		$parent = $parent_prefix ? $parent_prefix.'/' : '';
+
 		if(is_object($prefix)){
-			$mot = $parent_prefix.''.$prefix->value.''.$fix;
+			$mot = $parent.''.$prefix->value.'/'.date("Y").'/'.$fix;
 		}else{
-			$mot = $parent_prefix.''.$fix;
+			$mot = $parent.''.date("Y").'/'.$fix.$fix;
 		}
 
 		return $mot;
