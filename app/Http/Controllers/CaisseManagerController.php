@@ -15,7 +15,6 @@ use App\Repositories\ParametreRepository;
 use App\Repositories\ProduitRepository;
 use App\Repositories\SessionRepository;
 use App\Repositories\TransfertFondRepository;
-use App\Repositories\UserRepository;
 use Carbon\Carbon;
 use Darryldecode\Cart\Cart;
 use Illuminate\Http\Request;
@@ -26,7 +25,6 @@ class CaisseManagerController extends Controller
     //
 
 	protected $modelRepository;
-	protected $userRepository;
 	protected $sessionRepository;
 	protected $ecritureCaisseRepository;
 	protected $parametreRepository;
@@ -40,13 +38,12 @@ class CaisseManagerController extends Controller
 	protected $current_user;
 	protected $custom;
 
-	public function __construct(CaisseRepository $caisse_repository, UserRepository $user_repository, TransfertFondRepository $transfert_fond_repository,
+	public function __construct(CaisseRepository $caisse_repository, TransfertFondRepository $transfert_fond_repository,
 		SessionRepository $session_repository, EcritureCaisseRepository $ecriture_caisse_repository, ParametreRepository $parametre_repository,
 		ProduitRepository $produit_repository, ClientRepository $client_repository, FamilleRepository $famille_repository, CommandeRepository $commande_repository
 	) {
 
 		$this->modelRepository = $caisse_repository;
-		$this->userRepository = $user_repository;
 		$this->sessionRepository = $session_repository;
 		$this->ecritureCaisseRepository = $ecriture_caisse_repository;
 		$this->parametreRepository = $parametre_repository;
@@ -83,7 +80,7 @@ class CaisseManagerController extends Controller
 
 		$current_user = Auth::user();
 
-		$open_session = $this->sessionRepository->getWhere()->where([['user_id', '=', $current_user->id], ['last', '=', 1]])->first();
+		$open_session = $this->sessionRepository->getWhere()->where([['user_id', '=', $current_user->id], ['last', '=', 1]])->whereNotNull('caisse_id')->first();
 
 		$data = $this->modelRepository->getById($caisse_id);
 
@@ -791,11 +788,71 @@ class CaisseManagerController extends Controller
 	}
 
 
-	public function encaissementCommande($id = null){
+	public function encaissementCommande(Request $request, $id = null){
 
 		$data = $this->commandeRepository->getById($id);
 
-		return view('caisseManager.encaissementCommande', compact('data'));
+		return view('caisseManager.encaissementCommande', compact('data', 'request'));
 
+	}
+
+	public function encaissement(Request $request, $paiement, $id, $caisse_id){
+
+		$data = $request->all();
+
+		$response = array(
+			'success' => '',
+			'error' => '',
+			'montant_encaisse' => 0,
+			'montant_caisse' => 0
+		);
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+
+		if($data['send']):
+
+			$commande = $this->commandeRepository->getById($id);
+
+			$current_user = Auth::user();
+
+			$encaissement = array();
+			$encaissement['type_ecriture'] = 3;
+			$encaissement['type_paiement'] = $paiement;
+			$encaissement['devise'] = $this->devise->value;
+			$encaissement['montant'] = intval($data['payee']);
+			$encaissement['montant_remb'] = intval($data['rendu']);
+			$encaissement['libelle'] = 'Encaissement de la commande '.$commande->reference;
+			$encaissement['session_id'] = $exist_session->id;
+			$encaissement['caisse_id'] = $caisse_id;
+			$encaissement['user_id'] = $current_user->id;
+
+			$this->ecritureCaisseRepository->store($encaissement);
+
+			$commande->etat = 1;
+			$commande->save();
+
+			$response['success'] = 'Enregistrement de la commande réussi';
+
+		else:
+
+			$response['error'] = 'Enregistrement de la commande impossible';
+
+		endif;
+
+		if($exist_session->count()):
+
+			$exist_sess = $exist_session->first();
+
+			foreach ($exist_sess->EcritureCaisse()->get() as $item):
+				$response['montant_caisse'] += $item->montant;
+			endforeach;
+
+			foreach ($exist_sess->EcritureCaisse()->where('type_ecriture', '=', 3)->get() as $item):
+				$response['montant_encaisse'] += $item->montant;
+			endforeach;
+
+		endif;
+
+		return response()->json($response);
 	}
 }

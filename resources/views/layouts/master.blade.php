@@ -190,7 +190,7 @@
 										</div> </a>
 									<ul class="sub-menu">
 										<li>
-											<a href=""> <span class="title">Magasins </span> </a>
+											<a href="{{ route('magasinManager.index') }}"> <span class="title">Magasins </span> </a>
 										</li>
 										<li>
 											<a href="{{ route('produit.indexUser', true) }}"> <span class="title">Articles </span> </a>

@@ -353,7 +353,8 @@ Route::group([], function() {
 
 		Route::get('/search/commande', 'CaisseManagerController@searchCommande')->middleware('auth')->name('caisseManager.searchCommande');
 
-		Route::get('/commande/encaissement/{id?}', 'CaisseManagerController@encaissementCommande')->middleware('auth')->name('commande.encaissementCommande');
+		Route::get('/commande/encaissement/show/{id?}', 'CaisseManagerController@encaissementCommande')->middleware('auth')->name('commande.encaissementCommande');
+		Route::get('/commande/encaissement/{paiement}/{id}/{caisse_id}', 'CaisseManagerController@encaissement')->middleware('auth')->name('commande.encaissement');
 
 		// Route pour la commande de produit
 
@@ -370,6 +371,15 @@ Route::group([], function() {
 		Route::get('/commande/vente', 'CommandeManagerController@commandePos')->middleware('auth')->name('commande.commandePos');
 		Route::get('/commande/vente/detail/{id}', 'CommandeManagerController@commandePosDetail')->middleware('auth')->name('commande.commandePosDetail');
 
+	});
+
+	Route::prefix('/stockages')->group(function () {
+
+		Route::get('/magasin', 'MagasinManagerController@index')->middleware('auth')->name('magasinManager.index');
+
+		Route::get('/magasin/preopen/{magasin_id}', 'MagasinManagerController@preopen')->middleware('auth')->name('magasinManager.preopen');
+
+		Route::get('/magasin/open/{magasin_id}', 'MagasinManagerController@open')->middleware('auth')->name('magasinManager.open');
 	});
 
 

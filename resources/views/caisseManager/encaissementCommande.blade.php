@@ -163,24 +163,24 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-6">
-                                    <button type="button" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg">
+                                    <button type="button" data-url="{{ route('commande.encaissement', ['paiement' => 'cash', 'id' => $data->id, 'caisse_id' => $request->get('caisse_id')]) }}" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg paiement" disabled>
                                         Cash
                                     </button>
                                 </div>
 
                                 <div class="col-xs-6">
-                                    <button type="button" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg">
+                                    <button type="button" data-url="{{ route('commande.encaissement', ['paiement' => 'orange_money', 'id' => $data->id, 'caisse_id' => $request->get('caisse_id')]) }}" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg paiement" disabled>
                                         Orange Money
                                     </button>
                                 </div>
 
                                 <div class="col-xs-6">
-                                    <button type="button" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg">
+                                    <button type="button" data-url="{{ route('commande.encaissement', ['paiement' => 'mobile_money', 'id' => $data->id, 'caisse_id' => $request->get('caisse_id')]) }}" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg paiement" disabled>
                                         Mobile Money
                                     </button>
                                 </div>
                                 <div class="col-xs-6">
-                                    <button type="button" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg">
+                                    <button type="button" data-url="{{ route('commande.encaissement', ['paiement' => 'other', 'id' => $data->id, 'caisse_id' => $request->get('caisse_id')]) }}" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg paiement" disabled>
                                         Autres
                                     </button>
                                 </div>
@@ -241,19 +241,30 @@
                                 <td>
                                     <h3 style="margin: 10px 0;"><strong>Payée :</strong></h3>
                                 </td>
-                                <td style="text-align: right; font-weight: 900 !important;"><span id="payee">0</span> {{ $data->devise }}</td>
+                                <td style="text-align: right; font-weight: 900 !important;">
+                                    <span id="payee">0</span> {{ $data->devise }}
+                                    <input type="hidden" id="payee_input">
+                                </td>
                             </tr>
                             <tr>
                                 <td>
                                     <h3 style="margin: 10px 0;"><strong>Reste :</strong></h3>
                                 </td>
-                                <td style="text-align: right; font-weight: 900 !important;"><span id="reste">0</span> {{ $data->devise }}</td>
+                                <td style="text-align: right; font-weight: 900 !important;">
+                                    <span id="reste">0</span>
+                                    {{ $data->devise }}
+                                    <input type="hidden" id="reste_input">
+                                </td>
                             </tr>
                             <tr>
                                 <td>
                                     <h3 style="margin: 10px 0;"><strong>Rendu :</strong></h3>
                                 </td>
-                                <td style="text-align: right; font-weight: 900 !important;"><span id="rendu">0</span> {{ $data->devise }}</td>
+                                <td style="text-align: right; font-weight: 900 !important;">
+                                    <span id="rendu">0</span>
+                                    {{ $data->devise }}
+                                    <input type="hidden" id="rendu_input">
+                                </td>
                             </tr>
                         </table>
                     </div>
@@ -276,9 +287,65 @@ jQuery(document).ready(function() {
         TableData.init();
         FormElements.init();
 
+        $('.paiement').on('click', function (e) {
+            e.preventDefault();
+            $url = $(this).data('url');
+
+            $.ajax({
+                url: $url,
+                type: 'GET',
+                data: { rendu: $('#rendu_input').val(), payee: $('#payee_input').val(), send : 1 },
+                success: function(data) {
+                    swal({
+                        title: 'Paiement Réussi',
+                        text: data['success'],
+                        type: "success",
+                        showconfirmButton: true,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: "#d43f3a"
+                    }, function () {
+                        oTable_6.fnClearTable();
+                        $('#value_encaissement_effectue').html(data['montant_encaisse']);
+                        $('#value_montant_caisse').html(data['montant_caisse']);
+                        $('.modal-header .close').trigger('click');
+                    });
+
+                }
+            });
+        });
+
         $('#montant_recu').on('keyup', function (e) {
             e.preventDefault();
-        })
+
+            var  $value = parseInt($(this).val());
+            var $montant = parseInt($('#montant_total').data('montant'));
+            var $reste = $value - $montant;
+
+            $('#rendu_input').val(0);
+            $('#payee_input').val(0);
+
+            if($value < $montant){
+
+                $('#payee').html($value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                $('#reste').html($reste.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                $('#rendu').html(0);
+                $('.paiement').prop("disabled",true);
+
+                $('#rendu_input').val(0);
+                $('#payee_input').val($value);
+
+            }else{
+
+                $('#payee').html($montant.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                $('#reste').html(0);
+                $('#rendu').html($reste.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                $('.paiement').prop("disabled",false);
+
+                $('#rendu_input').val($reste);
+                $('#payee_input').val($montant);
+            }
+
+        });
 
 
 });
