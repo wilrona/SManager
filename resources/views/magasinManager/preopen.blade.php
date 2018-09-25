@@ -22,10 +22,20 @@
 
 <script>
     $('.modal-header .close').trigger('click');
-    swal({
-        title: "Ooooops!!!!",
-        text: "Vous ne pouvez pas ouvrir plus de deux sessions de magasin.",
-        type: "warning",
-        confirmButtonColor: "#007AFF"
-    });
+
+    @if(!$open_session)
+
+        window.location.replace("{{ route('magasinManager.open', ['magasin_id' => $magasin_id]) }}");
+
+    @else:
+
+
+        swal({
+            title: "Ooooops!!!!",
+            text: "Vous ne pouvez pas ouvrir plus de deux sessions de magasin.",
+            type: "warning",
+            confirmButtonColor: "#007AFF"
+        });
+
+    @endif
 </script>

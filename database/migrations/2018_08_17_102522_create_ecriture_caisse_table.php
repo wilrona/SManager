@@ -36,7 +36,7 @@ class CreateEcritureCaisseTable extends Migration
 	    Schema::create('sessions', function (Blueprint $table) {
 		    $table->increments('id');
 
-		    $table->integer('caisse_id')->unsigned();
+		    $table->integer('caisse_id')->nullable($value = true)->unsigned();
 		    $table->foreign('caisse_id')->references('id')->on('caisses');
 
 		    $table->float('montant_ouverture')->default(0);

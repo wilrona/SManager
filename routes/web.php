@@ -380,6 +380,12 @@ Route::group([], function() {
 		Route::get('/magasin/preopen/{magasin_id}', 'MagasinManagerController@preopen')->middleware('auth')->name('magasinManager.preopen');
 
 		Route::get('/magasin/open/{magasin_id}', 'MagasinManagerController@open')->middleware('auth')->name('magasinManager.open');
+
+		Route::get('/search/commande', 'MagasinManagerController@searchCommande')->middleware('auth')->name('magasinManager.searchCommande');
+
+		Route::get('/openReload/{magasin_id}', 'MagasinManagerController@openReload')->middleware('auth')->name('magasinManager.openReload');
+
+		Route::get('/close/{magasin_id}', 'MagasinManagerController@close')->middleware('auth')->name('magasinManager.close');
 	});
 
 

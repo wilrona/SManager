@@ -21,6 +21,10 @@ class Session extends Model
 		return $this->hasMany('App\EcritureCaisse', 'session_id', 'id');
 	}
 
+	public function EcritureStock(){
+		return $this->hasMany('App\EcritureStock', 'session_id', 'id');
+	}
+
 	public function magasin(){
 		return $this->belongsTo('App\Magasin', 'magasin_id', 'id');
 	}

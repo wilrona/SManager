@@ -12,12 +12,12 @@
     <div class="wrap-content container" id="container">
         <!-- start: BREADCRUMB -->
 		<div class="breadcrumb-wrapper">
-			<h4 class="mainTitle no-margin">Caisses</h4>
-			<span class="mainDescription">Gestion des caisses </span>
+			<h4 class="mainTitle no-margin">Magasins</h4>
+			<span class="mainDescription">Gestion des magasins </span>
 			<ul class="pull-right breadcrumb">
 			<li><a href="/"><i class="fa fa-home margin-right-5 text-large text-dark"></i>Home</a>
 			</li>
-			<li>Caisses</li>
+			<li>Magasins</li>
 			<li>Managers</li>
 			</ul>
 		</div>
@@ -34,42 +34,30 @@
                                 <div class="email-options perfect-scrollbar ps-container ps-theme-default" data-ps-id="7b9d5958-3c09-4662-e8ec-65eb1956edd1">
                                     <div class="padding-15">
 
-                                        <a href="{{ route('caisseManager.index') }}" class="btn btn-default btn-block margin-bottom-30">
-                                            Retour aux caisses
+                                        <a href="{{ route('magasinManager.index') }}" class="btn btn-default btn-block margin-bottom-30">
+                                            Retour aux magasins
                                         </a>
                                         <div class="panel panel-white">
                                             <div class="panel-heading border-light">
-                                                <h3 class="text-center">Caisse ouverte</h3>
-                                                <h4 class="panel-title text-center">{{ $caisse->name }}</h4>
+                                                <h3 class="text-center">Magasin ouvert</h3>
+                                                <h4 class="panel-title text-center">{{ $magasin->name }}</h4>
                                             </div>
                                         </div>
-                                        <a href="{{ route('commande.index') }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static">
-                                            Creer une commande
-                                        </a>
-                                        <a href="{{ route('caisseManager.createTransfertFond', $caisse->id) }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal" data-backdrop="static">
-                                            Creer un transfert de fond
-                                        </a>
 
                                         <p class="email-options-title no-margin">
                                             NAVIGATION
                                         </p>
                                         <ul class="main-options padding-15">
                                             <li>
-                                                <a href="{{ route('caisseManager.openReload', $caisse->id) }}" id="CaisseManager"> <span class="title"><i class="ti-shopping-cart"></i> Caisse Manager </span> </a>
+                                                <a href="{{ route('magasinManager.openReload', $magasin->id) }}" id="CaisseManager"> <span class="title"><i class="ti-shopping-cart"></i> Magasin Manager </span> </a>
                                             </li>
                                             <li>
-                                                <a href="{{ route('caisseManager.receiveTransfertFond', $caisse->id) }}" id="ReceiveFond"> <span class="title"><i class="ti-credit-card"></i> Reception de fond</span>  @if($exist_receiveFond) <span class="badge pull-right " id="badge_receiveFond">{{ $exist_receiveFond }}</span> @endif </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('caisseManager.indexTransfertFond', $caisse->id) }}" id="TransfertFond"> <span class="title"><i class="ti-folder"></i> Tranfert de fond </span>  </a>
-                                            </li>
-                                            <li>
-                                                <a href="{{ route('caisseManager.storyTransfertFond', $caisse->id) }}" id="StoryTransfertFond"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
+                                                <a href="" id="StoryTransfertFond"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
                                             </li>
                                         </ul>
 
                                         <a href="#" class="btn btn-danger btn-block margin-bottom-30" id="clotureCaisse">
-                                            Cloturer la caisse
+                                            Fermer le magasin
                                         </a>
                                     </div>
                                     <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 3px;">
@@ -104,19 +92,19 @@
                                 <div class="caisseManager">
                                     <div class="panel panel-white">
                                         <div class="panel-heading border-light">
-                                            <h4 class="panel-title">Caisse</h4>
+                                            <h4 class="panel-title">Magasins</h4>
                                         </div>
                                         <div class="panel-body">
                                             <div class="form-group">
-                                                <label for="exampleInputEmail1"> Recherche commande à encaisser </label>
+                                                <label for="exampleInputEmail1"> Recherche commande payée </label>
                                                 <input type="text" class="form-control" placeholder="Recherche" id="search_commande" autocomplete="false">
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="panel panel-white" id="panel4">
                                                     <div class="panel-body">
-                                                        <h3 class="text-center">Encaissement effectué</h3>
+                                                        <h3 class="text-center">Articles sortis</h3>
                                                         <p class="text-center h2" >
-                                                            <span id="value_encaissement_effectue">{{ number_format($montant_encaisse, 0, '.', ' ') }}</span> XAF
+                                                            <span id="value_encaissement_effectue">{{ $produit_sortie }}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -124,9 +112,9 @@
                                             <div class="col-md-4">
                                                 <div class="panel panel-white" id="panel4">
                                                     <div class="panel-body">
-                                                        <h3 class="text-center">Fond de caisse</h3>
+                                                        <h3 class="text-center">Articles restant</h3>
                                                         <p class="text-center h2">
-                                                            {{ number_format($exist_session->first()->montant_ouverture, 0, '.', ' ')  }} XAF
+                                                            {{ $produit_restant }}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -134,9 +122,9 @@
                                             <div class="col-md-4">
                                                 <div class="panel panel-white" id="panel4">
                                                     <div class="panel-body">
-                                                        <h3 class="text-center">Montant en caisse</h3>
+                                                        <h3 class="text-center">Articles en magasin</h3>
                                                         <p class="text-center h2">
-                                                            <span id="value_montant_caisse">{{ number_format($montant_caisse, 0, '.', ' ') }}</span> XAF
+                                                            <span id="value_montant_caisse">{{ $produit_mag }}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -148,7 +136,7 @@
                                     <div class="panel panel-white">
 
                                         <div class="panel-heading border-light">
-                                            <h4 class="panel-title">Liste des commandes en attente d'encaissement</h4>
+                                            <h4 class="panel-title">Liste des commandes payées</h4>
                                         </div>
                                         <div class="panel-body">
 
@@ -187,15 +175,12 @@
 
 @section('footer')
     @parent
-
-
     <script>
-
         $('#search_commande').on('keyup', function(e){
 
             e.preventDefault();
 
-            var $url = '{{ route('caisseManager.searchCommande') }}';
+            var $url = '{{ route('magasinManager.searchCommande') }}';
 
             $.ajax({
                 url: $url,
@@ -212,7 +197,7 @@
                             value['client'],
                             value['total'],
                             value['date'],
-                            '<a href="{{ route('commande.encaissementCommande') }}/'+value['id']+'?caisse_id={{ $caisse->id }}" class="btn btn-primary" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static"><i class="fa fa-credit-card"></i></a>'
+                            '<a href="/'+value['id']+'?caisse_id={{ $magasin->id }}" class="btn btn-primary" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static"><i class="fa fa-credit-card"></i></a>'
                         ] );
 
                     });
@@ -236,49 +221,7 @@
             });
 
 
-        })
-
-        $('#TransfertFond').on('click', function (e) {
-            e.preventDefault();
-            var $url = $(this).attr('href');
-
-            $.ajax({
-                url: $url,
-                type: 'get',
-                success: function(data) {
-                    $('.caisseManager').html('');
-                    $('.panel-fond').html(data);
-                }
-            });
-        })
-
-        $('#ReceiveFond').on('click', function (e) {
-            e.preventDefault();
-            var $url = $(this).attr('href');
-
-            $.ajax({
-                url: $url,
-                type: 'get',
-                success: function(data) {
-                    $('.caisseManager').html('');
-                    $('.panel-fond').html(data);
-                }
-            });
         });
-
-        $('#StoryTransfertFond').on('click', function (e) {
-            e.preventDefault();
-            var $url = $(this).attr('href');
-
-            $.ajax({
-                url: $url,
-                type: 'get',
-                success: function(data) {
-                    $('.caisseManager').html('');
-                    $('.panel-fond').html(data);
-                }
-            });
-        })
 
         $('#clotureCaisse').on('click', function(e){
             e.preventDefault();
@@ -292,70 +235,15 @@
                 confirmButtonText: "Confirmer",
                 closeOnConfirm: false
             }, function() {
-                swal({
-                    title: "Montant à la fermeture de la session",
-                    text: 'Saisir le montant exact que vous avez constatez à la fermeture de la session',
-                    type: "input",
-                    inputType : "number",
-                    inputValue : 0,
-                    confirmButtonColor: "#58748B",
-                    confirmButtonText: "Valider",
-                    closeOnConfirm: false,
-                    showCancelButton: true,
-                    cancelButtonText: 'Annuler',
-                    inputPlaceholder: "Inserer le montant"
-                }, function(inputValue){
 
-                    if (inputValue === false) return false;
-
-                    if (inputValue === "" || parseInt(inputValue) < 0) {
-                        swal.showInputError("Saisir un montant valide");
-                        return false
-                    }else{
-                        var $url = "{{ route('caisseManager.checkClose', $caisse->id) }}";
-                        $.ajax({
-                            url: $url,
-                            type: 'get',
-                            data: { montant : inputValue },
-                            success: function(data) {
-
-                                if(data['error'].length > 0){
-                                    swal.showInputError(data['error']);
-                                }
-
-                                if(data['success'].length > 0){
-                                    if(data['principal'] === 0){
-                                        confirmationRedirection()
-                                    }else{
-                                        swal({
-                                            title: data['success'],
-                                            text: 'Ce montant va être transferé à la caisse centrale de votre point de vente',
-                                            type: "success",
-                                            confirmButtonColor: "#58748B",
-                                            confirmButtonText: "Valider la cloture",
-                                            closeOnConfirm: false,
-                                            showCancelButton: true,
-                                            cancelButtonText: 'Annuler'
-                                        }, function () {
-                                            AjaxTransfertFond(data['code']);
-                                        });
-
-                                    }
-                                }
-
-                            }
-                        });
-                    }
-
-                })
-
+                confirmationRedirection();
 
             });
         });
 
         function confirmationRedirection(){
 
-            var $url = "{{ route('caisseManager.close', $caisse->id) }}";
+            var $url = "{{ route('magasinManager.close', $magasin->id) }}";
 
             $.ajax({
                 url: $url,
@@ -371,34 +259,10 @@
                     });
 
                     setTimeout(function () {
-                        window.location.href = "{{ route('caisseManager.index') }}";
+                        window.location.href = "{{ route('magasinManager.index') }}";
                     }, 2000); //will call the function after 2 secs.
 
                 }
-            });
-
-        }
-
-        function AjaxTransfertFond(code){
-            swal({
-                title: "Votre code de transfert est: \n "+code,
-                text: "Code du transfert !",
-                type: "success",
-                showCancelButton: false,
-                showconfirmButton: true,
-                confirmButtonColor: "#58748B",
-                confirmButtonText: "Terminer la cloture"
-            }, function () {
-                var $url = "{{ route('caisseManager.transfertFondClose', $caisse->id) }}";
-                $.ajax({
-                    url: $url,
-                    type: 'get',
-                    data : { code : code},
-                    success: function (data) {
-                        confirmationRedirection();
-                    }
-                });
-
             });
 
         }
