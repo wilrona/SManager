@@ -52,7 +52,7 @@
                                                 <a href="{{ route('magasinManager.openReload', $magasin->id) }}" id="CaisseManager"> <span class="title"><i class="ti-shopping-cart"></i> Magasin Manager </span> </a>
                                             </li>
                                             <li>
-                                                <a href="" id="StoryTransfertFond"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
+                                                <a href="{{ route('magasinManager.storyTransfertStock', $magasin->id) }}" id="StoryTransfertStock"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
                                             </li>
                                         </ul>
 
@@ -176,7 +176,7 @@
 @section('footer')
     @parent
     <script>
-        $('#search_commande').on('keyup', function(e){
+        $('body').on('keyup', '#search_commande',  function(e){
 
             e.preventDefault();
 
@@ -197,7 +197,7 @@
                             value['client'],
                             value['total'],
                             value['date'],
-                            '<a href="/'+value['id']+'?caisse_id={{ $magasin->id }}" class="btn btn-primary" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static"><i class="fa fa-credit-card"></i></a>'
+                            '<a href="{{ route('magasinManager.stockCommande') }}/'+value['id']+'?magasin_id={{ $magasin->id }}" class="btn btn-primary" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static"><i class="fa fa-credit-card"></i></a>'
                         ] );
 
                     });
@@ -240,6 +240,20 @@
 
             });
         });
+
+        $('#StoryTransfertStock').on('click', function (e) {
+            e.preventDefault();
+            var $url = $(this).attr('href');
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+                    $('.caisseManager').html('');
+                    $('.panel-fond').html(data);
+                }
+            });
+        })
 
         function confirmationRedirection(){
 

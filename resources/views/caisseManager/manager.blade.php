@@ -191,7 +191,7 @@
 
     <script>
 
-        $('#search_commande').on('keyup', function(e){
+        $('body').on('keyup', '#search_commande',  function(e){
 
             e.preventDefault();
 

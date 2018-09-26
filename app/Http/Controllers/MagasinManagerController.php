@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\CommandeRepository;
+use App\Repositories\EcritureStockRepository;
 use App\Repositories\MagasinRepository;
+use App\Repositories\ProduitRepository;
 use App\Repositories\SessionRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,12 +17,18 @@ class MagasinManagerController extends Controller
 	protected $modelRepository;
 	protected $sessionRepository;
 	protected $commandeRepository;
+	protected $ecritureStockRepository;
+	protected $produitRepository;
 
-	public function __construct(MagasinRepository $magasin_repository, SessionRepository $session_repository, CommandeRepository $commande_repository) {
+	public function __construct(MagasinRepository $magasin_repository, SessionRepository $session_repository,
+		CommandeRepository $commande_repository, EcritureStockRepository $ecriture_stock_repository, ProduitRepository $produit_repository
+	) {
 
 		$this->modelRepository = $magasin_repository;
 		$this->sessionRepository = $session_repository;
 		$this->commandeRepository = $commande_repository;
+		$this->ecritureStockRepository = $ecriture_stock_repository;
+		$this->produitRepository = $produit_repository;
 
 	}
 
@@ -174,6 +182,43 @@ class MagasinManagerController extends Controller
 
 		$magasin->etat = 0;
 		$magasin->save();
+
+		$response = array(
+			'code' => ''
+		);
+
+		return response()->json($response);
+
+	}
+
+	public function storyTransfertStock(Request $request, $magasin_id){
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['magasin_id', '=', $magasin_id], ['last', '=', 1]])->first();
+
+		$datas = $this->ecritureStockRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['magasin_id', '=', $magasin_id]])->orderBy('created_at', 'desc')->get();
+
+		return view('magasinManager.storyTransfertStock', compact('datas', 'magasin_id'));
+
+
+	}
+
+	public function stockCommande(Request $request, $id = null){
+
+		$data = $this->commandeRepository->getById($id);
+
+		return view('magasinManager.stockCommande', compact('data', 'request'));
+
+	}
+
+	public function serieProduit(Request $request){
+
+		$data = $request->all();
+
+		$prod = $this->produitRepository->getById($data['id']);
+
+		$exist_prod = $prod->series()->where('type', '=', 0)->whereHas('Magasins', function ($q) use ($data){
+			$q->where('id', '=', $data['magasin_id']);
+		})->get();
 
 		$response = array(
 			'code' => ''

@@ -386,6 +386,10 @@ Route::group([], function() {
 		Route::get('/openReload/{magasin_id}', 'MagasinManagerController@openReload')->middleware('auth')->name('magasinManager.openReload');
 
 		Route::get('/close/{magasin_id}', 'MagasinManagerController@close')->middleware('auth')->name('magasinManager.close');
+
+		Route::get('/story/transfert_stock/{magasin_id}', 'MagasinManagerController@storyTransfertStock')->middleware('auth')->name('magasinManager.storyTransfertStock');
+
+		Route::get('/commande/stock/show/{id?}', 'MagasinManagerController@stockCommande')->middleware('auth')->name('magasinManager.stockCommande');
 	});
 
 
