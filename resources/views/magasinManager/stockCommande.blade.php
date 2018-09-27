@@ -121,7 +121,7 @@
 
                         @foreach($data->Produits()->get() as $panier)
 
-                        <div class="col-md-12 no-padding item-panier" id="{{ $panier->id }}">
+                        <div class="col-md-12 no-padding item-panier" data-id="{{ $panier->id }}">
                             <div class="padding-15" style="width: 100%">
                                 <h4><strong>{{ $panier->name }}</strong></h4>
                                 <p>
@@ -146,7 +146,7 @@
                                 <strong>Sub-Total:</strong> <span id="Subtotal">{{  number_format($data->subtotal, 0, '.', ' ') }}</span> {{ $data->devise }}
                             </li>
                             <li class="text-extra-large">
-                                <strong>TVA (<span id="tauxTax">{{ (($data->total * 100) / $data->subtotal) - 100 }}%</span>):</strong>  <span id="Tax">{{ number_format($data->total - $data->subtotal, 0, '.', ' ') }}</span> {{ $data->devise }}
+                                <strong>TVA (<span id="tauxTax">{{ round((($data->total - $data->subtotal) * 100) / $data->subtotal, 2) }}%</span>):</strong>  <span id="Tax">{{ number_format($data->total - $data->subtotal, 0, '.', ' ') }}</span> {{ $data->devise }}
                             </li>
                             <li class="text-extra-large margin-top-15">
                                 <h1 class="text-white" style="margin: 0;"><strong>Total:</strong> <span id="Total">{{ number_format($data->total, 0, '.', ' ') }}</span> {{ $data->devise }}</h1>
@@ -211,11 +211,11 @@
                     <hr>
 
                     <div class="jumbotron text-center" id="jumbotron">
-                        <h1><small>Veuillez sélectionner un produit dans le panier pour associer des numéros de series</small></h1>
+                        <h1><small>Sélectionnez un produit dans le panier pour associer des numéros de série</small></h1>
                     </div>
 
-                    <div id="reloading">
-
+                    <div id="reloading" class="hidden">
+                        <h3 class="text-center">Chargement</h3>
                     </div>
 
                 </div>
@@ -237,14 +237,14 @@ jQuery(document).ready(function() {
     TableData.init();
     FormElements.init();
 
-    $('body').on('click', '.item-panier', function (e) {
+    $('.item-panier').on('click', function (e) {
         e.preventDefault();
 
         if($(this).hasClass('partition-light-primary')){
 
             $(this).removeClass('partition-light-primary');
             $('#jumbotron').removeClass('hidden');
-            $('#reloading').html('');
+            $('#reloading').addClass('hidden').html('<h3>Chargement</h3>');
 
         }else{
 
@@ -255,18 +255,21 @@ jQuery(document).ready(function() {
             $(this).addClass('partition-light-primary');
 
             $('#jumbotron').addClass('hidden');
+            $('#reloading').removeClass('hidden');
 
             $.ajax({
-                url: "",
+                url: "{{ route('magasinManager.serieProduit') }}",
                 type: 'GET',
-                data: { id: $(this).data('id'), magasin_id: "{{ $request->get('magasin_id') }}" },
+                data: { commande_id: "{{ $data->id }}", id: $(this).data('id'), magasin_id: "{{ $request->get('magasin_id') }}" },
                 success: function(data) {
-
+                    $('#reloading').html(data);
                 }
             });
 
         }
-    })
+    });
+
+
 });
 
 </script>

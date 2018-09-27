@@ -390,6 +390,8 @@ Route::group([], function() {
 		Route::get('/story/transfert_stock/{magasin_id}', 'MagasinManagerController@storyTransfertStock')->middleware('auth')->name('magasinManager.storyTransfertStock');
 
 		Route::get('/commande/stock/show/{id?}', 'MagasinManagerController@stockCommande')->middleware('auth')->name('magasinManager.stockCommande');
+		Route::get('/commande/produit/serie', 'MagasinManagerController@serieProduit')->middleware('auth')->name('magasinManager.serieProduit');
+		Route::get('/check/add/serie', 'MagasinManagerController@serieProduitCheck')->middleware('auth')->name('magasinManager.serieProduitCheck');
 	});
 
 

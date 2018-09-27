@@ -146,7 +146,7 @@
                                 <strong>Sub-Total:</strong> <span id="Subtotal">{{  number_format($data->subtotal, 0, '.', ' ') }}</span> {{ $data->devise }}
                             </li>
                             <li class="text-extra-large">
-                                <strong>TVA (<span id="tauxTax">{{ (($data->total * 100) / $data->subtotal) - 100 }}%</span>):</strong>  <span id="Tax">{{ number_format($data->total - $data->subtotal, 0, '.', ' ') }}</span> {{ $data->devise }}
+                                <strong>TVA (<span id="tauxTax">{{ round((($data->total - $data->subtotal) * 100) / $data->subtotal, 2) }}%</span>):</strong>  <span id="Tax">{{ number_format($data->total - $data->subtotal, 0, '.', ' ') }}</span> {{ $data->devise }}
                             </li>
                             <li class="text-extra-large margin-top-15">
                                 <h1 class="text-white" style="margin: 0;"><strong>Total:</strong> <span id="Total">{{ number_format($data->total, 0, '.', ' ') }}</span> {{ $data->devise }}</h1>
@@ -324,25 +324,32 @@ jQuery(document).ready(function() {
             $('#rendu_input').val(0);
             $('#payee_input').val(0);
 
-            if($value < $montant){
+            console.log($value);
 
-                $('#payee').html($value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
-                $('#reste').html($reste.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
-                $('#rendu').html(0);
-                $('.paiement').prop("disabled",true);
+            if($value){
 
-                $('#rendu_input').val(0);
-                $('#payee_input').val($value);
 
-            }else{
+                if($value < $montant){
 
-                $('#payee').html($montant.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
-                $('#reste').html(0);
-                $('#rendu').html($reste.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
-                $('.paiement').prop("disabled",false);
+                    $('#payee').html($value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                    $('#reste').html($reste.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                    $('#rendu').html(0);
+                    $('.paiement').prop("disabled",true);
 
-                $('#rendu_input').val($reste);
-                $('#payee_input').val($montant);
+                    $('#rendu_input').val(0);
+                    $('#payee_input').val($value);
+
+                }else{
+
+                    $('#payee').html($montant.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                    $('#reste').html(0);
+                    $('#rendu').html($reste.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "));
+                    $('.paiement').prop("disabled",false);
+
+                    $('#rendu_input').val($reste);
+                    $('#payee_input').val($montant);
+                }
+
             }
 
         });

@@ -217,6 +217,55 @@ $('#sample_6_column_toggler input[type="checkbox"]').change(function() {
 });
 
 
+var oTable_7 = $('.sample_7').dataTable({
+    "aoColumnDefs" : [{
+        "aTargets" : [0]
+    }],
+    "oLanguage" : {
+        "sProcessing":     "Traitement en cours...",
+        "sSearch":         "Recherche :",
+        "sLengthMenu":     "Afficher _MENU_ &eacute;l&eacute;ments",
+        "sInfo":           "Affichage de  _START_ &agrave; _END_ sur _TOTAL_ ",
+        "sInfoEmpty":      "Affichage de 0 &agrave; 0 sur 0 ",
+        "sInfoFiltered":   "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+        "sInfoPostFix":    "",
+        "sLoadingRecords": "Chargement en cours...",
+        "sZeroRecords":    "Aucun &eacute;l&eacute;ment &agrave; afficher",
+        "sEmptyTable":     "Aucune donn&eacute;e disponible",
+        "oPaginate": {
+            "sFirst":      "",
+            "sPrevious":   "",
+            "sNext":       "",
+            "sLast":       ""
+        },
+        "oAria": {
+            "sSortAscending":  ": activer pour trier la colonne par ordre croissant",
+            "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+        }
+    },
+    "aaSorting" : [[0, 'asc']],
+    "lengthMenu": [[15, 25, 50, -1], [15, 25, 50, "Tous"], // change per page values here
+    ],
+    // set the initial value
+    "iDisplayLength" : 15,
+
+    "destroy": true,
+    "searching": true
+
+});
+$('#sample_7_wrapper .dataTables_filter input').addClass("form-control input-sm").attr("placeholder", "Search");
+// modify table search input
+$('#sample_7_wrapper .dataTables_length select').addClass("m-wrap small");
+// modify table per page dropdown
+$('#sample_7_wrapper .dataTables_length select').wrap("<div class='clip-select inline-block'></div>");
+// add custom class to select dropdown
+$('#sample_7_column_toggler input[type="checkbox"]').change(function() {
+    /* Get the DataTables object again - this is not a recreation, just a get of the object */
+    var iCol = parseInt($(this).attr("data-column"));
+    var bVis = oTable_7.fnSettings().aoColumns[iCol].bVisible;
+    oTable_7.fnSetColumnVis(iCol, ( bVis ? false : true));
+});
+
 $('.number_max').on('keydown keyup', function(e){
     if ($(this).val() >= $(this).attr('max')
         && e.keyCode !== 46 // keycode for delete

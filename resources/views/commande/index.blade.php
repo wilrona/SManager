@@ -348,8 +348,6 @@ jQuery(document).ready(function() {
 
                         });
 
-
-
                     }
                 }
             });
@@ -413,11 +411,60 @@ jQuery(document).ready(function() {
             });
         });
 
-        $('body').on('click', '.closed-panier', function (e) {
+
+
+        $('body').on('click', '.item-panier', function (e) {
+
+            e.preventDefault();
+            var $this = $(this);
+
+            if($this.hasClass('partition-light-primary')){
+
+                $this.removeClass('partition-light-primary');
+
+                $('#item-name-update').text('Aucun produit selectionné');
+                $('#item-qte-update').val(1);
+                $('#submit-update-qte').data('id', '');
+
+            }else{
+
+                $('.item-panier.partition-light-primary').each(function () {
+                    $(this).removeClass('partition-light-primary');
+
+                });
+
+                $.ajax({
+                    url: "{{ route('commande.DeleteItemPanier') }}",
+                    type: 'GET',
+                    data: { id: $this.data('id'), request: 'select'},
+                    success: function(data) {
+
+
+                        $this.addClass('partition-light-primary');
+
+                        $('#item-name-update').text(data['name']);
+                        $('#item-qte-update').val(data['qte']);
+                        $('#submit-update-qte').data('id', data['id']);
+                    }
+                });
+
+            }
+        }).on('click', '.closed-panier', function (e) {
+
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
 
             var $this = $(this);
+            var $parent = $this.parent().parent();
+
+            $('.item-panier.partition-light-primary').each(function () {
+                $(this).removeClass('partition-light-primary');
+            });
+
+            $('#item-name-update').text('Aucun produit selectionné');
+            $('#item-qte-update').val(1);
+            $('#submit-update-qte').data('id', '');
 
             $.ajax({
                 url: "{{ route('commande.DeleteItemPanier') }}",
@@ -431,68 +478,39 @@ jQuery(document).ready(function() {
                         $('#Tax').text(data['tax']);
                         $('#Total').text(data['total']);
 
-                        $('.item-panier.partition-light-primary').each(function () {
-                            $(this).removeClass('partition-light-primary');
+                        var count_exist = 0;
+
+                        $parent.replaceWith('');
+
+                        $('.item-panier').each(function (index) {
+                            count_exist += 1;
                         });
 
-                        $.ajax({
-                            url: "{{ route('commande.listpanier') }}",
-                            type: 'GET',
-                            data: { id: $this.data('close') },
-                            success: function(data2nd) {
+                        if(count_exist === 0){
+                            $.ajax({
+                                url: "{{ route('commande.listpanier') }}",
+                                type: 'GET',
+                                data: { id: $this.data('close') },
+                                success: function(data2nd) {
+                                    $('#panierContent').append(data2nd);
+                                }
+                            });
+                        }
 
-                                $('.item-panier').each(function (index) {
-                                    if($(this).data('id') === $this.data('close')){
-                                        $(this).replaceWith(data2nd);
-                                    }
-                                });
 
-                                $('#item-name-update').text('Aucun produit selectionné');
-                                $('#item-qte-update').val(1);
-                                $('#submit-update-qte').data('id', '');
-
-                            }
-                        });
                     }
 
                     if(data['error'].length > 0){
                         toastr["error"](data['error'], "Erreur");
                     }
                 }
-            });
+        });
 
-        }).on('click', '.item-panier', function (e) {
-            e.preventDefault();
 
-            if($(this).hasClass('partition-light-primary')){
 
-                $(this).removeClass('partition-light-primary');
+    });
 
-                $('#item-name-update').text('Aucun produit selectionné');
-                $('#item-qte-update').val(1);
-                $('#submit-update-qte').data('id', '');
-
-            }else{
-
-                $('.item-panier.partition-light-primary').each(function () {
-                    $(this).removeClass('partition-light-primary');
-                });
-
-                $(this).addClass('partition-light-primary');
-
-                $.ajax({
-                    url: "{{ route('commande.DeleteItemPanier') }}",
-                    type: 'GET',
-                    data: { id: $(this).data('id'), request: 'select'},
-                    success: function(data) {
-                        $('#item-name-update').text(data['name']);
-                        $('#item-qte-update').val(data['qte']);
-                        $('#submit-update-qte').data('id', data['id']);
-                    }
-                });
-
-            }
-        }).on('click', '#submit-update-qte', function (e) {
+        $('#submit-update-qte').on('click', function (e) {
             e.preventDefault();
 
             var $this = $(this);
@@ -509,11 +527,21 @@ jQuery(document).ready(function() {
                         $('#item-qte-update').val(1);
                         $('#submit-update-qte').data('id', '');
 
-                        toastr["success"](data['success'], "Succès");
-                        $('#Subtotal').text(data['subtotal']);
-                        $('#tauxTax').text(data['tauxTax']);
-                        $('#Tax').text(data['tax']);
-                        $('#Total').text(data['total']);
+                        if(data['success'].length > 0){
+
+                            toastr["success"](data['success'], "Succès");
+                            $('#Subtotal').text(data['subtotal']);
+                            $('#tauxTax').text(data['tauxTax']);
+                            $('#Tax').text(data['tax']);
+                            $('#Total').text(data['total']);
+
+
+
+                        }
+
+                        if(data['error'].length > 0){
+                            toastr["error"](data['error'], "Error");
+                        }
 
                         $.ajax({
                             url: "{{ route('commande.listpanier') }}",
@@ -529,6 +557,7 @@ jQuery(document).ready(function() {
 
                             }
                         });
+
                     }
                 });
 

@@ -6,6 +6,7 @@ use App\Repositories\CommandeRepository;
 use App\Repositories\EcritureStockRepository;
 use App\Repositories\MagasinRepository;
 use App\Repositories\ProduitRepository;
+use App\Repositories\SerieRepository;
 use App\Repositories\SessionRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +20,11 @@ class MagasinManagerController extends Controller
 	protected $commandeRepository;
 	protected $ecritureStockRepository;
 	protected $produitRepository;
+	protected $serieRepository;
 
 	public function __construct(MagasinRepository $magasin_repository, SessionRepository $session_repository,
-		CommandeRepository $commande_repository, EcritureStockRepository $ecriture_stock_repository, ProduitRepository $produit_repository
+		CommandeRepository $commande_repository, EcritureStockRepository $ecriture_stock_repository, ProduitRepository $produit_repository,
+		SerieRepository $serie_repository
 	) {
 
 		$this->modelRepository = $magasin_repository;
@@ -29,6 +32,7 @@ class MagasinManagerController extends Controller
 		$this->commandeRepository = $commande_repository;
 		$this->ecritureStockRepository = $ecriture_stock_repository;
 		$this->produitRepository = $produit_repository;
+		$this->serieRepository = $serie_repository;
 
 	}
 
@@ -204,6 +208,8 @@ class MagasinManagerController extends Controller
 
 	public function stockCommande(Request $request, $id = null){
 
+		$request->session()->forget('commande_serie_produit');
+
 		$data = $this->commandeRepository->getById($id);
 
 		return view('magasinManager.stockCommande', compact('data', 'request'));
@@ -214,15 +220,86 @@ class MagasinManagerController extends Controller
 
 		$data = $request->all();
 
+		$cmd = $this->commandeRepository->getById($data['commande_id']);
+		$ligne = $cmd->Produits()->where('id', '=', $data['id'])->first();
+
 		$prod = $this->produitRepository->getById($data['id']);
 
-		$exist_prod = $prod->series()->where('type', '=', 0)->whereHas('Magasins', function ($q) use ($data){
+		$exist_prod = $prod->series()->with('Produit', 'Lot')->where('type', '=', 0)->whereHas('Magasins', function ($q) use ($data){
 			$q->where('id', '=', $data['magasin_id']);
 		})->get();
 
+		return view('magasinManager.serieProduit', compact('ligne', 'exist_prod'));
+
+	}
+
+	public function serieProduitCheck(Request $request){
+
+		$data = $request->all();
+
+		$serie_id = array();
+
+		if($request->session()->has('commande_serie_produit')):
+			$serie_id = $request->session()->get('commande_serie_produit');
+		endif;
+
+		$count = $data['count'];
+
+		$serie = $this->serieRepository->getById($data['id']);
+
+		$key_prod = array_search($serie->produit_id, array_column($serie_id, 'produit_id'));
+
+		if(!is_integer($key_prod)):
+			$prod = array();
+			$prod['produit_id'] = $serie->produit_id;
+			$prod['serie'] = array();
+			array_push($prod['serie'], $serie->id);
+			array_push($serie_id, $prod);
+			$count += 1;
+		else:
+
+			if($data['action'] == 'add'):
+				$count += 1;
+				array_push($serie_id[$key_prod]['serie'], $serie->id);
+			else:
+				$count -= 1;
+				if (($key = array_search($serie->id, $serie_id[$key_prod]['serie'])) !== false) {
+					unset($serie_id[$key_prod]['serie'][$key]);
+				}
+			endif;
+
+		endif;
+
 		$response = array(
-			'code' => ''
+			'success' => '',
+			'error' => '',
+			'count' => 0,
+			'action' => $data['action']
 		);
+
+		$current_count = count($serie_id[$key_prod]['serie']);
+
+
+		if($current_count <= $data['totalCount']):
+
+			if($data['action'] == 'add'):
+				$response['success'] = 'Le numéro de série a été pris en compte';
+			else:
+				$response['success'] = 'Le numéro de série a été retiré avec succès';
+			endif;
+
+		else:
+			$response['error'] = 'Quantité de serie selectionnée supérieure par rapport à la quantité commandée';
+			$count -= 1;
+			if (($key = array_search($serie->id, $serie_id[$key_prod]['serie'])) !== false) {
+				unset($serie_id[$key_prod]['serie'][$key]);
+			}
+		endif;
+
+		$response['count'] = $count;
+		$response['content'] = $serie_id;
+
+		$request->session()->put('commande_serie_produit', $serie_id);
 
 		return response()->json($response);
 

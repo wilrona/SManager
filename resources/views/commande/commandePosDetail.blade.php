@@ -76,7 +76,7 @@
                         <th class="col-xs-3">Produit</th>
                         <th class="col-xs-3">Prix</th>
                         <th class="col-xs-3">Qté</th>
-                        <th class="col-xs-3">Total</th>
+                        <th class="col-xs-3 text-right">Total</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -86,7 +86,7 @@
                             <td>{{ $item->name }}</td>
                             <td>{{ number_format($item->pivot->prix, 0, '.', ' ') }} {{ $item->pivot->devise }}</td>
                             <td>{{ $item->pivot->qte }}</td>
-                            <td>
+                            <td class="text-right">
                                 {{ number_format($item->pivot->prix * $item->pivot->qte, 0, '.', ' ') }} {{ $item->pivot->devise }}
                             </td>
                         </tr>
@@ -103,7 +103,7 @@
                         <strong>Sub-Total:</strong> <span id="Subtotal">{{ number_format($data->subtotal, 0, '.', ' ') }}</span> XAF
                     </li>
                     <li class="text-extra-large">
-                        <strong>TVA (<span id="tauxTax">{{ (($data->total * 100) / $data->subtotal) - 100 }}%</span>):</strong>  <span id="Tax">{{ number_format($data->total - $data->subtotal, 0, '.', ' ') }}</span> XAF
+                        <strong>TVA (<span id="tauxTax">{{ round((($data->total - $data->subtotal) * 100) / $data->subtotal, 2) }}%</span>):</strong>  <span id="Tax">{{ number_format($data->total - $data->subtotal, 0, '.', ' ') }}</span> XAF
                     </li>
                     <li class="text-extra-large margin-top-15">
                         <h1 style="margin: 0;"><strong>Total:</strong> <span id="Total">{{ number_format($data->total, 0, '.', ' ') }}</span> XAF</h1>

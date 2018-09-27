@@ -73,7 +73,7 @@
                             <div class="col-md-12">
 
                                 <style>
-                                    .dataTables_filter{
+                                    .no_filter_6 .dataTables_filter{
                                         display: none !important;
                                     }
 
@@ -138,7 +138,7 @@
                                         <div class="panel-heading border-light">
                                             <h4 class="panel-title">Liste des commandes payées</h4>
                                         </div>
-                                        <div class="panel-body">
+                                        <div class="panel-body no_filter_6">
 
                                             <table class="table  sample_6">
                                                 <thead>
