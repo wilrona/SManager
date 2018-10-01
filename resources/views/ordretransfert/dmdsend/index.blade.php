@@ -55,7 +55,7 @@
                                 <tbody>
 
                                 @foreach($datas as $data)
-                                    <tr class="@if($data->statut_doc == 2) danger @endif @if($data->Transferts()->count()) warning @endif">
+                                    <tr class="@if($data->statut_doc == 2) danger @endif @if($data->statut_recept == 2) success @endif @if($data->Transferts()->where('etat', '=', 0)->count()) warning @endif">
                                         <td>{{ $loop->index + 1 }}</td>
                                         <td>{{ $data->reference }}</td>
                                         <td>{{ $data->pos_appro()->first()->name }}</td>
@@ -68,7 +68,15 @@
                                                     @if($data->transferts()->where('etat', '=', 0)->count())
                                                         Reception en court <b>({{ $data->transferts()->where('etat', '=', 0)->count() }})</b>
                                                     @else
-                                                        En traitement
+                                                        @if($data->statut_recept)
+                                                            @if($data->statut_recept == 1)
+                                                                Reception partielle
+                                                            @else
+                                                                Reception totale
+                                                            @endif
+                                                        @else
+                                                            En traitement
+                                                        @endif
                                                     @endif
                                                 @else
                                                     Envoyée

@@ -12,10 +12,27 @@
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h4 class="modal-title" id="myModalLabel">
-        @if($data->type_ecriture == 1)
-            Expédition
+        @if($data->ordre_transfert_id || $data->transfert_id)
+            @if($data->type_ecriture == 1)
+                Expédition
+            @else
+                Reception
+            @endif
         @else
-            Reception
+
+            @if($data->commande_id)
+                @if($data->type_ecriture == 1)
+                    @if($data->commande_id)
+                        Commande
+                    @else
+                        Sortie de stock
+                    @endif
+                @else
+                    Retour en stock
+                @endif
+            @else
+                Importation
+            @endif
         @endif
         @if($data->transfert_id) - Transfert <b>{{ $data->Transfert()->first()->reference }} @endif</b>
     </h4>

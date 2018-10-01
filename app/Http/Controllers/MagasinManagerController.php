@@ -154,10 +154,9 @@ class MagasinManagerController extends Controller
 
 			$commandes = $this->commandeRepository->getWhere()->where(
 				[
-					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%'],
-					['etat', '=', 1]
+					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%']
 				]
-			)->get();
+			)->orWhere('etat', '=', 1)->orWhere('etat', '=', 2)->get();
 
 			foreach ($commandes as $commande):
 				$cmd = [];
@@ -199,7 +198,7 @@ class MagasinManagerController extends Controller
 
 		$exist_session = $this->sessionRepository->getWhere()->where([['magasin_id', '=', $magasin_id], ['last', '=', 1]])->first();
 
-		$datas = $this->ecritureStockRepository->getWhere()->where([['session_id', '=', $exist_session->id], ['magasin_id', '=', $magasin_id]])->orderBy('created_at', 'desc')->get();
+		$datas = $exist_session->commandes()->orderBy('created_at', 'desc')->get();
 
 		return view('magasinManager.storyTransfertStock', compact('datas', 'magasin_id'));
 
@@ -229,7 +228,29 @@ class MagasinManagerController extends Controller
 			$q->where('id', '=', $data['magasin_id']);
 		})->get();
 
-		return view('magasinManager.serieProduit', compact('ligne', 'exist_prod'));
+		$in_session = [];
+		$in_session_count = 0;
+
+		if($request->session()->has('commande_serie_produit')):
+
+			$in_session_var = $request->session()->get('commande_serie_produit');
+
+			$key_prod = array_search($data['id'], array_column($in_session_var, 'produit_id'));
+
+			if(is_integer($key_prod)):
+
+				$in_session = $in_session_var[$key_prod]['serie'];
+				$in_session_count = count($in_session_var[$key_prod]['serie']);
+
+			endif;
+
+		endif;
+
+		foreach ($cmd->EcritureStock()->where('produit_id', '=', $data['id'])->get() as $ecriture):
+			$in_session_count += $ecriture->quantite;
+		endforeach;
+
+		return view('magasinManager.serieProduit', compact('ligne', 'exist_prod', 'in_session', 'in_session_count'));
 
 	}
 
@@ -277,7 +298,7 @@ class MagasinManagerController extends Controller
 			'action' => $data['action']
 		);
 
-		$current_count = count($serie_id[$key_prod]['serie']);
+		$current_count = $count;
 
 
 		if($current_count <= $data['totalCount']):
@@ -303,6 +324,137 @@ class MagasinManagerController extends Controller
 
 		return response()->json($response);
 
+	}
+
+	public function validCommande(Request $request){
+
+		$data = $request->all();
+
+		$currentUser= Auth::user();
+
+		$cmd = $this->commandeRepository->getById($data['commande_id']);
+		$lignes = $cmd->Produits()->get();
+
+		$response = array(
+			'success' => '',
+			'error' => '',
+			'produit_restant' => 0,
+			'produit_sortie' => 0
+
+		);
+
+		$error = false;
+
+		$in_session = $request->session()->get('commande_serie_produit');
+
+		foreach ($lignes as $produit):
+
+			if($in_session):
+				$key_prod = array_search($produit->id, array_column($in_session, 'produit_id'));
+
+				$ecrite = $cmd->ecriturestock()->where('produit_id', '=', $produit->id)->get();
+				$old_qte = 0;
+
+				foreach ($ecrite as $item):
+					$old_qte += $item->quantite;
+				endforeach;
+
+				$in_ses = count($in_session[$key_prod]['serie']) + $old_qte;
+
+				if($in_ses < $produit->pivot->qte):
+					$error = true;
+				endif;
+			endif;
+
+		endforeach;
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['magasin_id', '=', $data['magasin_id']], ['last', '=', 1]])->first();
+
+		$ecriture_stock = array();
+		$ecriture_stock['type_ecriture'] = 1;
+		$ecriture_stock['user_id'] = $currentUser->id;
+		$ecriture_stock['magasin_id'] = $data['magasin_id'];
+		$ecriture_stock['commande_id'] = $cmd->id;
+		$ecriture_stock['session_id'] = $exist_session->id;
+
+
+		$exist_var_session = false;
+
+		if($in_session):
+
+			foreach ($in_session as $session):
+
+				if($session['serie']):
+
+					$ecriture_stock['produit_id'] = $session['produit_id'];
+					$ecriture_stock['quantite'] = count($session['serie']);
+
+					$transit = $this->ecritureStockRepository->store($ecriture_stock);
+
+					$link = $cmd->Produits()->where('id', '=',$session['produit_id'])->first();
+
+					$serie_out = [];
+
+					if(unserialize($link->pivot->serie_sortie)):
+						$serie_out = unserialize($link->pivot->serie_sortie);
+					endif;
+
+					foreach ($session['serie'] as $serie):
+						$serial = $this->serieRepository->getById($serie);
+						$serial->EcriureStocks()->save($transit);
+						$serial->Magasins()->wherePivot('magasin_id', '=', $data['magasin_id'])->detach();
+						array_push($serie_out, $serie);
+					endforeach;
+
+
+					$link->pivot->serie_sortie = serialize($serie_out);
+					$link->pivot->save();
+
+					$exist_var_session = true;
+
+				endif;
+
+			endforeach;
+
+		endif;
+
+		if($exist_var_session):
+
+			if(!$error):
+				$cmd->etat = 3;
+			else:
+				$cmd->etat = 2;
+			endif;
+
+			$cmd->save();
+
+			$cmd->sessions()->save($exist_session);
+
+
+			$request->session()->forget('commande_serie_produit');
+
+			if($exist_session->count()):
+
+				$exist_sess = $exist_session->first();
+				$magasin = $this->modelRepository->getById($data['magasin_id']);
+
+				foreach ($exist_sess->EcritureStock()->get() as $item):
+					$response['produit_sortie'] += $item->quantite;
+				endforeach;
+
+				foreach ($magasin->Stock()->where('type', '=', 0)->get() as $item):
+					$response['produit_restant'] += 1;
+				endforeach;
+
+			endif;
+
+			$response['success'] = 'Les produits ont été serialisés avec succeès';
+
+		else:
+			$response['error'] = 'Aucun numéro de serie fournis au produit';
+		endif;
+
+		return response()->json($response);
 	}
 
 

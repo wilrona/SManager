@@ -49,7 +49,7 @@
                                                         <th>Ecriture</th>
                                                         <th>Quantité</th>
                                                         <th>Produit</th>
-                                                        <th>Transfert</th>
+                                                        <th>Transfert / Commande</th>
                                                         <th>Magasin</th>
                                                         <th>Date</th>
                                                         <th class="col-xs-1"></th>
@@ -70,7 +70,11 @@
 
                                                                     @if($data->commande_id)
                                                                         @if($data->type_ecriture == 1)
-                                                                            Sortie de stock
+                                                                            @if($data->commande_id)
+                                                                                Commande
+                                                                            @else
+                                                                                Sortie de stock
+                                                                            @endif
                                                                         @else
                                                                             Retour en stock
                                                                         @endif
@@ -82,9 +86,19 @@
                                                             </td>
                                                             <td>{{ $data->quantite }}</td>
                                                             <td>{{ $data->Produit()->first()->name }}</td>
-                                                            <td>@if($data->transfert_id) {{ $data->Transfert()->first()->reference }} @else Indéfinie @endif</td>
+                                                            <td>
+                                                                @if($data->transfert_id)
+                                                                    {{ $data->Transfert()->first()->reference }}
+                                                                @else
+                                                                    @if($data->commande_id)
+                                                                        {{ $data->commande()->first()->reference }}
+                                                                    @else
+                                                                        Indefini
+                                                                    @endif
+                                                                @endif
+                                                            </td>
                                                             <td>{{ $data->Magasin()->first()->reference }}</td>
-                                                            <td>{{ $data->created_at->format('d-m-Y') }}</td>
+                                                            <td>{{ $data->created_at->format('d-m-Y H:m') }}</td>
                                                             <td><a href="{{ route('ecriture.serie', $data->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-eye"></i></a></td>
                                                         </tr>
                                                     @endforeach

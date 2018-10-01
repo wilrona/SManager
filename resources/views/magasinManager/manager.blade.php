@@ -104,7 +104,7 @@
                                                     <div class="panel-body">
                                                         <h3 class="text-center">Articles sortis</h3>
                                                         <p class="text-center h2" >
-                                                            <span id="value_encaissement_effectue">{{ $produit_sortie }}</span>
+                                                            <span id="value_article_sortie">{{ $produit_sortie }}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -114,7 +114,7 @@
                                                     <div class="panel-body">
                                                         <h3 class="text-center">Articles restant</h3>
                                                         <p class="text-center h2">
-                                                            {{ $produit_restant }}
+                                                            <span id="value_article_restant">{{ $produit_restant }}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -124,7 +124,7 @@
                                                     <div class="panel-body">
                                                         <h3 class="text-center">Articles en magasin</h3>
                                                         <p class="text-center h2">
-                                                            <span id="value_montant_caisse">{{ $produit_mag }}</span>
+                                                            {{ $produit_mag }}
                                                         </p>
                                                     </div>
                                                 </div>

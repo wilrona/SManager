@@ -48,7 +48,7 @@
                 </div>
                 <div class="form-group">
                     <label> Etat : </label>
-                    <input type="text" class="form-control underline" disabled value="@if($data->etat == 0) Enregistré @endif @if($data->etat == 1) Payé @endif @if($data->etat == 2) Produit Traité @endif @if($data->etat == 3) Produit Traité partiellement @endif @if($data->etat == 4) Livré @endif">
+                    <input type="text" class="form-control underline" disabled value="@if($data->etat == 0) Enregistré @endif @if($data->etat == 1) Payé @endif @if($data->etat == 2) Produit Traité partiellement @endif @if($data->etat == 3) Produit Traité @endif @if($data->etat == 4) Livré partiellement @endif @if($data->etat == 5) Livré @endif">
                 </div>
                 <div class="form-group">
                     <label> Code de la commande : </label>
@@ -112,6 +112,43 @@
             </div>
 
         </div>
+
+        <div class="col-md-12">
+
+            <fieldset>
+                <legend>
+                    <strong>Traitement produit de la commande </strong> :
+                </legend>
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="col-xs-1">#</th>
+                        <th class="col-xs-3">Produit</th>
+                        <th class="col-xs-3">Qté</th>
+                        <th class="col-xs-3">Qté sortie</th>
+                        <th class="col-xs-3">Qté livrée</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    @foreach ($data->Produits()->get() as $item)
+                        <tr>
+                            <td>{{ $loop->index + 1 }}</td>
+                            <td>{{ $item->name }}</td>
+                            <td>{{ $item->pivot->qte }}</td>
+                            <td>@if(unserialize($item->pivot->serie_sortie)){{ count(unserialize($item->pivot->serie_sortie)) }}@else 0 @endif</td>
+                            <td>@if(unserialize($item->pivot->serie_livree)){{ count(unserialize($item->pivot->serie_livree)) }}@else 0 @endif</td>
+                        </tr>
+                    @endforeach
+
+                    </tbody>
+                </table>
+
+            </fieldset>
+
+        </div>
+
     </div>
 
 

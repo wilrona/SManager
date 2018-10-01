@@ -61,12 +61,15 @@
                                                                     Payé
                                                                 @endif
                                                                 @if($data->etat == 2)
-                                                                    Produit Traité
-                                                                @endif
-                                                                @if($data->etat == 3)
                                                                     Produit Traité partiellement
                                                                 @endif
+                                                                @if($data->etat == 3)
+                                                                    Produit Traité
+                                                                @endif
                                                                 @if($data->etat == 4)
+                                                                    Livré partiellement
+                                                                @endif
+                                                                @if($data->etat == 5)
                                                                     Livré
                                                                 @endif
                                                             </td>

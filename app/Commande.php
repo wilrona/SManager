@@ -23,4 +23,12 @@ class Commande extends Model
 	public function Produits(){
 		return $this->belongsToMany('App\Produits', 'commande_ligne', 'commande_id', 'produit_id')->withPivot('qte', 'prix', 'devise');
 	}
+
+	public function EcritureStock(){
+		return $this->hasMany('App\EcritureStock', 'commande_id', 'id');
+	}
+
+	public function Sessions(){
+		return $this->belongsToMany('App\Session', 'commande_session', 'commande_id', 'session_id')->withTimestamps();
+	}
 }

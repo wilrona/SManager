@@ -10,8 +10,9 @@
             <tr>
                 <th class="col-xs-1">#</th>
                 <th>Ref Commande</th>
-                <th>Produit</th>
-                <th>Quantité</th>
+                <th>Client</th>
+                <th>Etat</th>
+                <th>Date</th>
                 <th class="col-xs-1"></th>
             </tr>
             </thead>
@@ -20,13 +21,34 @@
             @foreach ($datas as $data)
                 <tr>
                     <td>{{ $loop->index + 1 }}</td>
-                    <td>{{ $data->Commande()->first()->reference }}</td>
-                    <td>{{ $data->Produit()->first()->name }}</td>
+                    <td>{{ $data->reference }}</td>
+                    <td>{{ $data->Client()->first()->display_name }}</td>
+
                     <td>
-                        {{ $data->quantite }}
+                        @if($data->etat == 0)
+                            Enregistré
+                        @endif
+                        @if($data->etat == 1)
+                            Payé
+                        @endif
+                        @if($data->etat == 2)
+                            Produit Traité partiellement
+                        @endif
+                        @if($data->etat == 3)
+                            Produit Traité
+                        @endif
+                        @if($data->etat == 4)
+                            Livré partiellement
+                        @endif
+                        @if($data->etat == 5)
+                            Livré
+                        @endif
                     </td>
+                    <td>{{ $data->pivot->created_at->format('d-m-Y H:i') }}</td>
                     <td>
-                        <a href="{{ route('caisseManager.detailEcritureEtTransfert', ['ecriture_id' => $data->id, 'magasin_id' => $magasin_id]) }}" data-toggle="modal" data-target="#myModal-hr" data-backdrop="static"><i class="fa fa-eye"></i></a>
+                        <a href="{{ route('commande.commandePosDetail', $data->id) }}" data-toggle="modal" data-target="#myModal-hr-lg" data-backdrop="static">
+                            <i class="fa fa-eye"></i>
+                        </a>
                     </td>
                 </tr>
             @endforeach
@@ -42,29 +64,6 @@
         TableData.init();
         FormElements.init();
     });
-
-    oTable_5.api().columns().every( function () {
-        var column = this;
-        if(column.index() === 2){
-            var name = null;
-            name = 'Produit';
-
-            var select = $('<select class="form-control" style="width: 100%"><option value="">'+name+'</option></select>')
-                .appendTo( $(column.header()).empty() )
-                .on( 'change', function () {
-                    var val = $.fn.dataTable.util.escapeRegex(
-                        $(this).val()
-                    );
-
-                    column.search( val ? '^'+val+'$' : '', true, false ).draw();
-                } );
-
-            column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-            } );
-        }
-
-    } );
 </script>
 
 						

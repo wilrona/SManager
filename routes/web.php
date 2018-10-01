@@ -392,6 +392,8 @@ Route::group([], function() {
 		Route::get('/commande/stock/show/{id?}', 'MagasinManagerController@stockCommande')->middleware('auth')->name('magasinManager.stockCommande');
 		Route::get('/commande/produit/serie', 'MagasinManagerController@serieProduit')->middleware('auth')->name('magasinManager.serieProduit');
 		Route::get('/check/add/serie', 'MagasinManagerController@serieProduitCheck')->middleware('auth')->name('magasinManager.serieProduitCheck');
+
+		Route::get('/commande/stock/valid', 'MagasinManagerController@validCommande')->middleware('auth')->name('magasinManager.validCommande');
 	});
 
 

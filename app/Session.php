@@ -33,4 +33,8 @@ class Session extends Model
 		return $this->belongsTo('App\User', 'user_id', 'id');
 	}
 
+	public function commandes(){
+		return $this->belongsToMany('App\Commande', 'commande_session', 'session_id', 'commande_id')->withTimestamps();
+	}
+
 }

@@ -33,6 +33,9 @@ class CreateCommandeTable extends Migration
         });
 
 	    Schema::create('commande_ligne', function (Blueprint $table) {
+
+		    $table->increments('id');
+
 		    $table->integer('produit_id')->unsigned();
 		    $table->integer('commande_id')->unsigned();
 		    $table->integer('qte')->default(1);
@@ -44,7 +47,7 @@ class CreateCommandeTable extends Migration
 		    $table->foreign('commande_id')->references('id')->on('commande')
 		          ->onUpdate('cascade')->onDelete('cascade');
 
-		    $table->primary(['produit_id', 'commande_id']);
+//		    $table->primary(['produit_id', 'commande_id']);
 
 		    $table->timestamps();
 	    });

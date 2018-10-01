@@ -19,7 +19,7 @@
         <div class="col-md-12">
             <div class="input-group">
                 <input type="text" placeholder="Recherche numéro de serie" class="form-control input-lg" id="form-field-search">
-                <span class="input-group-addon"><span class="qte_current">0</span>/<span class="qte_dmd">{{ $ligne->pivot->qte }}</span></span>
+                <span class="input-group-addon"><span class="qte_current">{{ $in_session_count }}</span>/<span class="qte_dmd">{{ $ligne->pivot->qte }}</span></span>
             </div>
         </div>
     </div>
@@ -40,9 +40,9 @@
 
                 @foreach($exist_prod as $serie)
 
-                    <tr id="{{ $serie->id }}" class="">
+                    <tr id="{{ $serie->id }}" class="@if(in_array($serie->id, $in_session)) success @endif">
                         <td>
-                            <input type="checkbox" name="produit[]" value="{{ $serie->id }}" class="checkbox-item checkbox_{{ $serie->id }}">
+                            <input type="checkbox" name="produit[]" value="{{ $serie->id }}" @if(in_array($serie->id, $in_session)) checked @endif class="checkbox-item checkbox_{{ $serie->id }}">
                         </td>
                         <td>{{ $serie->reference }}</td>
                         <td>{{ $serie->produit->name }}</td>
@@ -103,8 +103,6 @@
                 }
 
                 $('.qte_current').html(data['count']);
-
-                console.log(data['content']);
             }
         });
 

@@ -160,7 +160,7 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <button type="button" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg" disabled>
+                                    <button type="button" class="btn btn-wide btn-primary margin-bottom-15 btn-block btn-lg" id="submit-commande">
                                         Terminer
                                     </button>
                                 </div>
@@ -268,6 +268,49 @@ jQuery(document).ready(function() {
 
         }
     });
+
+    $('#submit-commande').on('click', function (e) {
+
+        e.preventDefault();
+
+        $.ajax({
+            url: "{{ route('magasinManager.validCommande') }}",
+            type: 'GET',
+            data: { commande_id: "{{ $data->id }}", magasin_id: "{{ $request->get('magasin_id') }}" },
+            success: function(data) {
+                if(data['success'].length > 0){
+
+                        swal({
+                            title: 'Produit de la commande sérialisé avec succès',
+                            text: data['success'],
+                            type: "success",
+                            showconfirmButton: true,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: "#d43f3a"
+                        }, function () {
+                            $('#value_article_sortie').html(data['produit_sortie']);
+                            $('#value_article_restant').html(data['produit_restant']);
+                            $('.modal-header .close').trigger('click');
+                        });
+
+
+                }
+                if(data['error'].length > 0){
+
+                    swal({
+                        title: 'Produit de la commande non sérialisé',
+                        text: data['error'],
+                        type: "error",
+                        showconfirmButton: false,
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: "#d43f3a"
+                    });
+
+                }
+            }
+        });
+
+    })
 
 
 });

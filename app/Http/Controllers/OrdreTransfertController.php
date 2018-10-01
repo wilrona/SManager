@@ -833,7 +833,7 @@ class OrdreTransfertController extends Controller
 			foreach ($count_serie as $value):
 
 				$ecriture_stock = array();
-				$ecriture_stock['type_ecriture'] = 1;
+				$ecriture_stock['type_ecriture'] = 1; // Sortie
 				$ecriture_stock['quantite'] = (-1 * $value['count']);
 				$ecriture_stock['produit_id'] = $value['produit_id'];
 				$ecriture_stock['ordre_transfert_id'] = $dmd->id;
@@ -844,7 +844,7 @@ class OrdreTransfertController extends Controller
 				$transit = $this->ecritureStockRepository->store($ecriture_stock);
 
 				$ecriture_stock = array();
-				$ecriture_stock['type_ecriture'] = 0;
+				$ecriture_stock['type_ecriture'] = 0; // Entrée
 				$ecriture_stock['quantite'] = (1 * $value['count']);
 				$ecriture_stock['produit_id'] = $value['produit_id'];
 				$ecriture_stock['ordre_transfert_id'] = $dmd->id;

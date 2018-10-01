@@ -69,7 +69,7 @@
                                 </li>
                                 @endif
 
-                                @if($data->statut_exp > 0 && $data->Transferts()->count())
+                                @if($data->statut_exp > 0 && $data->Transferts()->where('etat', '=', 0)->count())
                                     <li class="middle-center">
                                         <div class="pull-right">
                                             <div class="btn-group">

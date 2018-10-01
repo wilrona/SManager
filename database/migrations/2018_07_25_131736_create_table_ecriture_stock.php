@@ -17,7 +17,7 @@ class CreateTableEcritureStock extends Migration
 
 	    Schema::create('ecriture_stock', function (Blueprint $table) {
 		    $table->increments('id');
-		    $table->integer('type_ecriture')->default(0);
+		    $table->integer('type_ecriture')->default(0);   /// 1 Sortie; 0 Entrée
 		    $table->integer('quantite')->default(0);
 
 		    $table->integer('produit_id')->unsigned();
