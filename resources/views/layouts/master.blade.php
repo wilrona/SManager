@@ -586,9 +586,9 @@
                 "hideEasing": "linear",
                 "showMethod": "fadeIn",
                 "hideMethod": "fadeOut"
-            }
+            };
 
-		</script>
+	</script>
 
 
 

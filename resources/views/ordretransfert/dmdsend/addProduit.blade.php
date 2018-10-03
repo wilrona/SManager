@@ -17,7 +17,11 @@
 <div class="modal-body">
     <div class="form-group {!! $errors->has('produit_id') ? 'has-error' : '' !!}" id="produit_id">
         <label for="exampleInputEmail1" class="text-bold"> Produit : </label>
-        {!! Form::select('produit_id', $produits, null, ['class' => 'form-control', 'placeholder' => 'Selectionnez un produit...']) !!}
+        @if($produits_data)
+            {!! Form::select('produit_id', $produits, $produits_data['produit_id'], ['class' => 'form-control']) !!}
+        @else
+            {!! Form::select('produit_id', $produits, null, ['class' => 'form-control', 'placeholder' => 'Selectionnez un produit...']) !!}
+        @endif
         <span class="help-block hidden produit_id">
                     <i class="ti-alert text-primary"></i>
                     <span class="text-danger">
@@ -27,7 +31,12 @@
     </div>
     <div class="form-group {!! $errors->has('quantite') ? 'has-error' : '' !!}" id="qte">
         <label for="exampleInputEmail1" class="text-bold"> Quantité : </label>
-        {!! Form::number('quantite', 1, ['class' => 'form-control', 'placeholder' => 'Quantité', 'id' => 'quantite', 'value' => 0, 'min' => 0]) !!}
+        @if($produits_data)
+            {!! Form::number('quantite', $produits_data['quantite'], ['class' => 'form-control', 'placeholder' => 'Quantité', 'id' => 'quantite', 'value' => 0, 'min' => 0]) !!}
+        @else
+            {!! Form::number('quantite', 1, ['class' => 'form-control', 'placeholder' => 'Quantité', 'id' => 'quantite', 'value' => 0, 'min' => 0]) !!}
+        @endif
+
         <span class="help-block hidden quantite">
                     <i class="ti-alert text-primary"></i>
                     <span class="text-danger">
@@ -64,7 +73,7 @@
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function(data) {
                 $.ajax({
-                    url: "<?= route('dmd.listingProduit') ?>",
+                    url: "<?= route('dmd.listingProduit', $id) ?>",
                     type: 'GET',
                     success : function(list){
                         $('#loading').html(list);

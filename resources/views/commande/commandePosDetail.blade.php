@@ -127,7 +127,6 @@
                         <th class="col-xs-3">Produit</th>
                         <th class="col-xs-3">Qté</th>
                         <th class="col-xs-3">Qté sortie</th>
-                        <th class="col-xs-3">Qté livrée</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -138,7 +137,6 @@
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->pivot->qte }}</td>
                             <td>@if(unserialize($item->pivot->serie_sortie)){{ count(unserialize($item->pivot->serie_sortie)) }}@else 0 @endif</td>
-                            <td>@if(unserialize($item->pivot->serie_livree)){{ count(unserialize($item->pivot->serie_livree)) }}@else 0 @endif</td>
                         </tr>
                     @endforeach
 

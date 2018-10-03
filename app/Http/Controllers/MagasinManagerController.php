@@ -8,6 +8,7 @@ use App\Repositories\MagasinRepository;
 use App\Repositories\ProduitRepository;
 use App\Repositories\SerieRepository;
 use App\Repositories\SessionRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,6 +71,16 @@ class MagasinManagerController extends Controller
 
 		if($magasin->etat == 1 && $exist_session->count() && $exist_session->first()->user_id != $user_id):
 			return redirect()->route('magasinManager.index')->withWarning('Magasin ouvert par un autre utilisateur.');
+		endif;
+
+		$end = Carbon::parse($exist_session->first()->created_at);
+
+		$now = Carbon::now();
+
+		$length = $now->diffInDays($end);
+
+		if($length):
+			return redirect()->route('magasinManager.close', ['magasin_id' => $magasin->id, 'redirect' => 1]);
 		endif;
 
 		if(!$exist_session->count()):
@@ -174,7 +185,9 @@ class MagasinManagerController extends Controller
 		return response()->json($response);
 	}
 
-	public function close($magasin_id){
+	public function close(Request $request, $magasin_id){
+
+		$data = $request->all();
 
 		$magasin = $this->modelRepository->getById($magasin_id);
 
@@ -190,7 +203,11 @@ class MagasinManagerController extends Controller
 			'code' => ''
 		);
 
-		return response()->json($response);
+		if(isset($data['redirect'])):
+			return redirect()->route('magasinManager.index')->withWarning('Magasin fermé automatique.');
+		else:
+			return response()->json($response);
+		endif;
 
 	}
 

@@ -183,6 +183,21 @@
 						
 						 
     </div>
+
+    <div class="modal fade" id="modal_expire" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4>Votre session expire dans  <span id="middle_close"></span> seconde(s)</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hidden" id="myCount"></div>
 @stop
 
 @section('footer')
@@ -236,7 +251,7 @@
             });
 
 
-        })
+        });
 
         $('#TransfertFond').on('click', function (e) {
             e.preventDefault();
@@ -250,7 +265,7 @@
                     $('.panel-fond').html(data);
                 }
             });
-        })
+        });
 
         $('#ReceiveFond').on('click', function (e) {
             e.preventDefault();
@@ -353,7 +368,7 @@
             });
         });
 
-        function confirmationRedirection(){
+        function confirmationRedirection($swal){
 
             var $url = "{{ route('caisseManager.close', $caisse->id) }}";
 
@@ -362,13 +377,15 @@
                 type: 'get',
                 success: function(data) {
 
-                    swal({
-                        title: "Cloture terminée avec success",
-                        text: 'La cloture de votre session a été réussi avec succès',
-                        type: "success",
-                        showCancelButton: false,
-                        showconfirmButton: false
-                    });
+                    if(!$swal){
+                        swal({
+                            title: "Cloture terminée avec success",
+                            text: 'La cloture de votre session a été réussi avec succès',
+                            type: "success",
+                            showCancelButton: false,
+                            showconfirmButton: false
+                        });
+                    }
 
                     setTimeout(function () {
                         window.location.href = "{{ route('caisseManager.index') }}";
@@ -402,5 +419,51 @@
             });
 
         }
+
+        counter = {
+            $element : null,
+            count : 0,
+            maxCount : 1200,
+            middleCount: 1140,
+            minCount: 60,
+            interval : null,
+            //Initialize
+            init : function(compteur){
+                this.$element = compteur;
+                this.run();
+                this.interval = window.setInterval("counter.run();", 1000);
+            },
+            // Run
+            run : function(){
+                if (this.count === this.middleCount){
+//                 window.clearInterval(this.interval);
+                    $('#modal_expire').modal({
+                        show:true,
+                        backdrop:'static'
+                    });
+                }
+                if (this.count >= this.middleCount){
+                    $('#middle_close').text(this.minCount);
+                    this.minCount--;
+                }
+                if(this.count === this.maxCount){
+                    window.clearInterval(this.interval);
+                    confirmationRedirection(true);
+                }
+                this.$element.html(this.count);
+                this.count++;
+            }
+        };
+
+        $.fn.counter = function(){
+            counter.init(this);
+        };
+
+        $('body').on('click', function(){
+            counter.count = 0
+        });
+
+        $('#myCount').counter();
+
     </script>
 @stop

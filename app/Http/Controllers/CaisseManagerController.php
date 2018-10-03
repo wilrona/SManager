@@ -122,10 +122,18 @@ class CaisseManagerController extends Controller
 
 		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse->id], ['last', '=', 1]]);
 
-
-
 		if($caisse->etat == 1 && $exist_session->count() && $exist_session->first()->user_id != $user_id):
 			return redirect()->route('caisseManager.index')->withWarning('Caisse ouverte par un autre utilisateur.');
+		endif;
+
+		$end = Carbon::parse($exist_session->first()->created_at);
+
+		$now = Carbon::now();
+
+		$length = $now->diffInDays($end);
+
+		if($length):
+			return redirect()->route('caisseManager.close', ['caisse_id' => $caisse->id, 'redirect' => 1]);
 		endif;
 
 		if(!$this->devise):
@@ -433,7 +441,9 @@ class CaisseManagerController extends Controller
 
 	}
 
-	public function close($caisse_id){
+	public function close(Request $request, $caisse_id){
+
+		$data = $request->all();
 
 		$current_user = Auth::user();
 
@@ -473,7 +483,11 @@ class CaisseManagerController extends Controller
 			'code' => ''
 		);
 
-		return response()->json($response);
+		if(isset($data['redirect'])):
+			return redirect()->route('caisseManager.index')->withWarning('Caisse fermée automatique.');
+		else:
+			return response()->json($response);
+		endif;
 
 	}
 

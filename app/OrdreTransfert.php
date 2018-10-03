@@ -40,7 +40,7 @@ class OrdreTransfert extends Model
 	}
 
 	public function StoryEcritureStock(){
-		return $this->belongsToMany('App\User', 'story_transfert_stock', 'ordre_transfert_id', 'user_id')->withPivot('action');
+		return $this->belongsToMany('App\User', 'story_transfert_stock', 'ordre_transfert_id', 'user_id')->withPivot('action', 'description')->withTimestamps();
 	}
 
 

@@ -115,8 +115,8 @@
                                 <tr>
                                     <th class="col-xs-1">#</th>
                                     <th>Produit</th>
-                                    <th class="col-xs-1">Quantité</th>
-                                    <th class="col-xs-1"></th>
+                                    <th class="col-xs-2">Quantité</th>
+                                    <th class="col-xs-2"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -130,7 +130,14 @@
                                     <td><?= $key + 1 ?></td>
                                     <td><?= $value['produit_name'] ?></td>
                                     <td><?= $value['quantite'] ?></td>
-                                    <td><a class="delete" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
+                                    <td>
+
+                                        <div class="btn-group btn-group-justified">
+                                            <a href="<?= route('dmd.updateProduit', ['id' => $ordre_transfert_id, 'index' => $key]) ?>" data-toggle="modal" data-target="#myModal" data-backdrop="static" class="btn btn-wide btn-primary"><i class="fa fa-edit"></i></a>
+                                            <a class="delete btn btn-wide btn-primary" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a>
+                                        </div>
+
+                                    </td>
                                 </tr>
                                 <?php
                                 endforeach;
@@ -168,7 +175,7 @@
                 type: 'GET',
                 success : function(data){
                     $.ajax({
-                        url: "<?= route('dmd.listingProduit') ?>",
+                        url: "<?= route('dmd.listingProduit', $data->id) ?>",
                         type: 'GET',
                         success : function(list){
                             $('#loading').html(list);

@@ -274,8 +274,9 @@ Route::group([], function() {
 		Route::post('/update/{id}', 'OrdreTransfertController@updateSend')->middleware('auth')->name('dmd.update');
 
 		Route::get('/add/produit/{id}', 'OrdreTransfertController@addProduit')->middleware('auth')->name('dmd.addProduit');
+		Route::get('/update/produit/{id}/{index}', 'OrdreTransfertController@updateProduit')->middleware('auth')->name('dmd.updateProduit');
 		Route::get('/remove/produit/{key?}', 'OrdreTransfertController@removeProduit')->middleware('auth')->name('dmd.removeProduit');
-		Route::get('/list/produit', 'OrdreTransfertController@listProduit')->middleware('auth')->name('dmd.listingProduit');
+		Route::get('/list/produit/{ordre_transfer_id}', 'OrdreTransfertController@listProduit')->middleware('auth')->name('dmd.listingProduit');
 		Route::post('/valide/produit/{id}', 'OrdreTransfertController@validProduit')->middleware('auth')->name('dmd.valideProduit');
 
 		Route::get('/show/reception/{id}', 'OrdreTransfertController@receiveSend')->middleware('auth')->name('dmd.receiveSend');

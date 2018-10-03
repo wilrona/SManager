@@ -134,9 +134,14 @@ class OrdreTransfertController extends Controller
     public function storeSend(DemandeSendRequest $request)
     {
         //
+
+	    $currentUser= Auth::user();
+
 	    $data = $request->all();
 
 	    $data = $this->modelRepository->store($data);
+
+	    $data->StoryEcritureStock()->save($currentUser, ['action' => 'create', 'création de la demande de stock']);
 
 	    $redirect = redirect()->route('dmd.edit', $data->id)->withOk("La demande a été créé.")->withWarning("Ajoutez les produits à votre demande avant envoie");
 
@@ -899,7 +904,6 @@ class OrdreTransfertController extends Controller
 	}
 
 
-
 	/**
      * Show the form for editing the specified resource.
      *
@@ -973,11 +977,15 @@ class OrdreTransfertController extends Controller
     public function updateSend(DemandeSendRequest $request, $id)
     {
         //
+	    $currentUser= Auth::user();
+
 	    $data = $request->all();
 
 	    $this->modelRepository->update($id, $data);
 
 	    $current = $this->modelRepository->getById($id);
+
+	    $current->StoryEcritureStock()->save($currentUser, ['action' => 'update', 'description' => 'Modification de la demande de stock']);
 
 	    $produit = $request->session()->get('produit_send');
 	    $produit_id = $request->session()->get('produit_send_id');
@@ -985,6 +993,8 @@ class OrdreTransfertController extends Controller
 
 
 	    if($produit):
+
+
 		    foreach ($produit as $prod):
                 $ligne = $this->ligneTransfertRepository->getWhere()->where(
                         [
@@ -993,6 +1003,7 @@ class OrdreTransfertController extends Controller
                         ]
                 )->first();
 
+			    $pro = $this->produitRepository->getById($prod['produit_id']);
 
                 if(!$ligne):
                     $ligne_array = array();
@@ -1001,9 +1012,27 @@ class OrdreTransfertController extends Controller
                     $ligne_array['qte_dmd'] = $prod['quantite'];
 
                     $this->ligneTransfertRepository->store($ligne_array);
+
+                    $texte = 'Ajout du produit '.$pro->name;
+
+	                $current->StoryEcritureStock()->save($currentUser, ['action' => 'add_produit', 'description' => $texte]);
+
+
+                else:
+                    if($ligne->qte_dmd != $prod['quantite']):
+
+                        $ligne->qte_dmd = $prod['quantite'];
+                        $ligne->save();
+
+                        $texte = 'Modification du produit '. $pro->name;
+
+	                    $current->StoryEcritureStock()->save($currentUser, ['action' => 'update_produit', 'description' => $texte]);
+                    endif;
+
                 endif;
 
 		    endforeach;
+
 	    endif;
 
 	    if($produit_id == null):
@@ -1013,6 +1042,11 @@ class OrdreTransfertController extends Controller
         foreach($current->ligne_transfert()->get() as $item):
             if(!in_array($item->produit_id, $produit_id)):
                 $del_data = $this->ligneTransfertRepository->getById($item->id);
+
+	            $texte = 'suppression du produit '. $del_data->produit()->first()->name;
+
+	            $current->StoryEcritureStock()->save($currentUser, ['action' => 'delete_produit', 'description' => $texte]);
+
                 $del_data->delete();
             endif;
         endforeach;
@@ -1031,6 +1065,8 @@ class OrdreTransfertController extends Controller
 
 		$allProduits = $this->produitRepository->getWhere()->where([['bundle', '=', '0']])->get();
 
+		$produits_data = array();
+
 		$produits = array();
 		foreach ( $allProduits as $item ) {
 			if($request->session()->has('produit_send_id')):
@@ -1042,8 +1078,23 @@ class OrdreTransfertController extends Controller
 			endif;
 		}
 
-		return view('ordretransfert.dmdsend.addProduit', compact('produits', 'id'));
+		return view('ordretransfert.dmdsend.addProduit', compact('produits', 'id', 'produits_data'));
 	}
+
+
+
+	public function updateProduit(Request $request, $id, $index){
+
+		$produits_data = $request->session()->get('produit_send')[$index];
+
+		$produits = array();
+
+        $produits[$produits_data['produit_id']] = $produits_data['produit_name'];
+
+		return view('ordretransfert.dmdsend.addProduit', compact('produits', 'id', 'produits_data'));
+	}
+
+
 
 	public function validProduit(TransfertProduitRequest $request, $id){
 
@@ -1058,18 +1109,28 @@ class OrdreTransfertController extends Controller
 			$produit_id = $request->session()->get('produit_send_id');
 		endif;
 
-		$produit = array();
+		$key_prod = array_search($request['produit_id'], array_column($produits, 'produit_id'));
 
-		$current_produit = $this->produitRepository->getById($request['produit_id']);
+		if(!is_integer($key_prod)):
 
-		$produit['produit_id']  = $request['produit_id'];
-		$produit['produit_name']  = $current_produit->name;
-		$produit['quantite'] = $request['quantite'];
+            $produit = array();
+
+            $current_produit = $this->produitRepository->getById($request['produit_id']);
+
+            $produit['produit_id']  = $request['produit_id'];
+            $produit['produit_name']  = $current_produit->name;
+            $produit['quantite'] = $request['quantite'];
 
 
-		array_push($produits, $produit);
+            array_push($produits, $produit);
 
-		array_push($produit_id, $request['produit_id']);
+            array_push($produit_id, $request['produit_id']);
+
+        else:
+
+	        $produits[$key_prod]['quantite'] = $request['quantite'];
+
+        endif;
 
 		$request->session()->put('produit_send', $produits);
 		$request->session()->put('produit_send_id', $produit_id);
@@ -1077,7 +1138,7 @@ class OrdreTransfertController extends Controller
 		return response()->json(['success'=>'Your enquiry has been successfully submitted! ']);
 	}
 
-	public function listProduit(){
+	public function listProduit($ordre_transfert_id){
 
 		$produits = session('produit_send');
 
@@ -1087,8 +1148,8 @@ class OrdreTransfertController extends Controller
             <tr>
                 <th class="col-xs-1">#</th>
                 <th>Produit</th>
-                <th>Quantité</th>
-                <th class="col-xs-1"></th>
+                <th class="col-xs-2">Quantité</th>
+                <th class="col-xs-2"></th>
             </tr>
 			</thead>
 			<tbody>
@@ -1099,7 +1160,14 @@ class OrdreTransfertController extends Controller
 						<td><?= $key + 1 ?></td>
 						<td><?= $value['produit_name'] ?></td>
 						<td><?= $value['quantite'] ?></td>
-						<td><a class="delete" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a></td>
+						<td>
+
+                            <div class="btn-group btn-group-justified">
+                                <a href="<?= route('dmd.updateProduit', ['id' => $ordre_transfert_id, 'index' => $key]) ?>" data-toggle="modal" data-target="#myModal" data-backdrop="static" class="btn btn-wide btn-primary btn-xs"><i class="fa fa-edit"></i></a>
+                                <a class="delete btn btn-wide btn-primary bnt-xs" onclick="remove(<?= $key ?>)"><i class="fa fa-trash"></i></a>
+                            </div>
+
+                        </td>
 					</tr>
 					<?php
 				endforeach;
