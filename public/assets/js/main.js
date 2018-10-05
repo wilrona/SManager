@@ -477,10 +477,12 @@ var Main = function() {
 		});
 	};
 	var customSelectHandler = function() {
-		[].slice.call(document.querySelectorAll('select.cs-select')).forEach(function(el) {
+		[].slice.call(document.querySelectorAll('select.cs-selector')).forEach(function(el) {
 			new SelectFx(el);
 		});
 	};
+
+
 	// Window Resize Function
 	var resizeHandler = function(func, threshold, execAsap) {
 		$(window).resize(function() {

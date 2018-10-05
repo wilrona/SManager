@@ -106,7 +106,7 @@
 
                             <div class="form-group {!! $errors->has('typeproduit_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Le produit de la promotion : </label>
-                                {!! Form::select('typeproduit_id', $select, $data->typeproduit_id, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...', 'disabled' => 'disabled']) !!}
+                                {!! Form::select('typeproduit_id', $select, $data->typeproduit_id, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...', 'disabled' => 'disabled']) !!}
                                 {!! $errors->first('typeproduit_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

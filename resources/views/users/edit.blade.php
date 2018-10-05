@@ -101,7 +101,7 @@
 
                             <div class="form-group {!! $errors->has('sexe') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Sexe : </label>
-                                {!! Form::select('sexe', $sexe, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le sexe']) !!}
+                                {!! Form::select('sexe', $sexe, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le sexe']) !!}
                                 {!! $errors->first('sexe', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
@@ -121,7 +121,7 @@
                             @if(!$caisses)
                                 <div class="form-group {!! $errors->has('pos_id') ? 'has-error' : '' !!}">
                                     <label for="exampleInputEmail1" class="text-bold"> Point de vente des opérations : </label>
-                                    {!! Form::select('pos_id', $pos, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le point de vente']) !!}
+                                    {!! Form::select('pos_id', $pos, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le point de vente']) !!}
                                     {!! $errors->first('pos_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                             :message
                                         </span>
@@ -290,7 +290,7 @@
                         <div class="panel-body">
                             <div class="form-group {!! $errors->has('profile_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Profil de l'utlisateur : </label>
-                                {!! Form::select('profile_id', $profile, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le profil de l\'utilisateur']) !!}
+                                {!! Form::select('profile_id', $profile, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le profil de l\'utilisateur']) !!}
                                 {!! $errors->first('profile_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

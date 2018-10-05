@@ -24,4 +24,8 @@ class TransfertFond extends Model
 		return $this->hasMany('App\EcritureCaisse', 'transfert_fond_id', 'id');
 	}
 
+	public function StoryAction(){
+		return $this->belongsToMany('App\User', 'story_action', 'transfert_fond_id', 'user_id')->withPivot('etape_action', 'description')->withTimestamps();
+	}
+
 }

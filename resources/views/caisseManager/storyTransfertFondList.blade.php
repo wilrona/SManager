@@ -57,7 +57,7 @@
                         {{ $data->created_at->format('d-m-Y H:i') }}
                     </td>
                     <td>
-                        <a href="{{ route('caisseManager.detailEcritureEtTransfert', ['ecriture_id' => $data->id, 'caisse_id' => $caisse_id]) }}" data-toggle="modal" data-target="#myModal-hr" data-backdrop="static"><i class="fa fa-eye"></i></a>
+                        <a href="{{ route('caisseManager.detailEcritureEtTransfert', ['ecriture_id' => $data->id, 'caisse_id' => $caisse_id, 'type' => 1]) }}" data-toggle="modal" data-target="#myModal-hr" data-backdrop="static"><i class="fa fa-eye"></i></a>
                     </td>
                 </tr>
             @endforeach

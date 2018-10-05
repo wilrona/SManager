@@ -82,7 +82,7 @@
                                              </div>
                                               <div class="form-group">
                                               <label class="control-label" for="name">Parent *</label>
-                                              <select id="parent_id" name="parent_id" class="cs-select cs-skin-elastic">
+                                              <select id="parent_id" name="parent_id" class="cs-select cs-selector cs-skin-elastic">
                                                       <option value="0"  @isset(($item)) @if($item->parent_id == null) {{"selected"}} @endif @endisset  >Aucun parent</option>
                                                           @foreach($pos as $key => $value)
                                                       <option value="{{ $value->id }}"  @isset($item) @if ($item->parent_id == $value->id) {{"selected"}}  @endif @endisset >{{ $value->libelle }}</option>

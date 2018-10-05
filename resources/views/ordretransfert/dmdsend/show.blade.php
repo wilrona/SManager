@@ -209,23 +209,23 @@
                             <h4 class="panel-title">Reception</h4>
 
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body table-responsive">
                             <table class="table sample_3">
                                 <thead>
                                 <tr>
-                                    <th class="no-sort">Reference</th>
-                                    <th class="col-xs-3 no-sort">Reçue</th>
-                                    <th class="col-xs-3 no-sort">Exp.</th>
-                                    <th class="col-xs-1"></th>
+                                    <th class="no-sort col-xs-3"><small>Reference</small></th>
+                                    <th class="col-xs-3 no-sort"><small>Reçue</small></th>
+                                    <th class="col-xs-3 no-sort"><small>Exp.</small></th>
+                                    <th class="col-xs-1 no-sort"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
 
                                 @foreach($data->Transferts()->get() as $key => $value)
                                     <tr class="@if($value->etat == 1) success @elseif($value->Series()->where("ok", '=', 1)->count() && $value->Series()->where("ok", '=', 1)->count() < $value->Series()->count()) warning @endif" >
-                                        <td><?= $value->reference ?></td>
-                                        <td><?= $value->Series()->where("ok", '=', 1)->count(); ?></td>
-                                        <td><?= $value->Series()->where('type', '=', 0)->count() - $value->Series()->where("ok", '=', 1)->count(); ?></td>
+                                        <td><small><?= $value->reference ?></small></td>
+                                        <td><small><?= $value->Series()->where("ok", '=', 1)->count(); ?></small></td>
+                                        <td><small><?= $value->Series()->where('type', '=', 0)->count() - $value->Series()->where("ok", '=', 1)->count(); ?></small></td>
                                         <td>
                                             <a href="{{ route('receive.showTransfert', $value->id) }}" data-toggle="modal" data-target="#myModal-lg" data-backdrop="static"><i class="fa fa-list-alt"></i></a>
                                         </td>

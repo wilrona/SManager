@@ -66,5 +66,9 @@ class User extends Authenticatable
 		return $this->belongsToMany('App\Magasin', 'user_magasin', 'user_id', 'magasin_id')->withPivot('principal');
 	}
 
+	public function TransfertFondAction(){
+		return $this->belongsToMany('App\OrdreTransfert', 'story_action', 'user_id', 'ordre_transfert_id')->withPivot('etape_action', 'description')->withTimestamps();
+	}
+
 
 }

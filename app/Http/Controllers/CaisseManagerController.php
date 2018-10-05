@@ -126,14 +126,18 @@ class CaisseManagerController extends Controller
 			return redirect()->route('caisseManager.index')->withWarning('Caisse ouverte par un autre utilisateur.');
 		endif;
 
-		$end = Carbon::parse($exist_session->first()->created_at);
+		if($exist_session->first()):
 
-		$now = Carbon::now();
+			$end = Carbon::parse($exist_session->first()->created_at);
 
-		$length = $now->diffInDays($end);
+			$now = Carbon::now();
 
-		if($length):
-			return redirect()->route('caisseManager.close', ['caisse_id' => $caisse->id, 'redirect' => 1]);
+			$length = $now->diffInDays($end);
+
+			if($length):
+				return redirect()->route('caisseManager.close', ['caisse_id' => $caisse->id, 'redirect' => 1]);
+			endif;
+
 		endif;
 
 		if(!$this->devise):
@@ -352,7 +356,9 @@ class CaisseManagerController extends Controller
 				$transfert['motif'] = $datas['motif'];
 				$transfert['code_transfert'] = $codeTranfert;
 
-				$transfert_fond_id =$this->transfertFondRepository->store($transfert);
+				$transfert_fond_id = $this->transfertFondRepository->store($transfert);
+
+				$transfert_fond_id->StoryAction()->save($current_user, ['etape_action' => 'envoie_fond', 'description' => 'Transfert de fond de "'.$datas['montant'].'" vers la caisse "'.$caisse_receive->name.'"']);
 
 				$ecriture = array();
 				$ecriture['libelle'] = 'Transfert de fond';
@@ -414,6 +420,9 @@ class CaisseManagerController extends Controller
 
 				$data->motif_annulation = $datas['motif'];
 				$data->statut = 2;
+
+				$data->StoryAction()->save($current_user, ['etape_action' => 'cancel_fond', 'description' => 'Annulation Transfert de fond "'.$data->reference.'" vers la caisse "'.$data->caisse_receive()->first()->name.'"']);
+
 				$data->save();
 
 				$ecriture = array();
@@ -664,6 +673,8 @@ class CaisseManagerController extends Controller
 					$this->ecritureCaisseRepository->store($ecriture);
 
 					$transfert->statut = 1;
+
+					$transfert->StoryAction()->save($current_user, ['etape_action' => 'reception_fond', 'description' => 'Reception du transfert de fond "'.$transfert->reference.'" vers la caisse "'.$transfert->caisse_receive()->first()->name.'"']);
 					$transfert->save();
 
 					$response['count'] = $this->transfertFondRepository->getWhere()->where([['caisse_receive_id', '=', $transfert->caisse_receive_id], ['statut', '=', 0]])->get();
@@ -759,7 +770,7 @@ class CaisseManagerController extends Controller
 
 	public function detailEcritureEtTransfert(Request $request, $ecriture_id, $caisse_id){
 
-		if(isset($request['type'])):
+		if(!isset($request['type'])):
 			$data = $this->transfertFondRepository->getById($ecriture_id);
 		else:
 			$data = $this->ecritureCaisseRepository->getById($ecriture_id);

@@ -78,7 +78,7 @@
                                     {!! Form::select('type', $type, null, ['class' => 'form-control', 'disabled' => '']) !!}
                                     {!! Form::hidden('type') !!}
                                 @else
-                                    {!! Form::select('type', $type, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Type de point de vente']) !!}
+                                    {!! Form::select('type', $type, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Type de point de vente']) !!}
                                 @endif
                                 {!! $errors->first('type', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message

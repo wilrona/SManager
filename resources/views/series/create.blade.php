@@ -66,7 +66,7 @@
                                                 </div>
                                                 <div class="form-group {!! $errors->has('typeproduit_id') ? 'has-error' : '' !!}">
                                                     <label for="exampleInputEmail1" class="text-bold"> Selection du produit : </label>
-                                                    {!! Form::select('typeproduit_id', $select, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...']) !!}
+                                                    {!! Form::select('typeproduit_id', $select, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...']) !!}
                                                     {!! $errors->first('typeproduit_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                                             :message
                                                         </span>
@@ -75,7 +75,7 @@
                                                 </div>
                                             <div class="form-group margin-top-30 {!! $errors->has('magasin_id') ? 'has-error' : '' !!}">
                                                 <label for="exampleInputEmail1" class="text-bold"> Selection du magasin : </label>
-                                                {!! Form::select('magasin_id', $magasin, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le magasin...']) !!}
+                                                {!! Form::select('magasin_id', $magasin, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le magasin...']) !!}
                                                 {!! $errors->first('magasin_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                                         :message
                                                     </span>
@@ -105,7 +105,7 @@
                                             </div>
                                             <div class="form-group margin-top-30 {!! $errors->has('produit_id') ? 'has-error' : '' !!}">
                                                 <label for="exampleInputEmail1" class="text-bold"> Selection du produit : </label>
-                                                {!! Form::select('produit_id', $select, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...']) !!}
+                                                {!! Form::select('produit_id', $select, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le produit...']) !!}
                                                 {!! $errors->first('produit_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                                         :message
                                                     </span>
@@ -114,7 +114,7 @@
                                             </div>
                                             <div class="form-group margin-top-30 {!! $errors->has('magasin_id') ? 'has-error' : '' !!}">
                                                 <label for="exampleInputEmail1" class="text-bold"> Selection du magasin : </label>
-                                                {!! Form::select('magasin_id', $magasin, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le magasin...']) !!}
+                                                {!! Form::select('magasin_id', $magasin, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le magasin...']) !!}
                                                 {!! $errors->first('magasin_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                                         :message
                                                     </span>

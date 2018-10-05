@@ -75,7 +75,7 @@
 
                             <div class="form-group {!! $errors->has('transite') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Type de magasin : </label>
-                                {!! Form::select('transite', $type, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Type de magasin']) !!}
+                                {!! Form::select('transite', $type, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Type de magasin']) !!}
                                 {!! $errors->first('transite', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
@@ -85,7 +85,7 @@
 
                             <div class="form-group {!! $errors->has('pos_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Point de vente du magasin : </label>
-                                {!! Form::select('pos_id', $pos, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Point de vente']) !!}
+                                {!! Form::select('pos_id', $pos, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Point de vente']) !!}
                                 {!! $errors->first('pos_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

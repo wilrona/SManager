@@ -78,7 +78,7 @@
 
                             <div class="form-group {!! $errors->has('unite_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Unité du produit : </label>
-                                {!! Form::select('unite_id', $unites, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez l\'unité du produit...']) !!}
+                                {!! Form::select('unite_id', $unites, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez l\'unité du produit...']) !!}
                                 {!! $errors->first('unite_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
@@ -88,7 +88,7 @@
 
                             <div class="form-group {!! $errors->has('famille_id') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Famille du produit : </label>
-                                {!! Form::select('famille_id', $familles, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez une famille de produit...']) !!}
+                                {!! Form::select('famille_id', $familles, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez une famille de produit...']) !!}
                                 {!! $errors->first('famille_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
@@ -98,7 +98,7 @@
 
                             <div class="form-group {!! $errors->has('bundle') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Type de produit : </label>
-                                {!! Form::select('bundle', $select_bundle, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez le type de produit...']) !!}
+                                {!! Form::select('bundle', $select_bundle, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez le type de produit...']) !!}
                                 {!! $errors->first('bundle', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

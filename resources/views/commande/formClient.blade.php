@@ -14,7 +14,7 @@
 
             <div class="form-group {!! $errors->has('famille_id') ? 'has-error' : '' !!}">
                 <label for="exampleInputEmail1" class="text-bold"> Famille de client : </label>
-                {!! Form::select('famille_id', $familles, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez une famille de client...']) !!}
+                {!! Form::select('famille_id', $familles, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez une famille de client...']) !!}
                 {!! $errors->first('famille_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                         :message
                     </span>

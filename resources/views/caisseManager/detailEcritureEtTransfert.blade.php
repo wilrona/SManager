@@ -24,51 +24,61 @@
 </div>
 
 <div class="modal-body">
-    @if(!isset($request['type']))
+
+	<?php
+	if(!isset($request['type'])):
+		$ecriture =  $data->EcritureCaisse()->first();
+	else:
+		$ecriture = $data;
+	endif;
+	?>
+
+
     <fieldset>
         <legend>
             <strong>Ecriture Caisse</strong> :
         </legend>
         <div class="form-group">
             <label> Session : </label>
-            <input type="text" class="form-control underline" disabled value="session_{{ $data->session_id }}">
+            <input type="text" class="form-control underline" disabled value="session_{{ $ecriture->session_id }}">
         </div>
         <div class="form-group">
             <label> Montant transaction : </label>
             <div class="input-group">
-                <input type="text" class="form-control underline" disabled value="{{ $data->montant }}">
-                <span class="input-group-addon">{{ $data->devise }}</span>
+                <input type="text" class="form-control underline" disabled value="{{ $ecriture->montant }}">
+                <span class="input-group-addon">{{ $ecriture->devise }}</span>
             </div>
         </div>
         @if($data->montant_remb)
         <div class="form-group">
             <label> Montant remboursement : </label>
             <div class="input-group">
-                <input type="text" class="form-control underline" disabled value="{{ $data->montant_remb }}">
-                <span class="input-group-addon">{{ $data->devise }}</span>
+                <input type="text" class="form-control underline" disabled value="{{ $ecriture->montant_remb }}">
+                <span class="input-group-addon">{{ $ecriture->devise }}</span>
             </div>
         </div>
         @endif
         <div class="form-group">
             <label> Mode de paiement : </label>
-            <input type="text" class="form-control underline" disabled value="{{ $data->type_paiement }}">
+            <input type="text" class="form-control underline" disabled value="{{ $ecriture->type_paiement }}">
         </div>
 
         <div class="form-group">
             <label> Type d'ecriture : </label>
-            <input type="text" class="form-control underline" disabled @if($data->type_ecriture == 0) value="Fermeture session" @endif @if($data->type_ecriture == 1) value="Ouverture session" @endif @if($data->type_ecriture == 2) value="Approvisionnement" @endif @if($data->type_ecriture == 3) value="Encaissement" @endif @if($data->type_ecriture == 4) value="Sortie de fond" @endif">
+            <input type="text" class="form-control underline" disabled @if($ecriture->type_ecriture == 0) value="Fermeture session" @endif @if($ecriture->type_ecriture == 1) value="Ouverture session" @endif @if($ecriture->type_ecriture == 2) value="Approvisionnement" @endif @if($ecriture->type_ecriture == 3) value="Encaissement" @endif @if($ecriture->type_ecriture == 4) value="Sortie de fond" @endif">
         </div>
 
         <div class="form-group">
             <label> Utilisateur : </label>
-            <input type="text" class="form-control underline" disabled value="{{ $data->User()->first()->nom }} {{ $data->User()->first()->prenom }}">
+            <input type="text" class="form-control underline" disabled value="{{ $ecriture->User()->first()->nom }} {{ $ecriture->User()->first()->prenom }}">
         </div>
 
+
     </fieldset>
-    @endif
+
 
     <?php
-        if(isset($request['type'])):
+        if(!isset($request['type'])):
             $transfert =  $data;
         else:
             $transfert = $data->TransfertFond()->first();
@@ -89,6 +99,15 @@
             <label> Motif : </label>
             <textarea id="" cols="10" rows="5" class="form-control underline" disabled>{{ $transfert->motif }}</textarea>
         </div>
+
+        <div class="form-group">
+            <label> Montant transaction : </label>
+            <div class="input-group">
+                <input type="text" class="form-control underline" disabled value="{{ $transfert->montant }}">
+                <span class="input-group-addon">{{ $ecriture->devise }}</span>
+            </div>
+        </div>
+
 
         <?php
 	        $expedition = $transfert->EcritureCaisse()->where([['type_ecriture', '=', 4], ['caisse_id', '=', $caisse_id]])->first();

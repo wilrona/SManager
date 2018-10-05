@@ -115,7 +115,7 @@
                                 <label for="exampleInputEmail1" class="text-bold"> Magasin approvisionneur : </label>
                                 @if($data->statut_exp == 0)
 
-                                    {!! Form::select('mag_appro_id', $my_mag, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez l\'un de vos magasins...']) !!}
+                                    {!! Form::select('mag_appro_id', $my_mag, null, ['class' => 'cs-select cs-selecteur cs-skin-elastic', 'placeholder' => 'Selectionnez l\'un de vos magasins...']) !!}
 
                                 @else
                                     {!! Form::select('mag_appro_id', $my_mag, null, ['class' => 'form-control', 'disabled' => '']) !!}
@@ -227,10 +227,48 @@
                 $('.btn-serie').attr('disabled', true);
             }
 
-            $('li[data-option]').on('click', function () {
-                $mag_appro_id = $(this).data('value');
+            $('#submit_exp').on('click', function(e){
+                e.preventDefault();
+                $('form#expedition_submit').submit();
+            });
 
-                if($mag_appro_id !== ''){
+
+            document.querySelectorAll('select.cs-selecteur').forEach(function(el) {
+
+                new SelectFx(el, {
+                    onChange: function (val) {
+
+                        resetButton(val);
+
+                        // Enregistrement du magasin approvisionneur
+                        $.ajax({
+                            url: "<?= route('receive.saveStockAppro') ?>",
+                            type: 'GET',
+                            data: { mag_appro_id: val, id:{{ $data->id }} },
+                            success: function(data) {
+
+                                if(data['success'].length > 0){
+                                    toastr["success"](data['success'], "Succès");
+                                }
+
+                                resetOption(data['mag_id']);
+
+                                if(data['error'].length > 0){
+                                    toastr["error"](data['error'], "Erreur");
+                                    $(el).val(data['mag_id']);
+                                    resetButton(data['mag_id']);
+                                }
+                            }
+                        });
+
+                    }
+                });
+
+            });
+
+            function resetButton(mag_id) {
+
+                if(mag_id !== ''){
                     $('.mag_appro_id').addClass('hidden');
                     $('.btn-serie').unbind('click', false);
                     $('.btn-serie').attr('disabled', false);
@@ -239,24 +277,27 @@
                     $('.btn-serie').attr('disabled', true);
                 }
 
-                // Enregistrement du magasin approvisionneur
-                $.ajax({
-                    url: "<?= route('receive.saveStockAppro') ?>",
-                    type: 'GET',
-                    data: { mag_appro_id: $mag_appro_id, id:{{ $data->id }} },
-                    success: function(data) {
-                        if(data['error'].length > 0){
-                            toastr["error"](data['error'], "Erreur");
-                            $('.mag_appro_id').removeClass('hidden');
-                        }
-                    }
-                });
-            });
+            }
 
-            $('#submit_exp').on('click', function(e){
-                e.preventDefault();
-                $('form#expedition_submit').submit();
-            });
+            function resetOption(mag_id){
+
+                $('.cs-options').children().find('li').each(function (number) {
+
+                    if($(this).hasClass('cs-selected')){
+                        $(this).removeClass('cs-selected');
+                    }
+
+                    if(mag_id){
+
+                        if($(this).data('value') === mag_id){
+                            $(this).addClass('cs-selected');
+                            $('.cs-placeholder').text($(this).children().text());
+                        }
+
+                    }
+
+                });
+            }
 
 
         });

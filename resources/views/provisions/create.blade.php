@@ -40,7 +40,7 @@
                             </div>
                             <div class="form-group {!! $errors->has('pos_acheteur') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold"> Point de vente recepteur : </label>
-                                {!! Form::select('pos_acheteur', $select, null, ['class' => 'cs-select cs-skin-elastic', 'placeholder' => 'Selectionnez un point de vente...']) !!}
+                                {!! Form::select('pos_acheteur', $select, null, ['class' => 'cs-select cs-selector cs-skin-elastic', 'placeholder' => 'Selectionnez un point de vente...']) !!}
                                 {!! $errors->first('pos_acheteur', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>

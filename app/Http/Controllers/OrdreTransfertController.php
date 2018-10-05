@@ -690,6 +690,8 @@ class OrdreTransfertController extends Controller
 
 		$dmd = $this->modelRepository->getById($id);
 
+		$currentUser= Auth::user();
+
 		$exit_ligne_zero = 0;
 
 		foreach ($dmd->ligne_transfert()->get() as $ligne):
@@ -833,8 +835,6 @@ class OrdreTransfertController extends Controller
                 $transfert->save();
             endif;
 
-			$currentUser= Auth::user();
-
 			foreach ($count_serie as $value):
 
 				$ecriture_stock = array();
@@ -894,8 +894,10 @@ class OrdreTransfertController extends Controller
 
 		if($recept_total):
             $dmd->statut_recept = 2;
+			$dmd->StoryAction()->save($currentUser, ['etape_action' => 'reception_totale', 'description' => 'Reception totale de la demande de stock']);
         else:
 	        $dmd->statut_recept = 1;
+	        $dmd->StoryAction()->save($currentUser, ['etape_action' => 'reception_partielle', 'description' => 'Reception partielle de la demande de stock']);
         endif;
 		$dmd->save();
 
@@ -985,7 +987,7 @@ class OrdreTransfertController extends Controller
 
 	    $current = $this->modelRepository->getById($id);
 
-	    $current->StoryEcritureStock()->save($currentUser, ['action' => 'update', 'description' => 'Modification de la demande de stock']);
+	    $current->StoryAction()->save($currentUser, ['etape_action' => 'update', 'description' => 'Modification de la demande de stock']);
 
 	    $produit = $request->session()->get('produit_send');
 	    $produit_id = $request->session()->get('produit_send_id');
@@ -1015,7 +1017,7 @@ class OrdreTransfertController extends Controller
 
                     $texte = 'Ajout du produit '.$pro->name;
 
-	                $current->StoryEcritureStock()->save($currentUser, ['action' => 'add_produit', 'description' => $texte]);
+	                $current->StoryAction()->save($currentUser, ['etape_action' => 'add_produit', 'description' => $texte]);
 
 
                 else:
@@ -1026,7 +1028,7 @@ class OrdreTransfertController extends Controller
 
                         $texte = 'Modification du produit '. $pro->name;
 
-	                    $current->StoryEcritureStock()->save($currentUser, ['action' => 'update_produit', 'description' => $texte]);
+	                    $current->StoryAction()->save($currentUser, ['etape_action' => 'update_produit', 'description' => $texte]);
                     endif;
 
                 endif;
@@ -1045,7 +1047,7 @@ class OrdreTransfertController extends Controller
 
 	            $texte = 'suppression du produit '. $del_data->produit()->first()->name;
 
-	            $current->StoryEcritureStock()->save($currentUser, ['action' => 'delete_produit', 'description' => $texte]);
+	            $current->StoryAction()->save($currentUser, ['etape_action' => 'delete_produit', 'description' => $texte]);
 
                 $del_data->delete();
             endif;
@@ -1223,6 +1225,8 @@ class OrdreTransfertController extends Controller
 		//
 		$data = $this->modelRepository->getById($id);
 
+		$currentUser= Auth::user();
+
 		$redirect = redirect()->route('dmd.show', $id);
 
 		if($data->statut_doc == 0):
@@ -1231,8 +1235,17 @@ class OrdreTransfertController extends Controller
 
 				if($statut == 1):
 					$redirect->withOk('La demande de stock a été envoyé');
+
+					$texte = 'La demande de stock a été envoyé';
+
+					$data->StoryAction()->save($currentUser, ['etape_action' => 'send_demande', 'description' => $texte]);
+
                 elseif ($statut == 3):
 					$redirect->withOk('La dmande de stock a été annulé');
+
+	                $texte = 'La demande de stock a été annulé';
+
+	                $data->StoryAction()->save($currentUser, ['etape_action' => 'candel_demande', 'description' => $texte]);
 				endif;
 
 			else:
@@ -1273,7 +1286,12 @@ class OrdreTransfertController extends Controller
 	            $data->statut_doc = $statut;
 	            $data->save();
 
+	            $texte = 'La demande de stock a été cloturé';
+
+	            $data->StoryAction()->save($currentUser, ['etape_action' => 'close_demande', 'description' => $texte]);
+
 	            return redirect()->route('receive.show', $id)->withOk('La demande a été cloturé');
+
             endif;
 
 		endif;
@@ -1458,18 +1476,53 @@ class OrdreTransfertController extends Controller
 			endif;
 		endforeach;
 
-		$response = array('success' => '', 'error' => '');
+		$response = array('success' => '', 'error' => '', 'mag_id' => 0);
 
-		if(!$exist):
-			$save = $this->modelRepository->getById($data['id']);
-			$save->mag_appro_id = $data['mag_appro_id'];
-			$save->save();
+		$save = $this->modelRepository->getById($data['id']);
 
-			$response['success'] = 'Your enquiry has been successfully submitted!';
-		else:
-			$appro = $this->magasinRepository->getById($data['mag_appro_id']);
-			$response['error'] = 'Les modifications ne peuvent pas être prise en compte car vous utilisez déja des produits du magasin "'.$appro->name.'"';
-		endif;
+		if($data['mag_appro_id']):
+
+            if($save->mag_appro_id != $data['mag_appro_id']):
+
+                if(!$exist):
+
+                    $save->mag_appro_id = $data['mag_appro_id'];
+                    $save->save();
+
+                    $response['success'] = "La modification du magasin d'approvisionnement a été effective avec succès.";
+
+	            else:
+
+		            $response['error'] = "Impossible de prendre en compte la modification du magasin d'approvisionnement car il y'a des produits en stock dans le magasin '".$save->magasin_appro()->first()->name."' pris en compte";
+                    $response['mag_id'] = $save->mag_appro_id;
+
+	            endif;
+
+            else:
+
+	            $response['success'] = "L'ajout du magasin d'approvisionnement a été effective avec succès.";
+
+			endif;
+
+        else:
+
+            if($exist):
+
+	            $response['error'] = 'Les modifications ne peuvent pas être prise en compte car vous utilisez déja des produits du magasin "'.$save->magasin_appro()->first()->name.'"';
+	            $response['mag_id'] = $save->mag_appro_id;
+
+            else:
+
+                if($save->mag_appro_id):
+	                $response['success'] = 'Le magasin "'.$save->magasin_appro()->first()->name.'" a été retiré avec succès';
+                endif;
+
+	            $save->mag_appro_id = null;
+	            $save->save();
+
+            endif;
+
+        endif;
 
 		return response()->json($response);
 	}
@@ -1971,8 +2024,10 @@ class OrdreTransfertController extends Controller
 
 		if($exp_partiel):
 		    $dmd->statut_exp = 1;
+			$dmd->StoryAction()->save($currentUser, ['etape_action' => 'expedition_partielle', 'description' => 'Expédition partielle des produits']);
 		else:
 			$dmd->statut_exp = 2;
+			$dmd->StoryAction()->save($currentUser, ['etape_action' => 'expedition', 'description' => 'Expédition totale des produits']);
 		endif;
 
 		$dmd->save();

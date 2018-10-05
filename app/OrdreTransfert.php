@@ -39,8 +39,8 @@ class OrdreTransfert extends Model
 		return $this->hasMany( 'App\EcritureStock', 'ordre_transfert_id', 'id');
 	}
 
-	public function StoryEcritureStock(){
-		return $this->belongsToMany('App\User', 'story_transfert_stock', 'ordre_transfert_id', 'user_id')->withPivot('action', 'description')->withTimestamps();
+	public function StoryAction(){
+		return $this->belongsToMany('App\User', 'story_action', 'ordre_transfert_id', 'user_id')->withPivot('etape_action', 'description')->withTimestamps();
 	}
 
 
