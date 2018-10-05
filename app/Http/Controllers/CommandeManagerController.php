@@ -482,9 +482,9 @@ class CommandeManagerController extends Controller
 	    )->first();
 	    $count += $incref ? intval($incref->value) : 1;
 
-	    $currentUser = Auth::user();
+	    $current_user = Auth::user();
 
-	    $POS = $this->posRepository->getById($currentUser->pos_id);
+	    $POS = $this->posRepository->getById($current_user->pos_id);
 
 	    $reference = $this->custom->setReference($coderef, $count, 6, $POS->reference);
 
@@ -508,9 +508,9 @@ class CommandeManagerController extends Controller
         $commande['total'] = $this->cart->getTotal();
         $commande['subtotal'] = $this->cart->getSubTotalWithoutConditions();
 
-	    $commande_id = $this->modelRepository->store($commande);
+	    $cmd = $this->modelRepository->store($commande);
 
-	    $cmd = $this->modelRepository->getById($commande_id->id);
+//	    $cmd = $this->modelRepository->getById($commande_id->id);
 
 	    $panier = $this->cart->getContent();
 
@@ -526,7 +526,10 @@ class CommandeManagerController extends Controller
               'codeCmd' => $codeTranfert
         ];
 
-        $this->cart->clear();
+	    $cmd->StoryAction()->save($current_user, ['etape_action' => 'create_cmd', 'description' => 'Création de la commande "'.$cmd->reference.'"']);
+
+	    $this->cart->clear();
+	    $this->cart->clearCartConditions();
 
 	    return response()->json($response);
     }

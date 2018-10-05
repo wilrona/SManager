@@ -347,7 +347,7 @@ class MagasinManagerController extends Controller
 
 		$data = $request->all();
 
-		$currentUser= Auth::user();
+		$current_user = Auth::user();
 
 		$cmd = $this->commandeRepository->getById($data['commande_id']);
 		$lignes = $cmd->Produits()->get();
@@ -389,7 +389,7 @@ class MagasinManagerController extends Controller
 
 		$ecriture_stock = array();
 		$ecriture_stock['type_ecriture'] = 1;
-		$ecriture_stock['user_id'] = $currentUser->id;
+		$ecriture_stock['user_id'] = $current_user->id;
 		$ecriture_stock['magasin_id'] = $data['magasin_id'];
 		$ecriture_stock['commande_id'] = $cmd->id;
 		$ecriture_stock['session_id'] = $exist_session->id;
@@ -439,8 +439,12 @@ class MagasinManagerController extends Controller
 
 			if(!$error):
 				$cmd->etat = 3;
+
+				$cmd->StoryAction()->save($current_user, ['etape_action' => 'cmd_serie_total', 'description' => 'Sérialisation totale de la commande "'.$cmd->reference.'"']);
 			else:
 				$cmd->etat = 2;
+
+				$cmd->StoryAction()->save($current_user, ['etape_action' => 'cmd_serie_partiel', 'description' => 'Sérialisation partielle de la commande "'.$cmd->reference.'"']);
 			endif;
 
 			$cmd->save();

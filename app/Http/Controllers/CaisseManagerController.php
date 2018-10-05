@@ -854,6 +854,9 @@ class CaisseManagerController extends Controller
 			$this->ecritureCaisseRepository->store($encaissement);
 
 			$commande->etat = 1;
+
+			$commande->StoryAction()->save($current_user, ['etape_action' => 'encaissement_cmd', 'description' => 'Encaissement de la commande "'.$commande->reference.'"']);
+
 			$commande->save();
 
 			$response['success'] = 'Enregistrement de la commande réussi';

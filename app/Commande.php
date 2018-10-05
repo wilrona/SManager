@@ -31,4 +31,8 @@ class Commande extends Model
 	public function Sessions(){
 		return $this->belongsToMany('App\Session', 'commande_session', 'commande_id', 'session_id')->withTimestamps();
 	}
+
+	public function StoryAction(){
+		return $this->belongsToMany('App\User', 'story_action', 'commande_id', 'user_id')->withPivot('etape_action', 'description')->withTimestamps();
+	}
 }
