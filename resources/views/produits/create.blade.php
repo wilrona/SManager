@@ -26,7 +26,7 @@
         <div class="container-fluid container-fullw padding-bottom-10">
             <div class="row">
 
-                {!! Form::open(['route' => 'produit.store']) !!}
+                {!! Form::open(['route' => 'produit.store', 'files' => true]) !!}
                 <div class="col-md-8">
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
@@ -56,6 +56,28 @@
                                 </span>
                                 ') !!}
                             </div>
+
+                            <div class="form-group {!! $errors->has('filename') ? 'has-error' : '' !!}">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="panel panel-white no-radius">
+                                            <div class="panel-body">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="exampleInputEmail1" class="text-bold text-capitalize"> Image du produit : </label>
+                                        {!! Form::file('filename', ['class' => 'form-control']) !!}
+                                    </div>
+                                </div>
+                                {!! $errors->first('filename', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
 
                             <div class="form-group {!! $errors->has('name') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold text-capitalize"> Nom du produit : </label>

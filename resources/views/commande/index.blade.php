@@ -664,7 +664,7 @@ jQuery(document).ready(function() {
             $.ajax({
                 url: "{{ route('commande.save') }}",
                 type: 'GET',
-                data: { client_id: client},
+                data: { client_id: client, caisse_id: "{{ $request['caisse_id'] }}"},
                 success: function(data) {
 
                     $('#item-name-update').text('Aucun produit selectionné');
@@ -680,11 +680,26 @@ jQuery(document).ready(function() {
                         title: data['codeCmd'],
                         text: 'Code de la commande à remettre au client ou à noter',
                         type: "success",
-                        showconfirmButton: true,
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: "#d43f3a"
-                    }, function () {
-                        $('.modal-header .close').trigger('click');
+                        showConfirmButton: true,
+                        confirmButtonText: 'Payer',
+                        confirmButtonColor: "#58748B",
+                        showCancelButton: true,
+                        cancelButtonText: 'Valider',
+                        cancelButtonColor: "#d43f3a"
+                    }, function (result) {
+                        if(result === true){
+                            $.ajax({
+                                url: "{{ route('commande.encaissementCommande') }}/"+data['id'],
+                                type: 'GET',
+                                data: { caisse_id: "{{ $request['caisse_id'] }}" },
+                                success: function(data) {
+                                    $('#myModal-vt').modal('show');
+                                    $('#myModal-vt').find('.modal-content').html(data);
+                                }
+                            });
+                        }else{
+                            $('.modal-header .close').trigger('click');
+                        }
                     });
 
                     $.ajax({

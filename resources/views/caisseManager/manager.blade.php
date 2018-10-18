@@ -43,7 +43,7 @@
                                                 <h4 class="panel-title text-center">{{ $caisse->name }}</h4>
                                             </div>
                                         </div>
-                                        <a href="{{ route('commande.index') }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static">
+                                        <a href="{{ route('commande.index', ['caisse_id' => $caisse->id]) }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal-vt" data-backdrop="static">
                                             Creer une commande
                                         </a>
                                         <a href="{{ route('caisseManager.createTransfertFond', $caisse->id) }}" class="btn btn-primary btn-block margin-bottom-30" data-toggle="modal" data-target="#myModal" data-backdrop="static">
@@ -65,6 +65,9 @@
                                             </li>
                                             <li>
                                                 <a href="{{ route('caisseManager.storyTransfertFond', $caisse->id) }}" id="StoryTransfertFond"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('caisseManager.commandeUser', $caisse->id) }}" id="commandeUser"> <span class="title"><i class="ti-receipt"></i> Commande Effectuée </span>  </a>
                                             </li>
                                         </ul>
 
@@ -254,6 +257,20 @@
         });
 
         $('#TransfertFond').on('click', function (e) {
+            e.preventDefault();
+            var $url = $(this).attr('href');
+
+            $.ajax({
+                url: $url,
+                type: 'get',
+                success: function(data) {
+                    $('.caisseManager').html('');
+                    $('.panel-fond').html(data);
+                }
+            });
+        });
+
+        $('#commandeUser').on('click', function (e) {
             e.preventDefault();
             var $url = $(this).attr('href');
 

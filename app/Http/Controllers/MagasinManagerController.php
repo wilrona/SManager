@@ -73,14 +73,18 @@ class MagasinManagerController extends Controller
 			return redirect()->route('magasinManager.index')->withWarning('Magasin ouvert par un autre utilisateur.');
 		endif;
 
-		$end = Carbon::parse($exist_session->first()->created_at);
+		if($exist_session->first()):
 
-		$now = Carbon::now();
+			$now = Carbon::now();
 
-		$length = $now->diffInDays($end);
+			$end = Carbon::parse($exist_session->first()->created_at)->lt($now);
 
-		if($length):
-			return redirect()->route('magasinManager.close', ['magasin_id' => $magasin->id, 'redirect' => 1]);
+	//		$length = $now->diffInDays($end);
+
+			if($end):
+				return redirect()->route('magasinManager.close', ['magasin_id' => $magasin->id, 'redirect' => 1]);
+			endif;
+
 		endif;
 
 		if(!$exist_session->count()):
@@ -157,6 +161,8 @@ class MagasinManagerController extends Controller
 
 		$data = $request->all();
 
+		$current_user = Auth::user();
+
 		$response = array(
 			'data' => []
 		);
@@ -165,19 +171,31 @@ class MagasinManagerController extends Controller
 
 			$commandes = $this->commandeRepository->getWhere()->where(
 				[
-					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%']
+					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%'],
+					['point_de_vente_id', '=', $current_user->pos_id]
 				]
-			)->orWhere('etat', '=', 1)->orWhere('etat', '=', 2)->get();
+			)->orWhere('etat', '=', 0)->orWhere('etat', '=', 1)->orWhere('etat', '=', 2)->get();
 
 			foreach ($commandes as $commande):
-				$cmd = [];
-				$cmd['id'] = $commande->id;
-				$cmd['reference'] = $commande->reference;
-				$cmd['client'] = $commande->client()->first()->display_name;
-				$cmd['total'] = number_format($commande->total, 0, '.', ' '). ' '.$commande->devise;
-				$cmd['date'] = $commande->created_at->format('d-m-Y H:i');
-
-				array_push($response['data'], $cmd);
+				if($commande->etat = 0):
+					if($commande->a_la_livraison):
+						$cmd = [];
+						$cmd['id'] = $commande->id;
+						$cmd['reference'] = $commande->reference;
+						$cmd['client'] = $commande->client()->first()->display_name;
+						$cmd['total'] = number_format($commande->total, 0, '.', ' '). ' '.$commande->devise;
+						$cmd['date'] = $commande->created_at->format('d-m-Y H:i');
+						array_push($response['data'], $cmd);
+					endif;
+				else:
+					$cmd = [];
+					$cmd['id'] = $commande->id;
+					$cmd['reference'] = $commande->reference;
+					$cmd['client'] = $commande->client()->first()->display_name;
+					$cmd['total'] = number_format($commande->total, 0, '.', ' '). ' '.$commande->devise;
+					$cmd['date'] = $commande->created_at->format('d-m-Y H:i');
+					array_push($response['data'], $cmd);
+				endif;
 			endforeach;
 
 		endif;

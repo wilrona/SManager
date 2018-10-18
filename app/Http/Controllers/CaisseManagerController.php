@@ -128,9 +128,9 @@ class CaisseManagerController extends Controller
 
 		if($exist_session->first()):
 
-			$end = Carbon::parse($exist_session->first()->created_at);
-
 			$now = Carbon::now();
+
+			$end = Carbon::parse($exist_session->first()->created_at);
 
 			$length = $now->diffInDays($end);
 
@@ -766,6 +766,16 @@ class CaisseManagerController extends Controller
 			return view('caisseManager.rapportSession', compact('datas', 'caisse', 'date_now'));
 
 		endif;
+	}
+
+	public function commandeUser($caisse_id){
+
+		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
+
+		$datas = $exist_session->commandes()->orderBy('created_at', 'desc')->get();
+
+		return view('caisseManager.commandePos', compact('datas'));
+
 	}
 
 	public function detailEcritureEtTransfert(Request $request, $ecriture_id, $caisse_id){

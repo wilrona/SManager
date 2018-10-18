@@ -31,7 +31,7 @@
                 <div class="alert alert-warning alert-dismissible">{!! session('warning') !!}</div>
             @endif
             <div class="row">
-                {!! Form::model($data, ['route' => ['produit.update', $data->id]]) !!}
+                {!! Form::model($data, ['route' => ['produit.update', $data->id], 'files' => true]) !!}
                 <div class="col-md-8">
                     <div class="panel panel-white">
                         <div class="panel-heading border-light">
@@ -57,6 +57,29 @@
                                 {!! Form::text('reference', null, ['class' => 'form-control', 'disabled' => '']) !!}
                                 {!! Form::hidden('reference') !!}
                                 {!! $errors->first('reference', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
+                            <div class="form-group {!! $errors->has('filename') ? 'has-error' : '' !!}">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="panel panel-white no-radius">
+                                            <div class="panel-body">
+                                                @if($data->filename)
+                                                    <img src="{{ url('uploads/'.$data->filename) }}" alt="" style="width: 100% !important;">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label for="exampleInputEmail1" class="text-bold text-capitalize"> Image du produit : </label>
+                                        {!! Form::file('filename', ['class' => 'form-control']) !!}
+                                    </div>
+                                </div>
+                                {!! $errors->first('filename', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
                                 </span>

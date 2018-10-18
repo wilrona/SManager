@@ -72,6 +72,9 @@
                                                                 @if($data->etat == 5)
                                                                     Livré
                                                                 @endif
+                                                                @if($data->etat == 6)
+                                                                    Annulé
+                                                                @endif
                                                             </td>
                                                             <td>{{ $data->created_at->format('d-m-Y H:i') }}</td>
 

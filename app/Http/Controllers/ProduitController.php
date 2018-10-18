@@ -18,6 +18,11 @@ use App\Repositories\UniteRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+
+use Intervention\Image\ImageManagerStatic as Image;
+
 class ProduitController extends Controller
 {
     //
@@ -163,6 +168,16 @@ class ProduitController extends Controller
 		if($data['bundle'] == 1):
 			$data['prix'] = 0;
 		endif;
+
+		if($request->hasFile('filename')){
+			$image = $request->file('filename');
+			$extension = $image->getClientOriginalExtension();
+			Storage::disk('public')->put($image->getFilename().'.'.$extension,  File::get($image));
+			$image = Image::make(sprintf('uploads/%s', $image->getFilename().'.'.$extension))->resize(300, 300)->save();
+			$data['filename'] = $image->getFilename().'.'.$extension;
+		}else{
+		    $data['filename'] = '';
+        };
 
 		$data = $this->modelRepository->store($data);
 
@@ -311,6 +326,19 @@ class ProduitController extends Controller
 			$request->session()->forget('produit');
 
 		endif;
+
+		if($request->hasFile('filename')){
+			$image = $request->file('filename');
+			$extension = $image->getClientOriginalExtension();
+			if($current->filename):
+				File::delete(public_path() . '/uploads/'.$current->filename);
+			endif;
+			Storage::disk('public')->put($image->getFilename().'.'.$extension,  File::get($image));
+			Image::make(sprintf('uploads/%s', $image->getFilename().'.'.$extension))->resize(300, 300)->save();
+			$data['filename'] = $image->getFilename().'.'.$extension;
+		}else{
+			$data['filename'] = '';
+		};
 
 		if($request->session()->has('groupe')):
             $groupes = $request->session()->get('groupe');

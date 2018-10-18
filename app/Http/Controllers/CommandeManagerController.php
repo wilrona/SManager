@@ -11,6 +11,7 @@ use App\Repositories\MagasinRepository;
 use App\Repositories\ParametreRepository;
 use App\Repositories\PointDeVenteRepository;
 use App\Repositories\ProduitRepository;
+use App\Repositories\SessionRepository;
 use Darryldecode\Cart\CartCondition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,7 @@ class CommandeManagerController extends Controller
 	protected $produitRepository;
 	protected $magasinRepository;
 	protected $posRepository;
+	protected $sessionRepository;
 
 	protected $custom;
 	protected $cart;
@@ -38,7 +40,7 @@ class CommandeManagerController extends Controller
 
 	public function __construct(CommandeRepository $commande_repository, FamilleRepository $famille_repository,
 		ParametreRepository $parametre_repository, ClientRepository $client_repository, ProduitRepository $produit_repository,
-		MagasinRepository $magasin_repository, PointDeVenteRepository $point_de_vente_repository
+		MagasinRepository $magasin_repository, PointDeVenteRepository $point_de_vente_repository, SessionRepository $session_repository
 	) {
 		$this->modelRepository = $commande_repository;
 		$this->familleRepository = $famille_repository;
@@ -47,6 +49,7 @@ class CommandeManagerController extends Controller
 		$this->produitRepository = $produit_repository;
 		$this->magasinRepository = $magasin_repository;
 		$this->posRepository = $point_de_vente_repository;
+		$this->sessionRepository = $session_repository;
 
 		$this->custom = new CustomFunction();
 		$this->cart = app('cartlist');
@@ -80,14 +83,16 @@ class CommandeManagerController extends Controller
 
 	}
 
-	public function index(){
+	public function index(Request $request){
+
+	    $request = $request->all();
 
 		$this->cart->clear();
 		$this->cart->clearCartConditions();
 
 		$produit_list = $this->produitRepository->getWhere()->get();
 
-		return view('commande.index', compact('produit_list'));
+		return view('commande.index', compact('produit_list', 'request'));
 	}
 
 
@@ -105,13 +110,18 @@ class CommandeManagerController extends Controller
 
 		$exist_cmd = $prod->Commandes()->where([
 		        ['point_de_vente_id', '=', $currentUser->pos_id],
-                ['etat', '<=', 1]
+                ['etat', '<=', 2]
         ])->get();
 
 		$count_exist_cmd = 0;
 
 		foreach ( $exist_cmd as $item ) {
-            $count_exist_cmd += $item->pivot->qte;
+			if(unserialize($item->pivot->serie_sortie)):
+                $qte = $item->pivot->qte - count(unserialize($item->pivot->serie_sortie));
+                $count_exist_cmd += $qte;
+            else:
+                $count_exist_cmd += $item->pivot->qte;
+			endif;
 		}
 
 		$response = array(
@@ -510,8 +520,6 @@ class CommandeManagerController extends Controller
 
 	    $cmd = $this->modelRepository->store($commande);
 
-//	    $cmd = $this->modelRepository->getById($commande_id->id);
-
 	    $panier = $this->cart->getContent();
 
 	    foreach ($panier as $item):
@@ -523,10 +531,14 @@ class CommandeManagerController extends Controller
         endforeach;
 
         $response = [
-              'codeCmd' => $codeTranfert
+              'codeCmd' => $codeTranfert,
+              'id' => $cmd->id
         ];
 
 	    $cmd->StoryAction()->save($current_user, ['etape_action' => 'create_cmd', 'description' => 'Création de la commande "'.$cmd->reference.'"']);
+
+	    $exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $data['caisse_id']], ['last', '=', 1]])->first();
+	    $cmd->Sessions()->save($exist_session);
 
 	    $this->cart->clear();
 	    $this->cart->clearCartConditions();
@@ -709,5 +721,18 @@ class CommandeManagerController extends Controller
         return $montant;
 
     }
+
+	public function cancelCommande($id){
+
+		$data = $this->modelRepository->getById($id);
+
+		$data->etat = 6;
+		$data->save();
+
+		$response = [];
+
+		return response()->json($response);
+
+	}
 
 }

@@ -7,6 +7,9 @@
 
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    @if($data->etat == 0)
+        <a href="{{ route('commande.cancelCommande', $data->id) }}" class="btn btn-danger pull-right btn-sm" id="cancel" style="margin-right: 10px;">Annuler la commande</a>
+    @endif
     <h4 class="modal-title" id="myModalLabel">Commande <strong>{{ $data->reference }}</strong></h4>
 </div>
 
@@ -48,7 +51,27 @@
                 </div>
                 <div class="form-group">
                     <label> Etat : </label>
-                    <input type="text" class="form-control underline" disabled value="@if($data->etat == 0) Enregistré @endif @if($data->etat == 1) Payé @endif @if($data->etat == 2) Produit Traité partiellement @endif @if($data->etat == 3) Produit Traité @endif @if($data->etat == 4) Livré partiellement @endif @if($data->etat == 5) Livré @endif">
+                    @if($data->etat == 0)
+                        <input type="text" class="form-control underline" disabled value="Enregistré">
+                    @endif
+                    @if($data->etat == 1)
+                        <input type="text" class="form-control underline" disabled value="Payé">
+                    @endif
+                    @if($data->etat == 2)
+                        <input type="text" class="form-control underline" disabled value="Produit Traité partiellement">
+                    @endif
+                    @if($data->etat == 3)
+                        <input type="text" class="form-control underline" disabled value="Produit Traité">
+                    @endif
+                    @if($data->etat == 4)
+                        <input type="text" class="form-control underline" disabled value="Livré partiellement">
+                    @endif
+                    @if($data->etat == 5)
+                        <input type="text" class="form-control underline" disabled value="Livré">
+                    @endif
+                    @if($data->etat == 6)
+                        <input type="text" class="form-control underline" disabled value="Annulé">
+                    @endif
                 </div>
                 <div class="form-group">
                     <label> Code de la commande : </label>
@@ -124,7 +147,7 @@
                     <thead>
                     <tr>
                         <th class="col-xs-1">#</th>
-                        <th class="col-xs-3">Produit</th>
+                        <th class="col-xs-5">Produit</th>
                         <th class="col-xs-3">Qté</th>
                         <th class="col-xs-3">Qté sortie</th>
                     </tr>
@@ -150,9 +173,18 @@
     </div>
 
 
-
-
-
-
-
 </div>
+
+<script>
+    $('#cancel').on('click', function(e){
+        e.preventDefault();
+        var $url = $(this).attr('href');
+        $.ajax({
+            url: $url,
+            type: 'GET',
+            success: function(data) {
+               $('#myModal-hr-lg .close').trigger('click');
+            }
+        });
+    })
+</script>

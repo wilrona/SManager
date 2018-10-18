@@ -87,6 +87,20 @@
                                 ') !!}
                             </div>
 
+                            <div class="form-group {!! $errors->has('filename') ? 'has-error' : '' !!}">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="panel panel-white no-radius">
+                                            <div class="panel-body">
+                                                @if($data->filename)
+                                                    <img src="{{ url('uploads/'.$data->filename) }}" alt="" style="width: 100% !important;">
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group {!! $errors->has('name') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold text-capitalize"> Nom du produit : </label>
                                 {!! Form::text('name', $data->name, ['class' => 'form-control', 'disabled' => '']) !!}

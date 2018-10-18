@@ -57,6 +57,10 @@ class ProduitRequest extends FormRequest
 		    $rules['prix'] = 'required';
 	    endif;
 
+	    if(isset($request->id) && $request->filename != null):
+		    $rules['filename.*'] = 'image|mimes:jpeg,png,jpg,gif,svg|max:2048';
+	    endif;
+
         return $rules;
     }
 
