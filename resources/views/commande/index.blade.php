@@ -667,49 +667,66 @@ jQuery(document).ready(function() {
                 data: { client_id: client, caisse_id: "{{ $request['caisse_id'] }}"},
                 success: function(data) {
 
-                    $('#item-name-update').text('Aucun produit selectionné');
-                    $('#item-qte-update').val(1);
-                    $('#submit-update-qte').data('id', '');
+                    if(data['error'].length > 0){
 
-                    $('#Subtotal').text(0);
-                    $('#tauxTax').text(0);
-                    $('#Tax').text(0);
-                    $('#Total').text(0);
+                        swal({
+                            title: 'Produit inssuffisant',
+                            text: data['error'],
+                            type: "error",
+                            showconfirmButton: true,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: "#d43f3a"
+                        });
 
-                    swal({
-                        title: data['codeCmd'],
-                        text: 'Code de la commande à remettre au client ou à noter',
-                        type: "success",
-                        showConfirmButton: true,
-                        confirmButtonText: 'Payer',
-                        confirmButtonColor: "#58748B",
-                        showCancelButton: true,
-                        cancelButtonText: 'Valider',
-                        cancelButtonColor: "#d43f3a"
-                    }, function (result) {
-                        if(result === true){
-                            $.ajax({
-                                url: "{{ route('commande.encaissementCommande') }}/"+data['id'],
-                                type: 'GET',
-                                data: { caisse_id: "{{ $request['caisse_id'] }}" },
-                                success: function(data) {
-                                    $('#myModal-vt').modal('show');
-                                    $('#myModal-vt').find('.modal-content').html(data);
-                                }
-                            });
-                        }else{
-                            $('.modal-header .close').trigger('click');
-                        }
-                    });
+                    }else{
 
-                    $.ajax({
-                        url: "{{ route('commande.listpanier') }}",
-                        type: 'GET',
-                        data: { id: null },
-                        success: function(data2nd) {
-                            $('#panierContent').html(data2nd);
-                        }
-                    });
+                        $('#item-name-update').text('Aucun produit selectionné');
+                        $('#item-qte-update').val(1);
+                        $('#submit-update-qte').data('id', '');
+
+                        $('#Subtotal').text(0);
+                        $('#tauxTax').text(0);
+                        $('#Tax').text(0);
+                        $('#Total').text(0);
+
+                        swal({
+                            title: data['codeCmd'],
+                            text: 'Code de la commande à remettre au client ou à noter',
+                            type: "success",
+                            showConfirmButton: true,
+                            confirmButtonText: 'Payer',
+                            confirmButtonColor: "#58748B",
+                            showCancelButton: true,
+                            cancelButtonText: 'Valider',
+                            cancelButtonColor: "#d43f3a"
+                        }, function (result) {
+                            if(result === true){
+                                $.ajax({
+                                    url: "{{ route('commande.encaissementCommande') }}/"+data['id'],
+                                    type: 'GET',
+                                    data: { caisse_id: "{{ $request['caisse_id'] }}" },
+                                    success: function(data) {
+                                        $('#myModal-vt').modal('show');
+                                        $('#myModal-vt').find('.modal-content').html(data);
+                                    }
+                                });
+                            }else{
+                                $('.modal-header .close').trigger('click');
+                            }
+                        });
+
+                        $.ajax({
+                            url: "{{ route('commande.listpanier') }}",
+                            type: 'GET',
+                            data: { id: null },
+                            success: function(data2nd) {
+                                $('#panierContent').html(data2nd);
+                            }
+                        });
+
+                    }
+
+
                 }
             });
 

@@ -172,13 +172,14 @@ class MagasinManagerController extends Controller
 			$commandes = $this->commandeRepository->getWhere()->where(
 				[
 					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%'],
-					['point_de_vente_id', '=', $current_user->pos_id]
+					['point_de_vente_id', '=', $current_user->pos_id],
+					['etat', '<=', 2]
 				]
-			)->orWhere('etat', '=', 0)->orWhere('etat', '=', 1)->orWhere('etat', '=', 2)->get();
+			)->get();
 
 			foreach ($commandes as $commande):
-				if($commande->etat = 0):
-					if($commande->a_la_livraison):
+				if($commande->etat == 0):
+					if($commande->a_la_livraison == 1):
 						$cmd = [];
 						$cmd['id'] = $commande->id;
 						$cmd['reference'] = $commande->reference;

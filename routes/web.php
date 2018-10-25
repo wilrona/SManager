@@ -348,6 +348,9 @@ Route::group([], function() {
 
 		Route::get('/story/transfert_fond/{caisse_id}', 'CaisseManagerController@storyTransfertFond')->middleware('auth')->name('caisseManager.storyTransfertFond');
 		Route::get('/story/commande/{caisse_id}', 'CaisseManagerController@commandeUser')->middleware('auth')->name('caisseManager.commandeUser');
+		Route::get('/commande/vente/alivraison/{caisse_id}', 'CaisseManagerController@commandePayeLivraison')->middleware('auth')->name('caisseManager.commandePayeLivraison');
+		Route::get('/commande/vente/retrait/{caisse_id}', 'CaisseManagerController@commandePayeMagasin')->middleware('auth')->name('caisseManager.commandePayeMagasin');
+
 
 		Route::get('/rapport/{caisse_id}', 'CaisseManagerController@rapportSession')->middleware('auth')->name('caisseManager.rapportSession');
 

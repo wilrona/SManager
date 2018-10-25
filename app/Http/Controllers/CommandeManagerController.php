@@ -494,54 +494,105 @@ class CommandeManagerController extends Controller
 
 	    $current_user = Auth::user();
 
-	    $POS = $this->posRepository->getById($current_user->pos_id);
-
-	    $reference = $this->custom->setReference($coderef, $count, 6, $POS->reference);
-
-	    $codeTranfert = $this->custom->randomPassword(6, 1, 'upper_case,numbers');
-
-	    $devises = $this->parametreRepository->getWhere()->where(
-		    [
-			    ['module', '=', 'caisses'],
-			    ['type_config', '=', 'devise']
-		    ]
-	    )->first();
-
-	    $commande = array();
-	    $commande['reference'] = $reference;
-	    $commande['client_id'] = $data['client_id'];
-	    $commande['point_de_vente_id'] = $POS->id;
-
-	    $commande['codeCmd'] = $codeTranfert;
-	    $commande['devise'] = $devises ? $devises->value : '';
-
-        $commande['total'] = $this->cart->getTotal();
-        $commande['subtotal'] = $this->cart->getSubTotalWithoutConditions();
-
-	    $cmd = $this->modelRepository->store($commande);
 
 	    $panier = $this->cart->getContent();
 
-	    foreach ($panier as $item):
+	    $error = false;
 
-            $item_pro = $this->produitRepository->getById($item->id);
+	    foreach ($panier as $item_p):
 
-            $cmd->Produits()->save($item_pro, ['prix' => $item->price, 'qte' => $item->quantity, 'devise' => $devises ? $devises->value : '']);
+		    $item_pro = $this->produitRepository->getById($item_p->id);
 
-        endforeach;
+		    $exist_prod = $item_pro->series()->where('type', '=', 0)->whereHas('Magasins', function ($q) use ($current_user){
+			    $q->where('pos_id', '=', $current_user->pos_id);
+		    })->count();
 
-        $response = [
-              'codeCmd' => $codeTranfert,
-              'id' => $cmd->id
-        ];
+		    $exist_cmd = $item_pro->Commandes()->where([
+			    ['point_de_vente_id', '=', $current_user->pos_id],
+			    ['etat', '<=', 2]
+		    ])->get();
 
-	    $cmd->StoryAction()->save($current_user, ['etape_action' => 'create_cmd', 'description' => 'Création de la commande "'.$cmd->reference.'"']);
+		    $count_exist_cmd = 0;
 
-	    $exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $data['caisse_id']], ['last', '=', 1]])->first();
-	    $cmd->Sessions()->save($exist_session);
+		    foreach ( $exist_cmd as $item ) {
+			    if(unserialize($item->pivot->serie_sortie)):
+				    $qte = $item->pivot->qte - count(unserialize($item->pivot->serie_sortie));
+				    $count_exist_cmd += $qte;
+			    else:
+				    $count_exist_cmd += $item->pivot->qte;
+			    endif;
+		    }
 
-	    $this->cart->clear();
-	    $this->cart->clearCartConditions();
+		    $count_en_stock = $exist_prod - $count_exist_cmd;
+
+		    if(!$count_en_stock):
+                $error = true;
+		    endif;
+
+
+	    endforeach;
+
+	    $response = [
+		    'codeCmd' => '',
+		    'id' => '',
+		    'error' => ''
+	    ];
+
+	    if(!$error):
+
+            $POS = $this->posRepository->getById($current_user->pos_id);
+
+            $reference = $this->custom->setReference($coderef, $count, 6, $POS->reference);
+
+            $codeTranfert = $this->custom->randomPassword(6, 1, 'upper_case,numbers');
+
+            $devises = $this->parametreRepository->getWhere()->where(
+                [
+                    ['module', '=', 'caisses'],
+                    ['type_config', '=', 'devise']
+                ]
+            )->first();
+
+            $commande = array();
+            $commande['reference'] = $reference;
+            $commande['client_id'] = $data['client_id'];
+            $commande['point_de_vente_id'] = $POS->id;
+
+            $commande['codeCmd'] = $codeTranfert;
+            $commande['devise'] = $devises ? $devises->value : '';
+
+            $commande['total'] = $this->cart->getTotal();
+            $commande['subtotal'] = $this->cart->getSubTotalWithoutConditions();
+
+            $cmd = $this->modelRepository->store($commande);
+
+    //	    $panier = $this->cart->getContent();
+
+            foreach ($panier as $item):
+
+                $item_pro = $this->produitRepository->getById($item->id);
+
+                $cmd->Produits()->save($item_pro, ['prix' => $item->price, 'qte' => $item->quantity, 'devise' => $devises ? $devises->value : '']);
+
+            endforeach;
+
+            $response['codeCmd'] = $codeTranfert;
+            $response['id'] = $cmd->id;
+
+
+            $cmd->StoryAction()->save($current_user, ['etape_action' => 'create_cmd', 'description' => 'Création de la commande "'.$cmd->reference.'"']);
+
+            $exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $data['caisse_id']], ['last', '=', 1]])->first();
+            $cmd->Sessions()->save($exist_session);
+
+            $this->cart->clear();
+            $this->cart->clearCartConditions();
+
+        else:
+
+            $response['error'] = 'Impossible d\'enregistrer la commande car certains produits de la commande ne sont plus disponible avec les quantités demandées.';
+
+        endif;
 
 	    return response()->json($response);
     }

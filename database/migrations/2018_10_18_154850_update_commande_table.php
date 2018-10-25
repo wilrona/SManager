@@ -15,7 +15,7 @@ class UpdateCommandeTable extends Migration
     {
         //
 	    Schema::table('commande', function (Blueprint $table) {
-		    $table->integer('a_la_livraison')->default(0); // 0 Commande normale; 1 commande a la livraison, 2 commande retrait en magasin
+		    $table->integer('a_la_livraison')->default(0); // 0 Commande normale, 1 commande a la livraison, 2 commande retrait en magasin
 	    });
     }
 

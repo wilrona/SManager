@@ -55,19 +55,25 @@
                                         </p>
                                         <ul class="main-options padding-15">
                                             <li>
-                                                <a href="{{ route('caisseManager.openReload', $caisse->id) }}" id="CaisseManager"> <span class="title"><i class="ti-shopping-cart"></i> Caisse Manager </span> </a>
+                                                <a href="{{ route('caisseManager.openReload', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-shopping-cart"></i> Caisse Manager </span> </a>
                                             </li>
                                             <li>
-                                                <a href="{{ route('caisseManager.receiveTransfertFond', $caisse->id) }}" id="ReceiveFond"> <span class="title"><i class="ti-credit-card"></i> Reception de fond</span>  @if($exist_receiveFond) <span class="badge pull-right " id="badge_receiveFond">{{ $exist_receiveFond }}</span> @endif </a>
+                                                <a href="{{ route('caisseManager.receiveTransfertFond', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-credit-card"></i> Reception de fond</span>  @if($exist_receiveFond) <span class="badge pull-right " id="badge_receiveFond">{{ $exist_receiveFond }}</span> @endif </a>
                                             </li>
                                             <li>
-                                                <a href="{{ route('caisseManager.indexTransfertFond', $caisse->id) }}" id="TransfertFond"> <span class="title"><i class="ti-folder"></i> Tranfert de fond </span>  </a>
+                                                <a href="{{ route('caisseManager.indexTransfertFond', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-folder"></i> Tranfert de fond </span>  </a>
                                             </li>
                                             <li>
-                                                <a href="{{ route('caisseManager.storyTransfertFond', $caisse->id) }}" id="StoryTransfertFond"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
+                                                <a href="{{ route('caisseManager.storyTransfertFond', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-receipt"></i> Historique </span>  </a>
                                             </li>
                                             <li>
-                                                <a href="{{ route('caisseManager.commandeUser', $caisse->id) }}" id="commandeUser"> <span class="title"><i class="ti-receipt"></i> Commande Effectuée </span>  </a>
+                                                <a href="{{ route('caisseManager.commandeUser', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-receipt"></i> Commande Effectuée </span>  </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('caisseManager.commandePayeLivraison', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-receipt"></i> Payée a la livraison </span>  </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('caisseManager.commandePayeMagasin', $caisse->id) }}" class="UrlCaisse"> <span class="title"><i class="ti-receipt"></i> Retrait en magasin </span>  </a>
                                             </li>
                                         </ul>
 
@@ -256,7 +262,7 @@
 
         });
 
-        $('#TransfertFond').on('click', function (e) {
+        $('.UrlCaisse').on('click', function (e) {
             e.preventDefault();
             var $url = $(this).attr('href');
 
@@ -269,48 +275,6 @@
                 }
             });
         });
-
-        $('#commandeUser').on('click', function (e) {
-            e.preventDefault();
-            var $url = $(this).attr('href');
-
-            $.ajax({
-                url: $url,
-                type: 'get',
-                success: function(data) {
-                    $('.caisseManager').html('');
-                    $('.panel-fond').html(data);
-                }
-            });
-        });
-
-        $('#ReceiveFond').on('click', function (e) {
-            e.preventDefault();
-            var $url = $(this).attr('href');
-
-            $.ajax({
-                url: $url,
-                type: 'get',
-                success: function(data) {
-                    $('.caisseManager').html('');
-                    $('.panel-fond').html(data);
-                }
-            });
-        });
-
-        $('#StoryTransfertFond').on('click', function (e) {
-            e.preventDefault();
-            var $url = $(this).attr('href');
-
-            $.ajax({
-                url: $url,
-                type: 'get',
-                success: function(data) {
-                    $('.caisseManager').html('');
-                    $('.panel-fond').html(data);
-                }
-            });
-        })
 
         $('#clotureCaisse').on('click', function(e){
             e.preventDefault();

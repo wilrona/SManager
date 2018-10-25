@@ -793,6 +793,8 @@ class CaisseManagerController extends Controller
 
 		$data = $request->all();
 
+		$current_user = Auth::user();
+
 		$response = array(
 			'data' => []
 		);
@@ -802,19 +804,22 @@ class CaisseManagerController extends Controller
 			$commandes = $this->commandeRepository->getWhere()->where(
 				[
 					['codeCmd', 'LIKE', '%' . strtoupper($data['q']) . '%'],
+					['point_de_vente_id', '=', $current_user->pos_id],
 					['etat', '=', 0]
 				]
 			)->get();
 
 			foreach ($commandes as $commande):
-				$cmd = [];
-				$cmd['id'] = $commande->id;
-				$cmd['reference'] = $commande->reference;
-				$cmd['client'] = $commande->client()->first()->display_name;
-				$cmd['total'] = number_format($commande->total, 0, '.', ' '). ' '.$commande->devise;
-				$cmd['date'] = $commande->created_at->format('d-m-Y H:i');
 
-				array_push($response['data'], $cmd);
+					$cmd = [];
+					$cmd['id'] = $commande->id;
+					$cmd['reference'] = $commande->reference;
+					$cmd['client'] = $commande->client()->first()->display_name;
+					$cmd['total'] = number_format($commande->total, 0, '.', ' '). ' '.$commande->devise;
+					$cmd['date'] = $commande->created_at->format('d-m-Y H:i');
+
+					array_push($response['data'], $cmd);
+
 			endforeach;
 
 		endif;
@@ -839,7 +844,8 @@ class CaisseManagerController extends Controller
 			'success' => '',
 			'error' => '',
 			'montant_encaisse' => 0,
-			'montant_caisse' => 0
+			'montant_caisse' => 0,
+			'a_la_livraison' => 0
 		);
 
 		$exist_session = $this->sessionRepository->getWhere()->where([['caisse_id', '=', $caisse_id], ['last', '=', 1]])->first();
@@ -871,6 +877,9 @@ class CaisseManagerController extends Controller
 
 			$response['success'] = 'Enregistrement de la commande réussi';
 
+			$response['a_la_livraison'] = $commande->a_la_livraison;
+
+
 		else:
 
 			$response['error'] = 'Enregistrement de la commande impossible';
@@ -892,5 +901,35 @@ class CaisseManagerController extends Controller
 		endif;
 
 		return response()->json($response);
+	}
+
+	public function commandePayeLivraison($caisse_id){
+
+		$currentUser = Auth::user();
+
+		$datas = $this->commandeRepository->getWhere()->where([
+			['point_de_vente_id', '=', $currentUser->pos_id],
+			['etat', '=', 0],
+			['a_la_livraison', '=', 1]
+
+		])->orderBy('created_at', 'desc')->get();
+
+		return view('caisseManager.commandePayeLivraison', compact('datas', 'caisse_id'));
+
+	}
+
+	public function commandePayeMagasin($caisse_id){
+
+		$currentUser = Auth::user();
+
+		$datas = $this->commandeRepository->getWhere()->where([
+			['point_de_vente_id', '=', $currentUser->pos_id],
+			['etat', '=', 0],
+			['a_la_livraison', '=', 2]
+
+		])->orderBy('created_at', 'desc')->get();
+
+		return view('caisseManager.commandePayeMagasin', compact('datas', 'caisse_id'));
+
 	}
 }

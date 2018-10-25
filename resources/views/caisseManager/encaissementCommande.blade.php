@@ -305,8 +305,10 @@ jQuery(document).ready(function() {
                         confirmButtonColor: "#d43f3a"
                     }, function () {
                         oTable_6.fnClearTable();
-                        $('#value_encaissement_effectue').html(data['montant_encaisse']);
-                        $('#value_montant_caisse').html(data['montant_caisse']);
+                        if(data['a_la_livraison'] === 0){
+                            $('#value_encaissement_effectue').html(data['montant_encaisse']);
+                            $('#value_montant_caisse').html(data['montant_caisse']);
+                        }
                         $('.modal-header .close').trigger('click');
                     });
 
