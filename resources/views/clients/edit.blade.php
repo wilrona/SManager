@@ -45,7 +45,6 @@
                         </div>
                         <div class="panel-body">
 
-
                             <div class="form-group {!! $errors->has('reference') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold text-capitalize"> Reférence : </label>
                                 {!! Form::text('reference', null, ['class' => 'form-control', 'disabled' => '']) !!}
@@ -94,6 +93,60 @@
                                 </span>
                                 ') !!}
                             </div>
+
+                            <div class="form-group {!! $errors->has('sexe') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold"> Sexe : </label>
+                                {!! Form::select('sexe', $sexe, null, ['class' => 'js-example-basic form-control input-lg', 'placeholder' => 'Selectionnez un sexe...']) !!}
+                                {!! $errors->first('sexe', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+                            <div class="form-group {!! $errors->has('nationalite') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold"> Nationalité : </label>
+                                {!! Form::select('nationalite', $nationalite, null, ['class' => 'js-example-basic form-control input-lg', 'placeholder' => 'Selectionnez une nationalité...']) !!}
+                                {!! $errors->first('nationalite', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
+                            <div class="form-group {!! $errors->has('profession') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Profession : </label>
+                                {!! Form::text('profession', null, ['class' => 'form-control', 'placeholder' => 'Entrer la profession']) !!}
+                                {!! $errors->first('profession', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
+                            <hr>
+
+                            <div class="form-group {!! $errors->has('noCNI') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Numero CNI (carte d'identité) : </label>
+                                {!! Form::text('noCNI', null, ['class' => 'form-control', 'placeholder' => 'Entrer le numero CNI']) !!}
+                                {!! $errors->first('noCNI', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
+                            <div class="form-group {!! $errors->has('dateCNI') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Date de délivrance CNI : </label>
+                                {!! Form::date('dateCNI', null, ['class' => 'form-control', 'placeholder' => 'Entrer la date de délivrance']) !!}
+                                {!! $errors->first('dateCNI', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
+                            <hr>
+
                             <div class="form-group {!! $errors->has('phone') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold text-capitalize"> Téléphone Principal: </label>
                                 {!! Form::number('phone', null, ['class' => 'form-control', 'placeholder' => 'Entrer le téléphone principal']) !!}
@@ -133,15 +186,26 @@
                                 </span>
                                 ') !!}
                             </div>
-                            <div class="form-group {!! $errors->has('ville') ? 'has-error' : '' !!}">
-                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Ville : </label>
-                                {!! Form::text('ville', null, ['class' => 'form-control', 'placeholder' => 'Entrer un ville']) !!}
-                                {!! $errors->first('ville', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                            <div class="form-group {!! $errors->has('ville_id') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold"> Ville du client : </label>
+                                {!! Form::select('ville_id', $villes, null, ['class' => 'js-example-basic form-control input-lg', 'placeholder' => 'Selectionnez une ville...']) !!}
+                                {!! $errors->first('ville_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                         :message
                                     </span>
                                 </span>
                                 ') !!}
                             </div>
+
+                            <div class="form-group {!! $errors->has('quartier') ? 'has-error' : '' !!}">
+                                <label for="exampleInputEmail1" class="text-bold text-capitalize"> Quartier : </label>
+                                {!! Form::text('quartier', null, ['class' => 'form-control', 'placeholder' => 'Entrer un ville']) !!}
+                                {!! $errors->first('quartier', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                        :message
+                                    </span>
+                                </span>
+                                ') !!}
+                            </div>
+
                             <div class="form-group {!! $errors->has('adresse') ? 'has-error' : '' !!}">
                                 <label for="exampleInputEmail1" class="text-bold text-capitalize"> Adresse Complete : </label>
                                 {!! Form::textarea('adresse', null, ['class' => 'form-control', 'placeholder' => 'Entrer une adresse']) !!}
@@ -163,5 +227,14 @@
 
 @section('footer')
     @parent
+
+    <script>
+        $(".js-example-basic").select2({
+//            dropdownParent: $("#myModal-vt"),
+            allowClear: true,
+            theme: "bootstrap",
+            language: "fr"
+        });
+    </script>
 
 @stop

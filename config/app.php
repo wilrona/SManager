@@ -183,7 +183,9 @@ return [
 	    Collective\Html\HtmlServiceProvider::class,
 	    Barryvdh\Debugbar\ServiceProvider::class,
 	    Maatwebsite\Excel\ExcelServiceProvider::class,
-	    Darryldecode\Cart\CartServiceProvider::class
+	    Darryldecode\Cart\CartServiceProvider::class,
+	    Laravel\Passport\PassportServiceProvider::class,
+	    Barryvdh\Cors\ServiceProvider::class,
 
     ],
 

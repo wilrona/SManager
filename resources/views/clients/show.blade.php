@@ -99,6 +99,60 @@
                                     </span>
                                     ') !!}
                                 </div>
+
+                                <div class="form-group {!! $errors->has('sexe') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold"> Sexe : </label>
+                                    {!! Form::select('sexe', $sexe, $data->sexe, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('sexe', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+                                <div class="form-group {!! $errors->has('nationalite') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold"> Nationalité : </label>
+                                    {!! Form::select('nationalite', $nationalite, $data->nationalite, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('nationalite', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+
+                                <div class="form-group {!! $errors->has('profession') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold text-capitalize"> Profession : </label>
+                                    {!! Form::text('profession', $data->profession, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('profession', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+
+                                <hr>
+
+                                <div class="form-group {!! $errors->has('noCNI') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold text-capitalize"> Numero CNI (carte d'identité) : </label>
+                                    {!! Form::text('noCNI', $data->noCNI, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('noCNI', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+
+                                <div class="form-group {!! $errors->has('dateCNI') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold text-capitalize"> Date de délivrance CNI : </label>
+                                    {!! Form::date('dateCNI', $data->dateCNI, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('dateCNI', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+
+                                <hr>
+
                                 <div class="form-group {!! $errors->has('phone') ? 'has-error' : '' !!}">
                                     <label for="exampleInputEmail1" class="text-bold text-capitalize"> Téléphone Principal: </label>
                                     {!! Form::number('phone', $data->phone, ['class' => 'form-control', 'disabled' => '']) !!}
@@ -135,10 +189,21 @@
                                     </span>
                                     ') !!}
                                 </div>
-                                <div class="form-group {!! $errors->has('ville') ? 'has-error' : '' !!}">
-                                    <label for="exampleInputEmail1" class="text-bold text-capitalize"> Ville : </label>
-                                    {!! Form::text('ville', $data->ville, ['class' => 'form-control', 'disabled' => '']) !!}
-                                    {!! $errors->first('ville', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+
+                                <div class="form-group {!! $errors->has('ville_id') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold"> Ville du client : </label>
+                                    {!! Form::select('ville_id', $villes, $data->ville_id, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('ville_id', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
+                                            :message
+                                        </span>
+                                    </span>
+                                    ') !!}
+                                </div>
+
+                                <div class="form-group {!! $errors->has('quartier') ? 'has-error' : '' !!}">
+                                    <label for="exampleInputEmail1" class="text-bold text-capitalize"> Quartier : </label>
+                                    {!! Form::text('quartier', $data->quartier, ['class' => 'form-control', 'disabled' => '']) !!}
+                                    {!! $errors->first('quartier', '<span class="help-block"> <i class="ti-alert text-primary"></i><span class="text-danger">
                                             :message
                                         </span>
                                     </span>

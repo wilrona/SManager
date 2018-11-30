@@ -7,6 +7,7 @@ use App\Library\CustomFunction;
 use App\Repositories\ClientRepository;
 use App\Repositories\FamilleRepository;
 use App\Repositories\ParametreRepository;
+use App\Repositories\RegionRepository;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
@@ -16,15 +17,17 @@ class ClientController extends Controller
 	protected $modelRepository;
 	protected $familleRepository;
 	protected $parametreRepository;
+	protected $regionRepository;
 
 	protected $custom;
 
 	public function __construct(ClientRepository $clientRepository, FamilleRepository $famille_repository,
-	ParametreRepository $parametre_repository)
+	ParametreRepository $parametre_repository, RegionRepository $region_repository)
 	{
 		$this->modelRepository = $clientRepository;
 		$this->familleRepository = $famille_repository;
 		$this->parametreRepository = $parametre_repository;
+		$this->regionRepository = $region_repository;
 
 		$this->custom = new CustomFunction();
 
@@ -70,6 +73,20 @@ class ClientController extends Controller
 			$familles[$famille->id] = $famille->name;
 		endforeach;
 
+		$villeData = $this->regionRepository->getWhere()->where('type', '=', 'ville')->orderby('libelle','asc')->get();
+		$villes = array();
+		foreach ($villeData as $ville):
+			$villes[$ville->id] = $ville->libelle;
+		endforeach;
+
+		$nationalite = array();
+		foreach ($this->custom->listNationalite as $nation):
+			$nationalite[$nation] = $nation;
+		endforeach;
+
+		$sexe = array();
+		$sexe['f'] = 'Feminin';
+		$sexe['m'] = 'Maxculin';
 
 		// Initialisation de la reference
 
@@ -89,7 +106,7 @@ class ClientController extends Controller
 		$count += $incref ? intval($incref->value) : 1;
 		$reference = $this->custom->setReference($coderef, $count, 4);
 
-		return view('clients.create', compact('familles', 'reference'));
+		return view('clients.create', compact('familles', 'reference', 'villes', 'nationalite', 'sexe'));
 	}
 
 	public function show($id){
@@ -102,10 +119,24 @@ class ClientController extends Controller
 			$familles[$famille->id] = $famille->name;
 		endforeach;
 
+		$villeData = $this->regionRepository->getWhere()->where('type', '=', 'ville')->orderby('libelle','asc')->get();
+		$villes = array();
+		foreach ($villeData as $ville):
+			$villes[$ville->id] = $ville->libelle;
+		endforeach;
+
+		$nationalite = array();
+		foreach ($this->custom->listNationalite as $nation):
+			$nationalite[$nation] = $nation;
+		endforeach;
+
+		$sexe = array();
+		$sexe['f'] = 'Feminin';
+		$sexe['m'] = 'Maxculin';
 
 		$data = $this->modelRepository->getById($id);
 
-		return view('clients.show',  compact('data', 'familles'));
+		return view('clients.show',  compact('data', 'familles', 'villes', 'nationalite', 'sexe'));
 	}
 
 	public function store(ClientRequest $request){
@@ -115,15 +146,16 @@ class ClientController extends Controller
 		$dateNaiss = $data['dateNais'];
 		$data['dateNais'] = date('Y-m-d', strtotime($dateNaiss));
 
+		$dateCNI = $data['dateCNI'];
+		$data['dateCNI'] = date('Y-m-d', strtotime($dateCNI));
+
 		$data['display_name'] = $data['nom'];
 		$data['display_name'] .= $data['prenom'] ? ' '.$data['prenom'] : '';
 
-		$c = new CustomFunction();
+		$ville = $this->regionRepository->getById($data['ville_id']);
+		$data['departement_id'] = $ville->parent_id;
 
-		if(empty($data['reference'])):
-			$reference = $c->setReference('Cl', [$data['nom'], $data['prenom']], 4, "numbers");
-			$data['reference'] = $reference;
-		endif;
+		$data['region_id'] = $ville->parent()->first()->parent_id;
 
 		$user = $this->modelRepository->store($data);
 
@@ -142,7 +174,22 @@ class ClientController extends Controller
 			$familles[$famille->id] = $famille->name;
 		endforeach;
 
-		return view('clients.edit',  compact('data', 'familles'));
+		$villeData = $this->regionRepository->getWhere()->where('type', '=', 'ville')->orderby('libelle','asc')->get();
+		$villes = array();
+		foreach ($villeData as $ville):
+			$villes[$ville->id] = $ville->libelle;
+		endforeach;
+
+		$nationalite = array();
+		foreach ($this->custom->listNationalite as $nation):
+			$nationalite[$nation] = $nation;
+		endforeach;
+
+		$sexe = array();
+		$sexe['f'] = 'Feminin';
+		$sexe['m'] = 'Maxculin';
+
+		return view('clients.edit',  compact('data', 'familles', 'villes', 'nationalite', 'sexe'));
 	}
 
 	public function update(ClientRequest $request, $id)
@@ -153,8 +200,16 @@ class ClientController extends Controller
 		$dateNaiss = $data['dateNais'];
 		$data['dateNais'] = date('Y-m-d', strtotime($dateNaiss));
 
+		$dateCNI = $data['dateCNI'];
+		$data['dateCNI'] = date('Y-m-d', strtotime($dateCNI));
+
 		$data['display_name'] = $data['nom'];
 		$data['display_name'] .= $data['prenom'] ? ' '.$data['prenom'] : '';
+
+		$ville = $this->regionRepository->getById($data['ville_id']);
+		$data['departement_id'] = $ville->parent_id;
+
+		$data['region_id'] = $ville->parent()->first()->parent_id;
 
 		$this->modelRepository->update($id, $data);
 

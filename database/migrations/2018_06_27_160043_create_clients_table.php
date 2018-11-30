@@ -18,14 +18,13 @@ class CreateClientsTable extends Migration
 	        $table->string('reference')->unique();
 	        $table->string('nom');
 	        $table->string('prenom')->nullable($value = true);
-	        $table->date('dateNais');
+	        $table->date('dateNais')->nullable($value = true);
 	        $table->string('display_name');
-	        $table->string('adresse');
+	        $table->string('adresse')->nullable($value = true);
 	        $table->string('phone');
-	        $table->string('ville');
 	        $table->string('email')->unique();
 
-	        $table->integer('famille_id')->unsigned();
+	        $table->integer('famille_id')->nullable($value = true)->unsigned();
 	        $table->foreign('famille_id')->references('id')->on('familles');
 
 	        $table->integer('contact_id')->nullable($value = true)->unsigned();

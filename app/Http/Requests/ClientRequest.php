@@ -30,9 +30,15 @@ class ClientRequest extends FormRequest
 			    'nom' => 'required',
 			    'dateNais' => 'required',
 			    'email' => 'required|unique:clients,email,'.$request->id,
-			    'ville' => 'required',
-			    'famille_id' => 'required',
+//			    'famille_id' => 'required',
+			    'ville_id' => 'required',
+			    'quartier' => 'required',
 			    'phone' => 'required',
+			    'sexe' => 'required',
+			    'nationalite' => 'required',
+			    'profession' => 'required',
+			    'dateCNI' => 'required',
+			    'noCNI' => 'required',
 
 		    ];
 	    else:
@@ -40,9 +46,15 @@ class ClientRequest extends FormRequest
 			    'nom' => 'required',
 			    'dateNais' => 'required',
 			    'email' => 'required|unique:clients',
-			    'ville' => 'required',
-			    'famille_id' => 'required',
+//			    'famille_id' => 'required',
+			    'ville_id' => 'required',
+			    'quartier' => 'required',
 			    'phone' => 'required',
+			    'sexe' => 'required',
+			    'nationalite' => 'required',
+			    'profession' => 'required',
+			    'dateCNI' => 'required',
+			    'noCNI' => 'required',
 		    ];
 	    endif;
 
@@ -60,8 +72,15 @@ class ClientRequest extends FormRequest
     public function messages() {
 	    return [
 			'dateNais.required' => 'Le champ date de naissance est obligatoire',
-			'famille_id.required' => 'Le champ de la famille de client est obligatoire',
+//			'famille_id.required' => 'Le champ de la famille de client est obligatoire',
 			'phone.required' => 'Le champ téléphone principal est obligatoire',
+		    'ville_id.required' => 'Le champ ville est obligatoire',
+		    'quartier.required' => 'Le champ quartier est obligatoire',
+		    'sexe.required' => 'Le champ sexe est obligatoire',
+		    'nationalite.required' => 'Le champ nationalité est obligatoire',
+		    'profession.required' => 'Le champ profession est obligatoire',
+		    'noCNI.required' => 'Le champ numero de CNI est obligatoire',
+		    'dateCNI.required' => 'Le champ date de delivrance est obligatoire',
 
 	    ];
     }

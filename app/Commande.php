@@ -32,6 +32,10 @@ class Commande extends Model
 		return $this->belongsToMany('App\Session', 'commande_session', 'commande_id', 'session_id')->withTimestamps();
 	}
 
+	public function Ville(){
+		return $this->belongsTo('App\Region', 'ville_id', 'id');
+	}
+
 	public function StoryAction(){
 		return $this->belongsToMany('App\User', 'story_action', 'commande_id', 'user_id')->withPivot('etape_action', 'description')->withTimestamps();
 	}
